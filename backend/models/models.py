@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, Float, DateTime
+from sqlalchemy import Column, Integer, String,ForeignKey, Date, Float, Datetime
 
 class Goals(Base):
   __tablename__ = "goals"
@@ -15,14 +15,14 @@ class Goals(Base):
   weekends_available_hours = Column(Float(5, False, 3))
   total_estimated_time = Column(Float())
   task_creation_rule = Column(String)
-  created_at = Column(DateTime)
+  created_at = Column(Datetime)
 
 class GoalsTasks(Base):
-  __tablename__ = "goals_tasks"
+  __tablename__ = "goals-tasks"
 
-  goal_task_id = Column(Integer, ForeignKey("goals.goal_id"),primary_key=True)
+  goal_task_id = Column(Integer,ForeignKey("goals.goal_id"))
   goal_task_name = Column(String)
   goal_task_status = Column(String)
   deadline = Column(Date)
   estimated_time = Column(Float(5, False, 3))
-  created_at = Column(DateTime)
+  created_at = Column(Datetime)
