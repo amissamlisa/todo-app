@@ -1,4 +1,3 @@
-from database import Base
 from sqlalchemy import String, ForeignKey, Date, Float, DateTime, Enum
 import enum
 from sqlalchemy.orm import DeclarativeBase
