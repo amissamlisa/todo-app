@@ -1,10 +1,11 @@
-from sqlalchemy import String, ForeignKey, Date, Float, DateTime, Enum
+from sqlalchemy import String, ForeignKey, Date, DateTime, Enum, Numeric
 import enum
+from decimal import Decimal 
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 
-PRECISION, ASDECIMAL, SCALE = 4, False, 1
+PRECISION, SCALE = 4, 1
 
 class GoalsTasksStatusEnum(enum.Enum):
   Todo = "未着手"
@@ -27,9 +28,9 @@ class Goals(Base):
   start_day: Mapped[Date] = mapped_column(Date, nullable=False)
   completion_date: Mapped[Date] = mapped_column(Date, nullable=False)
   status_against_goal: Mapped[str] = mapped_column(String(200), nullable=False)
-  weekday_available_hours: Mapped[float] = mapped_column(Float(PRECISION, ASDECIMAL, SCALE), nullable=False)
-  weekends_available_hours: Mapped[float] = mapped_column(Float(PRECISION, ASDECIMAL, SCALE), nullable=False)
-  total_estimated_time: Mapped[float] = mapped_column(Float(PRECISION, ASDECIMAL, SCALE), nullable=False)
+  weekday_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
+  weekends_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
+  total_estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   task_creation_rule: Mapped[str | None] = mapped_column(String(800))
   created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
 
@@ -41,5 +42,5 @@ class GoalsTasks(Base):
   goal_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
   goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
-  estimated_time = mapped_column(Float(PRECISION, ASDECIMAL, SCALE), nullable=False)
+  estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
