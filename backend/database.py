@@ -3,10 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-#.envファイルから環境変数を読み込む
+# .envファイルから環境変数を読み込む
 load_dotenv()
 
-#データベースURLを取得
+# データベースURLを取得
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
 if SQLALCHEMY_DATABASE_URL is None:
@@ -15,7 +15,7 @@ if SQLALCHEMY_DATABASE_URL is None:
         "SQLALCHEMY_DATABASE_URL=your_database_url_here"
     )
 
-#SQLAlchemyのエンジンを作成
+# SQLAlchemyのエンジンを作成
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     pool_size=10,            # Number of connections to keep in the pool
@@ -26,7 +26,7 @@ engine = create_engine(
     echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true"  # Debug logging
     )
 
-#セッションクラスを作成
+# セッションクラスを作成
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
