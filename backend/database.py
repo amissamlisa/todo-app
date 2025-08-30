@@ -16,7 +16,15 @@ if SQLALCHEMY_DATABASE_URL is None:
     )
 
 #SQLAlchemyのエンジンを作成
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_size=10,            # Number of connections to keep in the pool
+    max_overflow=20,         # Number of connections to allow in overflow
+    pool_timeout=30,         # Seconds to wait before giving up on getting a connection
+    pool_recycle=1800,       # Recycle connections after 30 minutes
+    pool_pre_ping=True,      # Check connections before using
+    echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true"  # Debug logging
+    )
 
 #セッションクラスを作成
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
