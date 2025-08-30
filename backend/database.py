@@ -9,6 +9,9 @@ load_dotenv()
 #データベースURLを取得
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
+if SQLALCHEMY_DATABASE_URL is None:
+    raise RuntimeError("Environment variable 'SQLALCHEMY_DATABASE_URL' is not set.")
+
 #SQLAlchemyのエンジンを作成
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
@@ -16,8 +19,8 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
