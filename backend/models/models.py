@@ -25,7 +25,7 @@ class Goals(Base):
 
   goal_id: Mapped[int] = mapped_column(primary_key=True)
   goal_name: Mapped[str] = mapped_column(String(50), nullable=False)
-  status: Mapped[GoalsStatusEnum] = mapped_column(Enum(GoalsStatusEnum), default="未達成", nullable=False)
+  status: Mapped[GoalsStatusEnum] = mapped_column(Enum(GoalsStatusEnum), default=GoalsStatusEnum.Unachieved, nullable=False)
   start_day: Mapped[Date] = mapped_column(Date, nullable=False)
   completion_date: Mapped[Date] = mapped_column(Date, nullable=False)
   status_against_goal: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -33,7 +33,7 @@ class Goals(Base):
   weekends_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   total_estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   task_creation_rule: Mapped[str | None] = mapped_column(String(800))
-  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.datetime.now(), nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now, nullable=False)
 
 class GoalsTasks(Base):
   __tablename__ = "goals_tasks"
@@ -41,7 +41,7 @@ class GoalsTasks(Base):
   goal_task_id: Mapped[int] = mapped_column(primary_key=True)
   goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
   goal_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
-  goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default="未達成", nullable=False)
+  goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default=GoalsTasksStatusEnum.Todo, nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
   estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
-  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.datetime.now(), nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now, nullable=False)
