@@ -1,6 +1,6 @@
 from sqlalchemy import String, ForeignKey, Date, DateTime, Enum, Numeric
 import enum
-from datetime import datetime
+from sqlalchemy.sql import func
 from decimal import Decimal 
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapped_column
@@ -33,7 +33,7 @@ class Goals(Base):
   weekends_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   total_estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   task_creation_rule: Mapped[str | None] = mapped_column(String(800))
-  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
 
 class GoalsTasks(Base):
   __tablename__ = "goals_tasks"
@@ -44,4 +44,4 @@ class GoalsTasks(Base):
   goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default=GoalsTasksStatusEnum.Todo, nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
   estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
-  created_at: Mapped[DateTime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
