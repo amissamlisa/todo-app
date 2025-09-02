@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, datetime
+from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
+import datetime
 
 class GoalsTasksStatus(Enum):
   Todo = "未着手"
@@ -20,4 +21,4 @@ class GoalsTasksOut(BaseModel):
   goal_name: str = Field(max_length=50)
   deadline: datetime.date
   estimated_time: float
-  status: GoalsTasksStatus = "未着手"
+  status: GoalsTasksStatus = GoalsTasksStatus.Todo
