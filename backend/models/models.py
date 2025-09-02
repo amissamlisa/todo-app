@@ -27,7 +27,7 @@ class Goals(Base):
   goal_name: Mapped[str] = mapped_column(String(50), nullable=False)
   status: Mapped[GoalsStatusEnum] = mapped_column(Enum(GoalsStatusEnum), default=GoalsStatusEnum.Unachieved, nullable=False)
   start_day: Mapped[Date] = mapped_column(Date, nullable=False)
-  completion_date: Mapped[Date] = mapped_column(Date, nullable=False)
+  target_day: Mapped[Date] = mapped_column(Date, nullable=False)
   status_against_goal: Mapped[str] = mapped_column(String(200), nullable=False)
   weekday_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   weekends_available_hours: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
