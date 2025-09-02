@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, model_validator
 from typing import Optional
 from enum import Enum
 import datetime
+from decimal import Decimal
 
 class GoalsTasksStatus(Enum):
   Todo = "未着手"
@@ -13,8 +14,8 @@ class GoalsTasksRequest(BaseModel):
   status_against_goal: str = Field(max_length=200)
   start_date: datetime.date
   target_date: datetime.date
-  weekday_available_hours: float
-  weekends_available_hours: float
+  weekday_available_hours: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
+  weekends_available_hours: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
   task_creation_rule: Optional[str] = Field(max_length=800)
 
   @model_validator(mode="after")
@@ -26,5 +27,5 @@ class GoalsTasksRequest(BaseModel):
 class GoalsTasksOut(BaseModel):
   goal_name: str = Field(max_length=50)
   deadline: datetime.date
-  estimated_time: float
+  estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
   status: GoalsTasksStatus = GoalsTasksStatus.Todo
