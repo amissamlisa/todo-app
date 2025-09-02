@@ -19,7 +19,7 @@ class GoalsTasksRequest(BaseModel):
 
   @model_validator(mode="after")
   def check_dates(self):
-    if self.target_date is not None and self.start_date >= self.target_date:
+    if self.start_date >= self.target_date:
       raise ValueError("target_dateはstart_dateよりも後でなければならない")
     return self
 
