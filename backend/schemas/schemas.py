@@ -3,6 +3,7 @@ from typing import Optional
 from enum import Enum
 import datetime
 from decimal import Decimal
+from typing import List
 
 class GoalsTasksStatus(Enum):
   Todo = "未着手"
@@ -29,3 +30,6 @@ class GoalsTasksOut(BaseModel):
   deadline: datetime.date
   estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
   status: GoalsTasksStatus = GoalsTasksStatus.Todo
+
+class GoalsTasksListOut(BaseModel):
+  goal_task: List[GoalsTasksOut]
