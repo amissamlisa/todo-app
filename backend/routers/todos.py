@@ -24,8 +24,8 @@ def goal_tasks_confirmation():
 def get_tasks():
     return []
 
-@router.post("/goal-tasks-preview")
-def generate_chat_reply(goalTasksRequest: GoalsTasksRequest,status_code=status.HTTP_201_CREATED):
+@router.post("/goal-tasks-preview",status_code=status.HTTP_201_CREATED)
+def generate_chat_reply(goalTasksRequest: GoalsTasksRequest):
     goal = Goals(**goalTasksRequest.model_dump())
     print(goal)
     try:
