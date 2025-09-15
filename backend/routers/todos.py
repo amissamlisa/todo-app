@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from ..database import get_db
 from sqlalchemy.orm import Session
-from schemas import GoalsTasksRequest, GoalsTasksOut
-from ..models import Goals
+from ..schemas.schemas import GoalsTasksRequest, GoalsTasksOut
+from ..models.models import Goals
 from openai import OpenAI
 import os
 import json

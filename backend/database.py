@@ -12,7 +12,7 @@ SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 if SQLALCHEMY_DATABASE_URL is None:
     raise RuntimeError( "Environment variable 'SQLALCHEMY_DATABASE_URL' is not set.\n"
         "Please set this variable in your environment or create a .env file in the project root with a line like:\n"
-        "SQLALCHEMY_DATABASE_URL=your_database_url_here"
+        "SQLALCHEMY_DATABASE_URL=SQLALCHEMY_DATABASE_URL"
     )
 
 # SQLAlchemyのエンジンを作成

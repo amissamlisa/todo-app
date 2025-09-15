@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ..models import Goals, GoalsTasks
+from ..models.models import Goals, GoalsTasks
 from typing import List
 from fastapi import HTTPException
 
