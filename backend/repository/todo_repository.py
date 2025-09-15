@@ -15,6 +15,7 @@ class GoalTaskRepository:
             db.add(task_instance)
             db.flush()
             db.refresh(task_instance)
+         db.commit()
          return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
       except Exception as e:
          raise HTTPException(status_code=500, detail=str(e))

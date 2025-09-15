@@ -6,7 +6,7 @@ from ..models import Goals
 from openai import OpenAI
 import os
 import json
-from ..repository.todo_repository import registerGoalAndGoalTasks
+from ..repository.todo_repository import GoalTaskRepository
 
 router = APIRouter(
     prefix="/todos",
@@ -89,10 +89,11 @@ def generate_chat_reply(goalTasksRequest: GoalsTasksRequest):
 
 @router.post("/goal-tasks",status_code=status.HTTP_201_CREATED)
 def save_goal_tasks(goalTasksRequest: GoalsTasksRequest,db: Session = Depends(get_db)):
+    goal_task_repository = GoalTaskRepository()
     result = generate_chat_reply(goalTasksRequest)
     goal = result.get('goal')
     goal_tasks = result.get('tasks')
     if goal is None or goal_tasks is None:
         raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
-    response = registerGoalAndGoalTasks(db, goal, goal_tasks)
+    response = goal_task_repository.registerGoalAndGoalTasks.registerGoalAndGoalTasks(db, goal, goal_tasks)
     return response
