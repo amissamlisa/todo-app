@@ -80,7 +80,7 @@ def generate_chat_reply(goalTasksRequest: GoalsTasksRequest,status_code=status.H
         goal_tasks = []
         for task in tasks_json["tasks"]:
             goal_tasks.append(GoalsTasksOut(**task))
-        return {"tasks": tasks_json["tasks"]}
+        return {"goal": goal, "tasks": tasks_json["tasks"]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -89,7 +89,9 @@ def generate_chat_reply(goalTasksRequest: GoalsTasksRequest,status_code=status.H
 
 @router.post("/goal-tasks",status_code=status.HTTP_201_CREATED)
 def save_goal_tasks(goalTasksRequest: GoalsTasksRequest,db: Session = Depends(get_db)):
-    goal, goal_tasks = generate_chat_reply(goalTasksRequest)
+    result = generate_chat_reply(goalTasksRequest)
+    goal = result.get('goal')
+    goal_tasks = result.get('tasks')
     if goal is None or goal_tasks is None:
         raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
     response = registerGoalAndGoalTasks(db, goal, goal_tasks)
