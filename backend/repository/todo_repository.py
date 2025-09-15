@@ -11,7 +11,7 @@ class GoalTaskRepository:
          db.refresh(goal)
 
          for task in goal_tasks_list:
-            task_instance = GoalsTasks(task)
+            task_instance = GoalsTasks(**task)
             db.add(task_instance)
             db.flush()
             db.refresh(task_instance)
