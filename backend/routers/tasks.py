@@ -6,7 +6,7 @@ from ..models.models import Goals, GoalsTasks
 from openai import OpenAI
 import os
 import json
-from ..repository.todo_repository import GoalTaskRepository
+from ..repository.tasks_repository import GoalTaskRepository
 
 router = APIRouter(
     prefix="/todos",
