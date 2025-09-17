@@ -84,8 +84,9 @@ def generate_chat_reply(goal: Goals):
         raise e
 
 @router.post("/goal-tasks-preview",status_code=status.HTTP_201_CREATED)
-def preview_goal_tasks(goalTaskRequest: GoalsTasksRequest):
-    goal = Goals(**goalTaskRequest.model_dump())
+def preview_goal_tasks(goalRequest,goalTasksRequest: GoalsTasksRequest):
+    validatedGoal = goalTasksRequest(**goalRequest.model_dump())
+    goal = Goals(**validatedGoal.model_dump())
     try:
         goal, goal_tasks = generate_chat_reply(goal)
         return {"goal": goal, "tasks": goal_tasks["tasks"]}
@@ -94,14 +95,18 @@ def preview_goal_tasks(goalTaskRequest: GoalsTasksRequest):
 
 
 @router.post("/goal-tasks",status_code=status.HTTP_201_CREATED)
-def save_goal_tasks(goalTaskRequest: GoalsTasksRequest, goalsTasksListOut: GoalsTasksOut, db: Session = Depends(get_db)):
+def save_goal_tasks(goal_task_list, goalTaskRequest: GoalsTasksRequest, db: Session = Depends(get_db)):
     goal_task_repository = GoalTaskRepository()
     goal = Goals(**goalTaskRequest.model_dump())
-    goal_tasks = GoalsTasks(**goalsTasksListOut.model_dump())
-    if goal is None or goal_tasks is None:
-        raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
-    try:
-        goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_tasks)
-        return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    for goal_task in goal_task_list:
+        validatedGoalTask = GoalsTasksOut(**goal_task)
+        goal_task = GoalsTasks(**validatedGoalTask.model_dump())
+        
+        if goal is None or goal_task is None:
+            raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
+        else:
+            try:
+                goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_task)
+                return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
