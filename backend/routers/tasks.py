@@ -104,7 +104,7 @@ def save_goal_tasks(goal_task_list: GoalsTasksListOut, goalTaskRequest: GoalsTas
             raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
         else:
             try:
-                goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_task)
-                return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
+                goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_task_item)
             except Exception as e:
                 raise HTTPException(status_code=500, detail=str(e))
+    return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}

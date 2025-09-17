@@ -4,17 +4,15 @@ from typing import List
 from fastapi import HTTPException
 
 class GoalTaskRepository:
-   def registerGoalAndGoalTasks(self, db: Session, goal: Goals, goal_tasks_list: List):
+   def registerGoalAndGoalTasks(self, db: Session, goal: Goals, goal_task: GoalsTasks):
       try:
          db.add(goal)
          db.flush()
          db.refresh(goal)
 
-         for task in goal_tasks_list:
-            task_instance = GoalsTasks(**task)
-            db.add(task_instance)
-            db.flush()
-            db.refresh(task_instance)
+         db.add(goal_task)
+         db.flush()
+         db.refresh(goal_task)
          db.commit()
       except Exception as e:
          raise e
