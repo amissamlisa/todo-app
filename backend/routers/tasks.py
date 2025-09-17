@@ -48,7 +48,7 @@ def generate_chat_reply(goal: Goals):
 
 
             出力形式（JSON）
-            - tasks: タスク一覧（優先度の高い順に並べる）
+            - goal_tasks: タスク一覧（優先度の高い順に並べる）
             - goal_task_name: 50字以内のタスク名
             - deadline: date型 (YYYY-MM-DD)
             - estimated_time: 実行時間（0.5〜3.0h）
@@ -76,7 +76,7 @@ def generate_chat_reply(goal: Goals):
         )
         tasks_json = json.loads(response.output_text)
         goal_tasks = []
-        for task in tasks_json["tasks"]:
+        for task in tasks_json["goal_tasks"]:
             goal_tasks.append(GoalsTasksOut(**task))
         return goal, goal_tasks
 
@@ -97,10 +97,10 @@ def preview_goal_tasks(goalTasksRequest: GoalsTasksRequest):
 def save_goal_tasks(goal_task_list: GoalsTasksListOut, goalTaskRequest: GoalsTasksRequest, db: Session = Depends(get_db)):
     goal_task_repository = GoalTaskRepository()
     goal = Goals(**goalTaskRequest.model_dump())
-    for goal_tasks in goal_task_list.goal_tasks:
-        goal_task = GoalsTasks(**goal_tasks.model_dump())
+    for goal_task in goal_task_list.goal_tasks:
+        goal_task_item = GoalsTasks(**goal_task.model_dump())
         
-        if goal is None or goal_task is None:
+        if goal is None or goal_task_item is None:
             raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
         else:
             try:
