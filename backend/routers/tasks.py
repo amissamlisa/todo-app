@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from ..database import get_db
 from sqlalchemy.orm import Session
-from ..schemas.schemas import GoalsTasksRequest, GoalsTasksOut
+from ..schemas.schemas import GoalsTasksRequest, GoalsTasksOut, GoalsTasksListOut
 from ..models.models import Goals, GoalsTasks
 from openai import OpenAI
 import os
@@ -55,7 +55,7 @@ def generate_chat_reply(goal: Goals):
 
             出力例
             {
-                "tasks": [
+                "goal_tasks": [
                     {
                     "goal_task_name": "基本情報技術者試験の動画視聴をする",
                     "deadline": "2025-09-10",
@@ -84,23 +84,21 @@ def generate_chat_reply(goal: Goals):
         raise e
 
 @router.post("/goal-tasks-preview",status_code=status.HTTP_201_CREATED)
-def preview_goal_tasks(goalRequest,goalTasksRequest: GoalsTasksRequest):
-    validatedGoal = goalTasksRequest(**goalRequest.model_dump())
-    goal = Goals(**validatedGoal.model_dump())
+def preview_goal_tasks(goalTasksRequest: GoalsTasksRequest):
+    goal = Goals(**goalTasksRequest.model_dump())
     try:
-        goal, goal_tasks = generate_chat_reply(goal)
-        return {"goal": goal, "tasks": goal_tasks["tasks"]}
+        goal, goal_task_list = generate_chat_reply(goal)
+        return {"goal": goal, "tasks": goal_task_list.goal_tasks}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/goal-tasks",status_code=status.HTTP_201_CREATED)
-def save_goal_tasks(goal_task_list, goalTaskRequest: GoalsTasksRequest, db: Session = Depends(get_db)):
+def save_goal_tasks(goal_task_list: GoalsTasksListOut, goalTaskRequest: GoalsTasksRequest, db: Session = Depends(get_db)):
     goal_task_repository = GoalTaskRepository()
     goal = Goals(**goalTaskRequest.model_dump())
-    for goal_task in goal_task_list:
-        validatedGoalTask = GoalsTasksOut(**goal_task)
-        goal_task = GoalsTasks(**validatedGoalTask.model_dump())
+    for goal_tasks in goal_task_list.goal_tasks:
+        goal_task = GoalsTasks(**goal_tasks.model_dump())
         
         if goal is None or goal_task is None:
             raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
