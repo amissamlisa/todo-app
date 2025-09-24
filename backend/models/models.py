@@ -52,4 +52,5 @@ class DailyTasks(Base):
   daily_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
   goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default=GoalsTasksStatusEnum.Todo, nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
+  estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
