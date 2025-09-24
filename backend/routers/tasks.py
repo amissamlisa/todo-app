@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from ..database import get_db
 from sqlalchemy.orm import Session
-from ..schemas.schemas import GoalsTasksRequest, GoalsTasksOut
+from ..schemas.schemas import GoalsTasksRequest, GoalsTasksOut, GoalsTasksListOut
 from ..models.models import Goals, GoalsTasks
 from openai import OpenAI
 import os
@@ -48,14 +48,14 @@ def generate_chat_reply(goal: Goals):
 
 
             出力形式（JSON）
-            - tasks: タスク一覧（優先度の高い順に並べる）
+            - goal_tasks: タスク一覧（優先度の高い順に並べる）
             - goal_task_name: 50字以内のタスク名
             - deadline: date型 (YYYY-MM-DD)
             - estimated_time: 実行時間（0.5〜3.0h）
 
             出力例
             {
-                "tasks": [
+                "goal_tasks": [
                     {
                     "goal_task_name": "基本情報技術者試験の動画視聴をする",
                     "deadline": "2025-09-10",
@@ -76,7 +76,7 @@ def generate_chat_reply(goal: Goals):
         )
         tasks_json = json.loads(response.output_text)
         goal_tasks = []
-        for task in tasks_json["tasks"]:
+        for task in tasks_json["goal_tasks"]:
             goal_tasks.append(GoalsTasksOut(**task))
         return goal, goal_tasks
 
@@ -84,24 +84,27 @@ def generate_chat_reply(goal: Goals):
         raise e
 
 @router.post("/goal-tasks-preview",status_code=status.HTTP_201_CREATED)
-def preview_goal_tasks(goalTaskRequest: GoalsTasksRequest):
-    goal = Goals(**goalTaskRequest.model_dump())
+def preview_goal_tasks(goalTasksRequest: GoalsTasksRequest):
+    goal = Goals(**goalTasksRequest.model_dump())
     try:
-        goal, goal_tasks = generate_chat_reply(goal)
-        return {"goal": goal, "tasks": goal_tasks["tasks"]}
+        goal, goal_task_list = generate_chat_reply(goal)
+        return {"goal": goal, "tasks": goal_task_list.goal_tasks}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/goal-tasks",status_code=status.HTTP_201_CREATED)
-def save_goal_tasks(goalTaskRequest: GoalsTasksRequest, goalsTasksListOut: GoalsTasksOut, db: Session = Depends(get_db)):
+def save_goal_tasks(goal_task_list: GoalsTasksListOut, goalTaskRequest: GoalsTasksRequest, db: Session = Depends(get_db)):
     goal_task_repository = GoalTaskRepository()
     goal = Goals(**goalTaskRequest.model_dump())
-    goal_tasks = GoalsTasks(**goalsTasksListOut.model_dump())
-    if goal is None or goal_tasks is None:
-        raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
-    try:
-        goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_tasks)
-        return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    for goal_task in goal_task_list.goal_tasks:
+        goal_task_item = GoalsTasks(**goal_task.model_dump())
+        
+        if goal is None or goal_task_item is None:
+            raise HTTPException(status_code=500, detail="達成目標と目標達成タスクが設定されていません")
+        else:
+            try:
+                goal_task_repository.registerGoalAndGoalTasks(db, goal, goal_task_item)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+    return {"status":"ok", "message": "達成目標と目標達成タスクが保存されました"}
