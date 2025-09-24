@@ -31,5 +31,10 @@ class GoalsTasksOut(BaseModel):
   estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
   status: GoalsTasksStatus = GoalsTasksStatus.Todo
 
+class DailyTasksRequest(BaseModel):
+  daily_task_name: str = Field(max_length=50)
+  deadline: datetime.date
+  estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
+
 class GoalsTasksListOut(BaseModel):
   goal_task: List[GoalsTasksOut]
