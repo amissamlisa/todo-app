@@ -22,6 +22,8 @@ class GoalTaskRepository:
 
 class DailyTaskRepository:
    def registerDailyTask(self, db: Session, daily_task: DailyTasks):
+      def __init__(self):
+         pass
       try:
          db.add(daily_task)
          db.flush()
