@@ -23,6 +23,7 @@ class DailyTaskRepository:
          db.add(daily_task)
          db.flush()
          db.refresh(daily_task)
+         db.commit()
 
       except Exception as e:
          raise e
