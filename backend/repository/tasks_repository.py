@@ -4,6 +4,9 @@ from typing import List
 from fastapi import HTTPException
 
 class GoalTaskRepository:
+   def __init__(self):
+      pass  
+
    def registerGoalAndGoalTasks(self, db: Session, goal: Goals, goal_task: GoalsTasks):
       try:
          db.add(goal)
