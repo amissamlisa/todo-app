@@ -19,6 +19,9 @@ def goal_tasks_registration():
 @router.get("/goal-tasks-confirmation")
 def goal_tasks_confirmation():
     return {"message": "Goal tasks confirmationはまだ実装されていない"}
+@router.get("/goal-task-re-creation-confirmation")
+def goal_tasks_confirmation():
+    return {"message": "goal-task-re-creation-confirmationはまだ実装されていない"}
 
 @router.get("/tasks")
 def get_tasks():
