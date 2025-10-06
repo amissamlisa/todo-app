@@ -58,10 +58,10 @@ class DailyTasks(Base):
 class Users(Base):
   __tablename__ = "users"
   user_id: Mapped[int] = mapped_column(primary_key=True)
-  goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
-  daily_task_id: Mapped[int] = mapped_column(ForeignKey("daily_tasks.daily_task_id"))
+  goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=True)
+  daily_task_id: Mapped[int] = mapped_column(ForeignKey("daily_tasks.daily_task_id"), nullable=True)
   user_name: Mapped[str] = mapped_column(String(50), nullable=False)
   password: Mapped[str] = mapped_column(unique=True, nullable=False)
   email: Mapped[str] = mapped_column(unique=True, nullable=False)
-  user_points: Mapped[int] = mapped_column(nullable=False)
+  user_points: Mapped[int] = mapped_column(nullable=True)
   created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
