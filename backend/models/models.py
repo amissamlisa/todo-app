@@ -54,3 +54,14 @@ class DailyTasks(Base):
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
   estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+
+class Users(Base):
+  __tablename__ = "users"
+  user_id: Mapped[int] = mapped_column(primary_key=True)
+  goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
+  daily_task_id: Mapped[int] = mapped_column(ForeignKey("daily_tasks.daily_task_id"))
+  user_name: Mapped[str] = mapped_column(String(50), nullable=False)
+  password: Mapped[str] = mapped_column(unique=True, nullable=False)
+  email: Mapped[str] = mapped_column(unique=True, nullable=False)
+  user_points: Mapped[int] = mapped_column(nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
