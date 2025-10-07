@@ -36,5 +36,12 @@ class DailyTasksRequest(BaseModel):
   deadline: datetime.date
   estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
 
+class UserRequest(BaseModel):
+  user_name: str = Field(min_length=50)
+  password: str = Field(min_length=10)
+  confirmation_password: str = Field(min_length=10)
+  email: str = Field(max_length=254)
+
+
 class GoalsTasksListOut(BaseModel):
   goal_task: List[GoalsTasksOut]
