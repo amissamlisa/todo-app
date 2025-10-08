@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Session
-from ..models.models import Goals, GoalsTasks, DailyTasks
-from typing import List
-from fastapi import HTTPException
+from ..models.models import Goals, GoalsTasks, DailyTasks, Users
 
 class GoalTaskRepository:
    def __init__(self):
@@ -28,6 +26,19 @@ class DailyTaskRepository:
          db.add(daily_task)
          db.flush()
          db.refresh(daily_task)
+         db.commit()
+
+      except Exception as e:
+         raise e
+
+class UserRepository:
+   def registerUser(self, db: Session, user: Users):
+      def __init__(self):
+         pass
+      try:
+         db.add(user)
+         db.flush()
+         db.refresh(user)
          db.commit()
 
       except Exception as e:
