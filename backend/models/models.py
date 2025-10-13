@@ -49,8 +49,20 @@ class GoalsTasks(Base):
 class DailyTasks(Base):
   __tablename__ = "daily_tasks"
   daily_task_id: Mapped[int] = mapped_column(primary_key=True)
+  user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
   daily_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
   goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default=GoalsTasksStatusEnum.Todo, nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
   estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
+  created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+
+class Users(Base):
+  __tablename__ = "users"
+  user_id: Mapped[int] = mapped_column(primary_key=True)
+  goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=True)
+  daily_task_id: Mapped[int] = mapped_column(ForeignKey("daily_tasks.daily_task_id"), nullable=True)
+  user_name: Mapped[str] = mapped_column(String(50), nullable=False)
+  password: Mapped[str] = mapped_column(nullable=False)
+  email: Mapped[str] = mapped_column(unique=True, nullable=False)
+  user_points: Mapped[int] = mapped_column(nullable=True)
   created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
