@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import daily_tasks, goal_tasks,auth
+from .routers import daily_tasks, goal_tasks, auth
 
 app = FastAPI()
 
