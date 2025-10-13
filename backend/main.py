@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import tasks
+from .routers import daily_tasks, goal_tasks
 
 app = FastAPI()
 
@@ -8,4 +8,5 @@ def read_root():
     return {"hello": "world"}
 
 
-app.include_router(tasks.router)
+app.include_router(daily_tasks.router)
+app.include_router(goal_tasks.router)
