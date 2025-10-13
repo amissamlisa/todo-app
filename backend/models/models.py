@@ -49,6 +49,7 @@ class GoalsTasks(Base):
 class DailyTasks(Base):
   __tablename__ = "daily_tasks"
   daily_task_id: Mapped[int] = mapped_column(primary_key=True)
+  user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
   daily_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
   goal_task_status: Mapped[GoalsTasksStatusEnum] = mapped_column(Enum(GoalsTasksStatusEnum), default=GoalsTasksStatusEnum.Todo, nullable=False)
   deadline: Mapped[Date] = mapped_column(Date, nullable=False)
