@@ -19,9 +19,9 @@ class GoalTaskRepository:
          raise e
 
 class DailyTaskRepository:
+   def __init__(self):
+      pass
    def registerDailyTask(self, db: Session, daily_task: DailyTasks):
-      def __init__(self):
-         pass
       try:
          db.add(daily_task)
          db.flush()
@@ -32,9 +32,9 @@ class DailyTaskRepository:
          raise e
 
 class UserRepository:
+   def __init__(self):
+      pass
    def registerUser(self, db: Session, user: Users):
-      def __init__(self):
-         pass
       try:
          db.add(user)
          db.flush()
