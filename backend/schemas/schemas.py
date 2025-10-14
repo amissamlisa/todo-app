@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
 from enum import Enum
 import datetime
@@ -37,10 +37,10 @@ class DailyTasksRequest(BaseModel):
   estimated_time: Decimal = Field(ge=Decimal("0.0"), le=Decimal("999.9"))
 
 class UserRequest(BaseModel):
-  user_name: str = Field(min_length=50)
+  username: str = Field(min_length=3, max_length=50)
   password: str = Field(min_length=10)
   confirmation_password: str = Field(min_length=10)
-  email: str = Field(max_length=254)
+  email: EmailStr
 
 
 class GoalsTasksListOut(BaseModel):
