@@ -3,7 +3,7 @@ from ..database import get_db
 from sqlalchemy.orm import Session
 from ..schemas.schemas import DailyTasksRequest
 from ..models.models import DailyTasks
-from ..repository.tasks_repository import DailyTaskRepository
+from ..repository.repository import DailyTaskRepository
 
 router = APIRouter(
     prefix="/todos",
