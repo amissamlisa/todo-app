@@ -5,6 +5,8 @@ from decimal import Decimal
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
+import datetime
+import jpholiday
 
 PRECISION, SCALE = 4, 1
 
@@ -24,7 +26,7 @@ class Goals(Base):
   __tablename__ = "goals"
 
   goal_id: Mapped[int] = mapped_column(primary_key=True)
-  goal_name: Mapped[str] = mapped_column(String(50), nullable=False)
+  goal_name: Mapped[str] = mapped_column(String(100), nullable=False)
   status: Mapped[GoalsStatusEnum] = mapped_column(Enum(GoalsStatusEnum), default=GoalsStatusEnum.Unachieved, nullable=False)
   start_day: Mapped[Date] = mapped_column(Date, nullable=False)
   target_day: Mapped[Date] = mapped_column(Date, nullable=False)
@@ -34,6 +36,25 @@ class Goals(Base):
   total_estimated_time: Mapped[Decimal] = mapped_column(Numeric(PRECISION, SCALE), nullable=False)
   task_creation_rule: Mapped[str | None] = mapped_column(String(800))
   created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+
+
+  def calculate_total_estimated_time(self):
+    weekday_count = Decimal(0)
+    weekends_count = Decimal(0)
+    holiday_count = Decimal(0)
+
+    current_day: datetime.date = self.start_day
+    while current_day <= self.target_day:
+      if jpholiday.is_holiday(current_day):
+        holiday_count += self.weekends_available_hours
+      elif current_day.weekday() < 5:
+        weekday_count += self.weekday_available_hours
+      else:
+        weekends_count += self.weekends_available_hours
+      current_day += datetime.timedelta(days=1)
+    total_estimated_time =  weekends_count + weekday_count + holiday_count
+
+    return total_estimated_time
 
 class GoalsTasks(Base):
   __tablename__ = "goals_tasks"

@@ -11,7 +11,7 @@ class GoalsTasksStatus(Enum):
   Completed = "完了"
 
 class GoalsTasksRequest(BaseModel):
-  goal_name: str = Field(max_length=50)
+  goal_name: str = Field(max_length=100)
   status_against_goal: str = Field(max_length=200)
   start_date: datetime.date
   target_date: datetime.date
