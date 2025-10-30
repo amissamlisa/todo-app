@@ -6,8 +6,8 @@ import os
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
-# データベースURLを取得
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+# 本番用データベースURLを取得
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_PRODUCTION_DATABASE_URL")
 
 if SQLALCHEMY_DATABASE_URL is None:
     raise RuntimeError( "Environment variable 'SQLALCHEMY_DATABASE_URL' is not set.\n"
