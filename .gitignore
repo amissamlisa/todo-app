@@ -3,3 +3,4 @@
 .env
 fastapienv/
 **/__pycache__/**
+.idea/
