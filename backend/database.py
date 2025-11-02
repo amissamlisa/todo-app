@@ -2,13 +2,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
-
+from urllib.parse import quote_plus
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
 # 本番用データベースURLを取得
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_PRODUCTION_DATABASE_URL")
+# SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_PRODUCTION_DATABASE_URL")
 
+
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 if SQLALCHEMY_DATABASE_URL is None:
     raise RuntimeError( "Environment variable 'SQLALCHEMY_DATABASE_URL' is not set.\n"
         "Please set this variable in your environment or create a .env file in the project root with a line like:\n"
