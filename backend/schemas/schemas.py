@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, model_validator, EmailStr, field_validator
+from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
 from enum import Enum
 import datetime
@@ -47,19 +47,18 @@ class UserRequest(BaseModel):
     email: EmailStr
 
     @model_validator(mode='after')
-    @classmethod
-    def check_password(cls, values):
-        pw = values.get('password')
-        cpw = values.get('confirmation_password')
+    def check_password(self):
+        pw = self.password
+        cpw = self.confirmation_password
 
         pattern = r'^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[A-Za-z0-9\W_]{10,}$'
 
-        if re.match(pattern, values) is None:
+        if re.match(pattern, pw) is None:
             raise ValueError('大・小英数字・記号がそれぞれ1文字ずつ含まれていません')
 
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
-        return values
+        return self
 
 class Token(BaseModel):
     access_token: str
