@@ -6,7 +6,7 @@ import os
 load_dotenv()
 
 
-# テスト用データベース
+# データベースの接続URL (環境変数から取得)
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 if SQLALCHEMY_DATABASE_URL is None:
     raise RuntimeError( "Environment variable 'SQLALCHEMY_DATABASE_URL' is not set.\n"
