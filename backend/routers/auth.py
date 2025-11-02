@@ -57,8 +57,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 
 @router.post("/")
-def create_user(userRequest: UserRequest):
-    db = next(get_db())
+def create_user(userRequest: UserRequest, db: Session = Depends(get_db)):
     user_repository = UserRepository()
     user = Users(
         username=userRequest.username,
