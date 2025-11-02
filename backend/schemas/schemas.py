@@ -46,21 +46,20 @@ class UserRequest(BaseModel):
     confirmation_password: str = Field(min_length=10)
     email: EmailStr
 
+    @model_validator(mode='after')
     @classmethod
-    @field_validator("password")
-    def check_password(cls):
-        if cls.password != cls.confirmation_password:
-            raise ValueError("パスワードと確認パスワードが一致しません")
-        return cls
+    def check_password(cls, values):
+        pw = values.get('password')
+        cpw = values.get('confirmation_password')
 
-    @classmethod
-    @field_validator('password')
-    def validate_password(cls, value: str) -> str:
         pattern = r'^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[A-Za-z0-9\W_]{10,}$'
-        if re.match(pattern, value) is None:
-            raise ValueError('大・小英数字・記号がそれぞれ1文字ずつ含まれていません')
-        return value
 
+        if re.match(pattern, values) is None:
+            raise ValueError('大・小英数字・記号がそれぞれ1文字ずつ含まれていません')
+
+        if pw != cpw:
+            raise ValueError("パスワードと確認パスワードが一致しません")
+        return values
 
 class Token(BaseModel):
     access_token: str
