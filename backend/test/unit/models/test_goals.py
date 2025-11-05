@@ -1,4 +1,3 @@
-from decimal import Decimal
 from unittest import TestCase
 import datetime
 from backend.models.models import Goals
@@ -12,13 +11,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=1000,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("19")
+        expected_result = 1140
 
         self.assertEqual(goal.goal_name, "TOEIC800点取得",
                          "goal_nameの値が一致しません")
@@ -26,10 +25,10 @@ class GoalsTest(TestCase):
                          "goal_start_dayの値が一致しません")
         self.assertEqual(goal.target_day, datetime.date(2030, 10, 22),
                          "goal_target_dayの値が一致しません")
-        self.assertEqual(goal.weekday_available_hours, Decimal("1.5"),
-                         "weekday_available_hoursの値が一致しません")
-        self.assertEqual(goal.weekends_available_hours, Decimal("5.0"),
-                         "weekends_available_hoursの値が一致しません")
+        self.assertEqual(goal.weekday_available_time, 90,
+                         "weekday_available_timeの値が一致しません")
+        self.assertEqual(goal.weekends_available_time, 300,
+                         "weekends_available_timeの値が一致しません")
         self.assertEqual(result, expected_result,
                          "total_estimated_timeの値が一致しません")
         self.assertEqual(goal.task_creation_rule, "リーディングに重点をおいてタスク生成したい",
@@ -42,13 +41,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 15),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=60,
+            weekends_available_time=90,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("1.5")
+        expected_result = 0
 
         self.assertEqual(result, expected_result)
 
@@ -59,13 +58,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 18),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("6")
+        expected_result = 360
 
         self.assertEqual(result, expected_result)
 
@@ -76,13 +75,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 19),
             target_day=datetime.date(2030, 10, 20),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=600,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("10")
+        expected_result = 600
 
         self.assertEqual(result, expected_result)
 
@@ -93,13 +92,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 18),
             target_day=datetime.date(2030, 10, 1),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("0")
+        expected_result = 0
 
         self.assertEqual(result, expected_result)
 
@@ -110,13 +109,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 11),
             target_day=datetime.date(2030, 10, 14),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("16.5")
+        expected_result = 990
 
         self.assertEqual(result, expected_result)
 
@@ -127,13 +126,13 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 10, 18),
             target_day=datetime.date(2030, 10, 19),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("6.5")
+        expected_result = 390
 
         self.assertEqual(result, expected_result)
 
@@ -144,12 +143,12 @@ class GoalsTest(TestCase):
             start_day=datetime.date(2030, 12, 31),
             target_day=datetime.date(2031, 1, 1),
             status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_hours=Decimal("1.5"),
-            weekends_available_hours=Decimal("5.0"),
-            total_estimated_time=Decimal("0"),
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = Decimal("6.5")
+        expected_result = 390
 
         self.assertEqual(result, expected_result)
