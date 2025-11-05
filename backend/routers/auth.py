@@ -36,7 +36,7 @@ def authenticate_user(username: str, password: str, db: Session = Depends(get_db
 
 
 def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {'sub': username, 'name': user_id}
+    encode = {'sub': username, 'id': user_id}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -57,12 +57,12 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
 
 
 @router.post("/")
-def create_user(userRequest: UserRequest, db: Session = Depends(get_db)):
+def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     user_repository = UserRepository()
     user = Users(
-        username=userRequest.username,
-        email=userRequest.email,
-        hashed_password=bcrypt_context.hash(userRequest.password)
+        username=user_request.username,
+        email=user_request.email,
+        hashed_password=bcrypt_context.hash(user_request.password)
     )
     user_repository.register_user(db, user, commit=True)
     return {"statusCode": 201, "message": "新規ユーザー登録に成功"}
