@@ -1,30 +1,23 @@
 from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
-from enum import Enum
 import datetime
 from decimal import Decimal
-from typing import List
 import re
-
-
-class GoalsTasksStatus(Enum):
-    Todo = "未着手"
-    InProgress = "作業中"
-    Completed = "完了"
 
 
 class GoalsTasksRequest(BaseModel):
     goal_name: str = Field(max_length=100)
     status_against_goal: str = Field(max_length=200)
-    start_date: datetime.date
-    target_date: datetime.date
-    weekday_available_hours: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
-    weekends_available_hours: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
+    start_day: datetime.date
+    target_day: datetime.date
+    weekday_available_hours: int = Field(ge=1, le=1440)
+    weekends_available_hours: int = Field(ge=1, le=1440)
+    total_estimated_time: Optional[Decimal] = None
     task_creation_rule: Optional[str] = Field(max_length=800)
 
     @model_validator(mode="after")
     def check_dates(self):
-        if self.start_date >= self.target_date:
+        if self.start_day >= self.target_day:
             raise ValueError("target_dateはstart_dateよりも後でなければならない")
         return self
 
@@ -32,12 +25,8 @@ class GoalsTasksRequest(BaseModel):
 class GoalsTasksOut(BaseModel):
     goal_task_name: str = Field(max_length=50)
     deadline: datetime.date
-    estimated_time: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
-    status: GoalsTasksStatus = GoalsTasksStatus.Todo
-
-
-class GoalsTasksListOut(BaseModel):
-    goal_task: List[GoalsTasksOut]
+    estimated_time: int = Field(ge=1, le=1440)
+    # goal_task_status:GoalsTasksStatusEnum = GoalsTasksStatusEnum.Todo
 
 
 class UserRequest(BaseModel):
@@ -59,6 +48,7 @@ class UserRequest(BaseModel):
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
         return self
+
 
 class Token(BaseModel):
     access_token: str
