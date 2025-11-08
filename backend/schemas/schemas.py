@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
 import datetime
-from decimal import Decimal
 import re
 
 
@@ -10,9 +9,9 @@ class GoalsTasksRequest(BaseModel):
     status_against_goal: str = Field(max_length=200)
     start_day: datetime.date
     target_day: datetime.date
-    weekday_available_time: int = Field(ge=1, le=1440)
-    weekends_available_time: int = Field(ge=1, le=1440)
-    total_estimated_time: Optional[Decimal] = None
+    weekday_available_time: int = Field(ge=1, le=720)
+    weekends_available_time: int = Field(ge=1, le=720)
+    total_estimated_time: int = Field(ge=1)
     task_creation_rule: Optional[str] = Field(max_length=800)
 
     @model_validator(mode="after")
@@ -25,7 +24,7 @@ class GoalsTasksRequest(BaseModel):
 class GoalsTasksOut(BaseModel):
     goal_task_name: str = Field(max_length=50)
     deadline: datetime.date
-    estimated_time: int = Field(ge=1, le=1440)
+    estimated_time: int = Field(ge=1, le=720)
 
 
 class UserRequest(BaseModel):
