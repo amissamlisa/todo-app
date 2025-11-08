@@ -16,9 +16,10 @@ class GoalsRequest(BaseModel):
 
     @model_validator(mode="after")
     def check_dates(self):
-        if self.start_day > self.target_day:
+        if self.start_day >= self.target_day:
             raise ValueError("target_dayはstart_dayよりも後でなければならない")
         return self
+
 
 
 class GoalsTasksOut(BaseModel):
