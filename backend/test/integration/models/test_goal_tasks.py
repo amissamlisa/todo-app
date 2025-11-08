@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 
-from sqlalchemy.exc import IntegrityError, DataError, StatementError
+from sqlalchemy.exc import IntegrityError, DataError
 from backend.models.models import GoalsTasks, Goals, GoalsTasksStatusEnum, Users
 from backend.repository.repository import GoalTaskRepository, GoalRepository, UserRepository
 from backend.test.integration.models.test_base import TestBase
@@ -163,7 +163,6 @@ class TestGoalTasks(TestBase):
                 estimated_time=180,
             )
 
-
     def test_create_goal_task_with_deadline_before_now(self):
         goal_task_data = GoalsTasks(
             goal_id=self.goal.goal_id,
@@ -269,7 +268,7 @@ class TestGoalTasks(TestBase):
             goal_id=self.goal.goal_id,
             goal_task_name="英単語帳を暗記",
             deadline=datetime.date(2030, 10, 15),
-            estimated_time=1439,
+            estimated_time=719,
         )
         goal_task = self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
         self.assertEqual(goal_task.estimated_time, goal_task_data.estimated_time)
@@ -279,7 +278,7 @@ class TestGoalTasks(TestBase):
             goal_id=self.goal.goal_id,
             goal_task_name="英単語帳を暗記",
             deadline=datetime.date(2030, 10, 15),
-            estimated_time=1440,
+            estimated_time=720,
         )
         goal_task = self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
         self.assertEqual(goal_task.estimated_time, goal_task_data.estimated_time)
@@ -289,7 +288,7 @@ class TestGoalTasks(TestBase):
             goal_id=self.goal.goal_id,
             goal_task_name="英単語帳を暗記",
             deadline=datetime.date(2030, 10, 15),
-            estimated_time=1441,
+            estimated_time=721,
         )
         with self.assertRaises(IntegrityError):
             self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
@@ -299,7 +298,7 @@ class TestGoalTasks(TestBase):
             goal_id=self.goal.goal_id,
             goal_task_name="英単語帳を暗記",
             deadline=datetime.date(2030, 10, 15),
-            estimated_time=3000,
+            estimated_time=1000,
         )
         with self.assertRaises(IntegrityError):
             self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
@@ -333,7 +332,7 @@ class TestGoalTasks(TestBase):
             goal_id=self.goal.goal_id,
             goal_task_name="英単語帳を暗記",
             deadline=datetime.date(2030, 10, 15),
-            estimated_time=Decimal("3.0"),
+            estimated_time=180,
         )
 
         goal_task = self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
