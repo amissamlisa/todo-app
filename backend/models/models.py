@@ -1,4 +1,4 @@
-from sqlalchemy import String, ForeignKey, Date, DateTime,CheckConstraint, Integer
+from sqlalchemy import String, ForeignKey, Date, DateTime, CheckConstraint, Integer
 import enum
 from sqlalchemy.sql import func
 from decimal import Decimal
@@ -7,6 +7,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 import datetime
 import jpholiday
+
 
 class GoalsTasksStatusEnum(enum.Enum):
     Todo = "未着手"
@@ -22,6 +23,7 @@ class GoalsStatusEnum(enum.Enum):
 class Base(DeclarativeBase):
     pass
 
+
 class Goals(Base):
     __tablename__ = "goals"
 
@@ -32,9 +34,9 @@ class Goals(Base):
     start_day: Mapped[Date] = mapped_column(Date, nullable=False)
     target_day: Mapped[Date] = mapped_column(Date, nullable=False)
     status_against_goal: Mapped[str] = mapped_column(String(200), nullable=False)
-    weekday_available_time:  Mapped[int] = mapped_column(Integer, nullable=False)
-    weekends_available_time:  Mapped[int] = mapped_column(Integer, nullable=False)
-    total_estimated_time:  Mapped[int] = mapped_column(Integer, nullable=False)
+    weekday_available_time: Mapped[int] = mapped_column(Integer, nullable=False)
+    weekends_available_time: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_estimated_time: Mapped[int] = mapped_column(Integer, nullable=False)
     task_creation_rule: Mapped[str | None] = mapped_column(String(800))
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
@@ -57,12 +59,17 @@ class Goals(Base):
         cleaned = value.strip().replace('\u3000', '')
         return cleaned
 
-
-
     @validates('start_day', 'target_day')
     def validate_date(self, key, value):
         if not isinstance(value, datetime.date):
             raise TypeError("日付はDate型でなければいけません")
+        return value
+
+    @validates('status')
+    def validate_status(self, key, value: str) -> str:
+        valid_values = [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]
+        if value not in valid_values:
+            raise ValueError("無効な目標ステータスです")
         return value
 
     def calculate_total_estimated_time(self):
@@ -70,8 +77,10 @@ class Goals(Base):
         weekends_count = 0
         holiday_count = 0
 
+        if self.start_day == self.target_day:
+            return 0
         current_day: datetime.date = self.start_day
-        while current_day <= self.target_day and self.start_day != self.target_day:
+        while current_day <= self.target_day:
             if jpholiday.is_holiday(current_day):
                 holiday_count += self.weekends_available_time
             elif current_day.weekday() < 5:
@@ -90,8 +99,7 @@ class GoalsTasks(Base):
     goal_task_id: Mapped[int] = mapped_column(primary_key=True)
     goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
     goal_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
-    goal_task_status: Mapped[str] = mapped_column(default=GoalsTasksStatusEnum.Todo.value,
-    nullable=False)
+    goal_task_status: Mapped[str] = mapped_column(default=GoalsTasksStatusEnum.Todo.value, nullable=False)
     deadline: Mapped[Date] = mapped_column(Date, nullable=False)
     estimated_time: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
@@ -111,8 +119,10 @@ class GoalsTasks(Base):
 
     @validates('goal_task_status')
     def validate_goal_task_status(self, key, value: str) -> str:
-        if not value in GoalsTasksStatusEnum:
-            raise ValueError("無効な値です")
+        valid_values = [GoalsTasksStatusEnum.Todo.value, GoalsTasksStatusEnum.InProgress.value,
+                        GoalsTasksStatusEnum.Completed.value]
+        if not value in valid_values:
+            raise ValueError("無効な目標達成タスクステータスです")
         return value
 
     @validates('deadline')
