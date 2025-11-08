@@ -48,7 +48,6 @@ def delete_goal(user: user_dependency, db: db_dependency, goal_id: int):
 
         goal_repository.delete_goal_from_db(db, goal, commit=True)
 
-        return {"detail": "目標を削除しました"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")
 
@@ -66,7 +65,6 @@ def update_goal_status(user: user_dependency, db: db_dependency, goal_id: int, n
         if updated_goal is None:
             raise HTTPException(status_code=404, detail="目標タスクが見つかりません")
 
-        return {"detail": "目標ステータスを更新しました"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except StatusUnchangedError as e:
