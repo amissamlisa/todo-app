@@ -23,11 +23,11 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/{goal_task_id}", status_code=status.HTTP_200_OK)
-def read_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: int):
+def read_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).all()
+        goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
 
         if goal_tasks is None:
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
@@ -42,17 +42,15 @@ def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: in
     try:
         goal_task_repository = GoalTaskRepository()
         if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗")
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal_task = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
 
         if goal_task is None:
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         goal_task_repository.delete_goal_task_from_db(db, goal_task, commit=True)
-
-        return {"detail": "目標達成タスクを削除しました"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")
 
 
 @router.put("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -71,7 +69,6 @@ def update_goal_task_status(user: user_dependency, db: db_dependency, goal_task_
         if updated_task is None:
             raise HTTPException(status_code=404, detail="目標達成タスクが見つかりません")
 
-        return {"detail": "目標達成タスクのステータスを更新しました"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except DataError as e:
@@ -81,10 +78,10 @@ def update_goal_task_status(user: user_dependency, db: db_dependency, goal_task_
     except StatusUnchangedError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが更新できません")
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/generate", status_code=status.HTTP_201_CREATED)
 def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_list):
     try:
         if user is None:
@@ -178,11 +175,11 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_li
     except StatusUnchangedError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
+        raise HTTPException(status_code=500, detail=f"{str(e)}: タスクの生成に失敗しました")
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-def save_goals_and_goal_tasks_and(user: user_dependency, json_string,
+@router.post("/save", status_code=status.HTTP_201_CREATED)
+def save_goals_and_goal_tasks_and(user: user_dependency, json_string: str,
                                   db: Session = Depends(get_db)):
     try:
         if user is None:
