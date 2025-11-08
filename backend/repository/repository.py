@@ -1,6 +1,27 @@
-from sqlalchemy import update
 from sqlalchemy.orm import Session
 from ..models.models import Goals, GoalsStatusEnum, GoalsTasks, GoalsTasksStatusEnum, Users
+
+
+class UnachievedGoalAlreadyExists(Exception):
+    def __str__(self):
+        return "未達成のゴールが存在します"
+
+
+class GoalNotFound(Exception):
+    def __str__(self):
+        return "目標が見つかりません"
+
+
+class GoalTaskNotFound(Exception):
+    def __str__(self):
+        return "目標達成タスクが見つかりません"
+
+
+class StatusUnchangedError(Exception):
+    def __str__(self):
+        return (
+            f"現在の{self.args[0]}ステータスと同じステータスのため、変更できません"
+        )
 
 
 class GoalRepository:
@@ -13,7 +34,7 @@ class GoalRepository:
                 raise ValueError("無効なステータスです")
             existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value).first()
             if existing_goal:
-                raise ValueError("未達成のゴールが存在します")
+                raise UnachievedGoalAlreadyExists()
             db.add(goal)
             db.flush()
             if commit:
@@ -37,7 +58,7 @@ class GoalRepository:
         try:
             goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
             if goal is None:
-                raise ValueError("目標が見つかりません")
+                raise GoalNotFound()
             # ステータス更新
             if new_goal_status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
                 raise ValueError("無効なステータスです")
@@ -48,8 +69,7 @@ class GoalRepository:
                     db.refresh(goal)
                 return goal
             else:
-                raise ValueError("同じステータスの変更はできません")
-
+                raise StatusUnchangedError("目標")
         except Exception as e:
             db.rollback()
             raise e
@@ -84,7 +104,7 @@ class GoalTaskRepository:
         try:
             goal_task = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
             if goal_task is None:
-                raise ValueError("目標が見つかりません")
+                raise GoalTaskNotFound()
 
             # ステータス更新
             if goal_task.goal_task_status != new_goal_task_status.value:
@@ -94,7 +114,7 @@ class GoalTaskRepository:
                     db.refresh(goal_task)
                 return goal_task
             else:
-                raise ValueError("同じステータスの変更はできません")
+                raise StatusUnchangedError("目標達成タスク")
         except Exception as e:
             db.rollback()
             raise e
