@@ -30,9 +30,10 @@ class GoalRepository:
 
     def register_goal(self, db, goal: Goals, commit=True):
         try:
-            if goal.status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
-                raise ValueError("無効なステータスです")
-            existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value).first()
+            if goal.status not in [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]:
+                raise ValueError("無効な目標ステータスです")
+            existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value,
+                Goals.user_id == goal.user_id).first()
             if existing_goal:
                 raise UnachievedGoalAlreadyExists()
             db.add(goal)
@@ -60,8 +61,8 @@ class GoalRepository:
             if goal is None:
                 raise GoalNotFound()
             # ステータス更新
-            if new_goal_status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
-                raise ValueError("無効なステータスです")
+            if new_goal_status not in [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]:
+                raise ValueError("無効な目標ステータスです")
             if goal.status != new_goal_status.value:
                 goal.status = new_goal_status.value
                 if commit:
