@@ -5,7 +5,7 @@ from decimal import Decimal
 import re
 
 
-class GoalsTasksRequest(BaseModel):
+class GoalsRequest(BaseModel):
     goal_name: str = Field(max_length=100)
     status_against_goal: str = Field(max_length=200)
     start_day: datetime.date
@@ -17,8 +17,8 @@ class GoalsTasksRequest(BaseModel):
 
     @model_validator(mode="after")
     def check_dates(self):
-        if self.start_day >= self.target_day:
-            raise ValueError("target_dateはstart_dateよりも後でなければならない")
+        if self.start_day > self.target_day:
+            raise ValueError("target_dayはstart_dayよりも後でなければならない")
         return self
 
 
@@ -26,8 +26,6 @@ class GoalsTasksOut(BaseModel):
     goal_task_name: str = Field(max_length=50)
     deadline: datetime.date
     estimated_time: int = Field(ge=1, le=1440)
-    # goal_task_status:GoalsTasksStatusEnum = GoalsTasksStatusEnum.Todo
-
 
 class UserRequest(BaseModel):
     username: str = Field(min_length=5)
