@@ -1,6 +1,4 @@
 import datetime
-from decimal import Decimal
-
 from sqlalchemy.exc import IntegrityError, DataError
 from backend.models.models import GoalsTasks, Goals, GoalsTasksStatusEnum, Users
 from backend.repository.repository import GoalTaskRepository, GoalRepository, UserRepository
