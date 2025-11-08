@@ -8,7 +8,7 @@ from starlette import status
 from ..database import get_db
 from ..models.models import Goals, GoalsStatusEnum
 from .auth import get_current_user
-from ..repository.repository import GoalRepository
+from ..repository.repository import GoalRepository, StatusUnchangedError, GoalNotFound
 
 router = APIRouter(
     prefix="/goal",
@@ -21,41 +21,57 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/{goal_id}", status_code=status.HTTP_200_OK)
 def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗しました")
-    goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value, Goals.goal_id == goal_id).first()
+    try:
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
+        goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value,
+                                      Goals.goal_id == goal_id).first()
 
-    if goal is None:
-        raise HTTPException(status_code=404, detail='目標が見つかりません')
+        if goal is None:
+            raise HTTPException(status_code=404, detail='目標が見つかりません')
 
-    return {"detail": "目標を取得しました","goal": goal}
+        return {"detail": "目標を取得しました", "goal": goal}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal(user: user_dependency, db: db_dependency, goal_id: int):
-    goal_repository = GoalRepository()
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗しました")
-    goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
+    try:
+        goal_repository = GoalRepository()
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
+        goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
 
-    if goal is None:
-        raise HTTPException(status_code=404, detail='目標が見つかりません')
+        if goal is None:
+            raise HTTPException(status_code=404, detail='目標が見つかりません')
 
-    goal_repository.delete_goal_from_db(db, goal, commit=True)
+        goal_repository.delete_goal_from_db(db, goal, commit=True)
 
-    return {"detail": "目標を削除しました"}
+        return {"detail": "目標を削除しました"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")
 
 
 @router.put("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def update_goal_status(user: user_dependency, db: db_dependency, goal_id: int, new_status: GoalsStatusEnum):
-    goal_repository = GoalRepository()
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗しました")
+    try:
+        goal_repository = GoalRepository()
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
 
-    updated_goal = goal_repository.update_goal_status_from_db(
-        db, goal_id, new_status, commit=True
-    )
-    if updated_goal is None:
-        raise HTTPException(status_code=404, detail="目標タスクが見つかりません")
+        updated_goal = goal_repository.update_goal_status_from_db(
+            db, goal_id, new_status, commit=True
+        )
+        if updated_goal is None:
+            raise HTTPException(status_code=404, detail="目標タスクが見つかりません")
 
-    return {"detail": "目標ステータスを更新しました"}
+        return {"detail": "目標ステータスを更新しました"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except StatusUnchangedError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except GoalNotFound as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
