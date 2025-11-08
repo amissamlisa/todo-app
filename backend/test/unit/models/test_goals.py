@@ -13,7 +13,7 @@ class GoalsTest(TestCase):
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=90,
             weekends_available_time=300,
-            total_estimated_time=1000,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
@@ -77,7 +77,7 @@ class GoalsTest(TestCase):
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=90,
             weekends_available_time=300,
-            total_estimated_time=600,
+            total_estimated_time=0,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
