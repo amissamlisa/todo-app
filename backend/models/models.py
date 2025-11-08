@@ -45,6 +45,8 @@ class Goals(Base):
         CheckConstraint('length(status_against_goal) > 0', name="check_status_against_goal_greater_than_zero"),
         CheckConstraint('weekday_available_time > 0', name="check_weekday_available_time_greater_than_zero"),
         CheckConstraint('weekends_available_time > 0', name="check_weekends_available_time_greater_than_zero"),
+        CheckConstraint('weekday_available_time <= 720', name="check_weekday_available_time_greater_than_720"),
+        CheckConstraint('weekends_available_time <= 720', name="check_weekends_available_time_greater_than_720"),
         CheckConstraint('total_estimated_time > 0', name="check_total_estimated_time_greater_than_zero"),
     )
 
@@ -97,7 +99,7 @@ class GoalsTasks(Base):
         CheckConstraint("length(goal_task_name) > 0", name="check_goal_task_name_greater_than_zero"),
         CheckConstraint('deadline > CURRENT_DATE', name='check_deadline_before_now'),
         CheckConstraint('estimated_time > 0', name="check_estimated_time_greater_than_zero"),
-        CheckConstraint('estimated_time < 1441', name="check_estimated_time_greater_than_1440"),
+        CheckConstraint('estimated_time <= 720', name="check_estimated_time_greater_than_1440"),
     )
 
     @validates('goal_task_name')
