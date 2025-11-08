@@ -12,12 +12,12 @@ class GoalRepository:
             existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value).first()
             if existing_goal:
                 raise ValueError("未達成のゴールが存在します")
+            db.add(goal)
+            db.flush()
             if commit:
-                db.add(goal)
-                db.flush()
                 db.commit()
                 db.refresh(goal)
-                return goal
+            return goal
         except Exception as e:
             db.rollback()
             raise e
