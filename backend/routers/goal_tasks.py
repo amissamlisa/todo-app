@@ -120,7 +120,7 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency):
               "goal_task_name": "基本情報技術者試験の過去問を解く",
               "deadline": "2025-09-12",
               "estimated_time": 90
-            }},
+            }}
           ]
         }}
             注意事項
@@ -194,4 +194,4 @@ def save_goals_and_goal_tasks_and(user: user_dependency, json_string,
     except DataError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
