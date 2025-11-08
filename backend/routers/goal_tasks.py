@@ -10,7 +10,7 @@ from ..models.models import GoalsTasks, GoalsTasksStatusEnum, Goals
 from openai import OpenAI
 import os
 import json
-from ..repository.repository import GoalTaskRepository, GoalRepository
+from ..repository.repository import GoalTaskRepository, GoalRepository, GoalTaskNotFound, StatusUnchangedError
 from .auth import get_current_user
 
 router = APIRouter(
@@ -24,51 +24,68 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/{goal_task_id}", status_code=status.HTTP_200_OK)
 def read_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: int):
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗しました")
-    goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).all()
+    try:
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
+        goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).all()
 
-    if goal_tasks is None:
-        raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
+        if goal_tasks is None:
+            raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
-    return {"detail": "目標達成タスクを取得しました", "goal_tasks": goal_tasks}
+        return {"detail": "目標達成タスクを取得しました", "goal_tasks": goal_tasks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
 @router.delete("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: int):
-    goal_task_repository = GoalTaskRepository()
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗")
-    goal_task = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
+    try:
+        goal_task_repository = GoalTaskRepository()
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗")
+        goal_task = db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
 
-    if goal_task is None:
-        raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
+        if goal_task is None:
+            raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
-    goal_task_repository.delete_goal_task_from_db(db, goal_task, commit=True)
+        goal_task_repository.delete_goal_task_from_db(db, goal_task, commit=True)
 
-    return {"detail": "目標達成タスクを削除しました"}
+        return {"detail": "目標達成タスクを削除しました"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
 @router.put("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def update_goal_task_status(user: user_dependency, db: db_dependency, goal_task_id: int,
                             new_status: GoalsTasksStatusEnum):
-    if user is None:
-        raise HTTPException(status_code=404, detail="認証に失敗しました")
+    try:
+        if user is None:
+            raise HTTPException(status_code=404, detail="認証に失敗しました")
 
-    # リポジトリ呼び出し
-    goal_task_repository = GoalTaskRepository()
-    updated_task = goal_task_repository.update_goal_task_status_from_db(
-        db, goal_task_id, new_status, commit=True
-    )
+        # リポジトリ呼び出し
+        goal_task_repository = GoalTaskRepository()
+        updated_task = goal_task_repository.update_goal_task_status_from_db(
+            db, goal_task_id, new_status, commit=True
+        )
 
-    if updated_task is None:
-        raise HTTPException(status_code=404, detail="目標達成タスクが見つかりません")
+        if updated_task is None:
+            raise HTTPException(status_code=404, detail="目標達成タスクが見つかりません")
 
-    return {"detail": "目標達成タスクのステータスを更新しました"}
+        return {"detail": "目標達成タスクのステータスを更新しました"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except DataError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except GoalTaskNotFound as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except StatusUnchangedError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def generate_chat_reply(goal: GoalsRequest, user: user_dependency):
+def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_list):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="userが見つかりません")
@@ -88,8 +105,8 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency):
             - 現在の状況 {goal.status_against_goal}
             - 開始日 {goal.start_day}
             - 期限日 {goal.target_day}
-            - 平日可用時間(1日あたり) {goal.weekday_available_hours}
-            - 休日の可用時間(1日あたり 祝日法第3条第3項による休日も含める) {goal.weekends_available_hours}
+            - 平日可用時間(1日あたり) {goal.weekday_available_time}
+            - 休日の可用時間(1日あたり 祝日法第3条第3項による休日も含める) {goal.weekends_available_time}
             - 生成条件（省略される場合あり） {goal.task_creation_rule}
 
 
@@ -130,6 +147,8 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency):
             - 現実的な時間配分を守る
             - 生成条件が与えられない場合は無視してよい
             - 注意: daily_schedule は無視してください
+            -{goal_tasks_list}は完了済みの目標達成タスクです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
+            この{goal_tasks_list}は存在しない可能性もある。その場合は考慮しなくていい。
             """
         )
         response_text = response.output_text
@@ -152,12 +171,14 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency):
         raise HTTPException(status_code=400, detail=str(e))
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except StatementError as e:
-        raise HTTPException(status_code=400, detail=str(e))
     except DataError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except GoalTaskNotFound as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except StatusUnchangedError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
