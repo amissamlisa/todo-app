@@ -26,6 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = 'HS256'
 
 
+
 def authenticate_user(username: str, password: str, db: Session = Depends(get_db)):
     user = db.query(Users).filter(Users.username == username).first()
     if not user:
@@ -66,6 +67,19 @@ def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     )
     user_repository.register_user(db, user, commit=True)
     return {"detail": "新規ユーザー登録しました"}
+
+@router.put("/", status_code=status.HTTP_201_CREATED)
+def update_user(user_request: UserRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=401, detail='ユーザーを検証できません')
+    user_repository = UserRepository()
+    user = Users(
+        username=user_request.username,
+        email=user_request.email,
+        hashed_password=bcrypt_context.hash(user_request.password)
+    )
+    user_repository.update_user_from_db(db, current_user.get("user_id"), user, commit=True)
+    return {"detail": "ユーザー情報を更新しました"}
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
