@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field, model_validator, EmailStr
-from typing import Optional
+from typing import Optional, List
 import datetime
 import re
+
+from backend.models.models import GoalsTasks, Goals
 
 
 class GoalsRequest(BaseModel):
@@ -27,6 +29,16 @@ class GoalsTasksOut(BaseModel):
     deadline: datetime.date
     estimated_time: int = Field(ge=1, le=720)
 
+class GoalRequestWithTasks(BaseModel):
+    goal: GoalsRequest
+    goal_tasks_list: Optional[List[GoalsTasksOut]] = None
+
+
+
+class SaveRequest(BaseModel):
+    detail: str
+    goal: GoalsRequest
+    goal_tasks: list[GoalsTasksOut]
 
 class UserRequest(BaseModel):
     username: str = Field(min_length=5)
