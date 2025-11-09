@@ -47,7 +47,7 @@ class GoalsTest(TestCase):
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
         result = goal.calculate_total_estimated_time()
-        expected_result = 0
+        expected_result = 60
 
         self.assertEqual(result, expected_result)
 
