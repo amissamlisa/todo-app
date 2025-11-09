@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError, StatementError, DataError
 
 from ..database import get_db
 from sqlalchemy.orm import Session
-from ..schemas.schemas import GoalsTasksOut, GoalsRequest
-from ..models.models import GoalsTasks, GoalsTasksStatusEnum, Goals
+from ..schemas.schemas import GoalsTasksOut, GoalRequestWithTasks, SaveRequest
+from ..models.models import GoalsTasks, GoalsTasksStatusEnum, Goals, GoalsStatusEnum
 from openai import OpenAI
 import os
 import json
@@ -22,8 +22,8 @@ db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
-@router.get("/{goal_task_id}", status_code=status.HTTP_200_OK)
-def read_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
+@router.get("/{goal_id}", status_code=status.HTTP_200_OK)
+def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
@@ -82,7 +82,7 @@ def update_goal_task_status(user: user_dependency, db: db_dependency, goal_task_
 
 
 @router.post("/generate", status_code=status.HTTP_201_CREATED)
-def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_list):
+def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="userが見つかりません")
@@ -91,7 +91,9 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_li
             # This is the default and can be omitted
             api_key=os.environ.get("OPENAI_API_KEY"),
         )
+        goal = payload.goal
 
+        goal_tasks = payload.goal_tasks_list or []
         response = client.responses.create(
             model="gpt-5-mini",
             instructions="""あなたは目標達成のためのタスク設計コーチです。
@@ -140,12 +142,12 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_li
             注意事項
             - 優先度は内部的に考慮するが、出力フィールドには含めない
             - 長時間の作業は分割して複数タスクにする
-            - 1日に複数タスクがあってもよいが、平日は平日可用時間と休日は休日の可用時間内に収める
+            - 1日に複数タスクを含めてもよいが、平日は平日可用時間と休日は休日の可用時間内に収める
             - 現実的な時間配分を守る
             - 生成条件が与えられない場合は無視してよい
             - 注意: daily_schedule は無視してください
-            -{goal_tasks_list}は完了済みの目標達成タスクです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
-            この{goal_tasks_list}は存在しない可能性もある。その場合は考慮しなくていい。
+            -{goal_tasks}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
+            この{goal_tasks}は存在しない可能性もある。その場合は考慮しなくていい。
             """
         )
         response_text = response.output_text
@@ -179,29 +181,30 @@ def generate_chat_reply(goal: GoalsRequest, user: user_dependency, goal_tasks_li
 
 
 @router.post("/save", status_code=status.HTTP_201_CREATED)
-def save_goals_and_goal_tasks_and(user: user_dependency, json_string: str,
+def save_goals_and_goal_tasks_and(user: user_dependency, payload: SaveRequest,
                                   db: Session = Depends(get_db)):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal_repository = GoalRepository()
-        data = json.loads(json_string)
-        goal = data["goal"]
-        goal_task_list = goal["goal_tasks"]
+        goal = payload.goal
+        goal_task_list = payload.goal_tasks
+        goal_data = goal.model_dump()
 
-        goal.total_estimated_time = goal.calculate_total_estimated_time()
-        goal = Goals(**goal.model_dump(), user_id=user.get("id"))
-        goal_repository.register_goal(db, goal, commit=True)
+        goal_data["status"] = GoalsStatusEnum.Unachieved.value
+
+        goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
+        goal_obj.total_estimated_time = goal_obj.calculate_total_estimated_time()
+        goal_repository.register_goal(db, goal_obj, commit=True)
 
         goal_task_repository = GoalTaskRepository()
+        goal_task_items = []
         for goal_task in goal_task_list:
-            goal_task_item = GoalsTasks(goal_task_name=goal_task.goal_task_name, deadline=goal_task.deadline,
-                                        estimated_time=goal_task.estimated_time,
-                                        goal_id=goal.goal_id)
-            goal_task_repository.register_goal_task(db, goal_task_item)
+            goal_task_items.append(GoalsTasks(**goal_task.model_dump(), goal_id=goal_obj.goal_id))
+        goal_task_repository.register_goal_task(db, goal_task_items, commit=True)
         return {
             "detail": "達成目標と目標達成タスクが保存されました",
-            "goal_id": goal.goal_id
+            "goal_id": goal_obj.goal_id
         }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
