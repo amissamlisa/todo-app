@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import timedelta, datetime, timezone
 from ..models.models import Users
 from ..repository.repository import UserRepository
@@ -26,6 +26,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = 'HS256'
 
 
+
 def authenticate_user(username: str, password: str, db: Session = Depends(get_db)):
     user = db.query(Users).filter(Users.username == username).first()
     if not user:
@@ -36,7 +37,7 @@ def authenticate_user(username: str, password: str, db: Session = Depends(get_db
 
 
 def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {'sub': username, 'name': user_id}
+    encode = {'sub': username, 'user_id': user_id}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -46,7 +47,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
-        user_id: int = payload.get('id')
+        user_id: int = payload.get('user_id')
         if username is None or user_id is None:
             raise HTTPException(status_code=401, detail='ユーザーを検証できません')
 
@@ -56,19 +57,32 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     return {'username': username, 'user_id': user_id}
 
 
-@router.post("/")
-def create_user(userRequest: UserRequest, db: Session = Depends(get_db)):
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     user_repository = UserRepository()
     user = Users(
-        username=userRequest.username,
-        email=userRequest.email,
-        hashed_password=bcrypt_context.hash(userRequest.password)
+        username=user_request.username,
+        email=user_request.email,
+        hashed_password=bcrypt_context.hash(user_request.password)
     )
     user_repository.register_user(db, user, commit=True)
-    return {"statusCode": 201, "message": "新規ユーザー登録に成功"}
+    return {"detail": "新規ユーザー登録しました"}
+
+@router.put("/", status_code=status.HTTP_201_CREATED)
+def update_user(user_request: UserRequest, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=401, detail='ユーザーを検証できません')
+    user_repository = UserRepository()
+    user = Users(
+        username=user_request.username,
+        email=user_request.email,
+        hashed_password=bcrypt_context.hash(user_request.password)
+    )
+    user_repository.update_user_from_db(db, current_user.get("user_id"), user, commit=True)
+    return {"detail": "ユーザー情報を更新しました"}
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
 

@@ -1,44 +1,41 @@
 from pydantic import BaseModel, Field, model_validator, EmailStr
-from typing import Optional
-from enum import Enum
+from typing import Optional, List
 import datetime
-from decimal import Decimal
-from typing import List
 import re
 
 
-class GoalsTasksStatus(Enum):
-    Todo = "未着手"
-    InProgress = "作業中"
-    Completed = "完了"
-
-
-class GoalsTasksRequest(BaseModel):
+class GoalsRequest(BaseModel):
     goal_name: str = Field(max_length=100)
     status_against_goal: str = Field(max_length=200)
-    start_date: datetime.date
-    target_date: datetime.date
-    weekday_available_hours: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
-    weekends_available_hours: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
+    start_day: datetime.date
+    target_day: datetime.date
+    weekday_available_time: int = Field(ge=1, le=720)
+    weekends_available_time: int = Field(ge=1, le=720)
+    total_estimated_time: int = Field(ge=1)
     task_creation_rule: Optional[str] = Field(max_length=800)
 
     @model_validator(mode="after")
     def check_dates(self):
-        if self.start_date >= self.target_date:
-            raise ValueError("target_dateはstart_dateよりも後でなければならない")
+        if self.start_day >= self.target_day:
+            raise ValueError("target_dayはstart_dayよりも後でなければならない")
         return self
+
 
 
 class GoalsTasksOut(BaseModel):
     goal_task_name: str = Field(max_length=50)
     deadline: datetime.date
-    estimated_time: Decimal = Field(ge=Decimal("0.1"), le=Decimal("999.9"))
-    status: GoalsTasksStatus = GoalsTasksStatus.Todo
+    estimated_time: int = Field(ge=1, le=720)
+
+class GoalRequestWithTasks(BaseModel):
+    goal: GoalsRequest
+    goal_tasks_list: Optional[List[GoalsTasksOut]] = None
 
 
-class GoalsTasksListOut(BaseModel):
-    goal_task: List[GoalsTasksOut]
 
+class SaveRequest(BaseModel):
+    goal: GoalsRequest
+    goal_tasks: list[GoalsTasksOut]
 
 class UserRequest(BaseModel):
     username: str = Field(min_length=5)
@@ -59,6 +56,7 @@ class UserRequest(BaseModel):
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
         return self
+
 
 class Token(BaseModel):
     access_token: str
