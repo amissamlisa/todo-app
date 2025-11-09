@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 from ..models.models import Goals, GoalsStatusEnum, GoalsTasks, GoalsTasksStatusEnum, Users
 
@@ -61,7 +63,7 @@ class GoalRepository:
             if goal is None:
                 raise GoalNotFound()
             # ステータス更新
-            if new_goal_status not in [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]:
+            if new_goal_status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
                 raise ValueError("無効な目標ステータスです")
             if goal.status != new_goal_status.value:
                 goal.status = new_goal_status.value
@@ -80,13 +82,13 @@ class GoalTaskRepository:
     def __init__(self):
         pass
 
-    def register_goal_task(self, db, goal_task: GoalsTasks, commit=True):
+    def register_goal_task(self, db, goal_tasks: List[GoalsTasks], commit=True):
         try:
-            db.add(goal_task)
+            db.add_all(goal_tasks)
             db.flush()
             if commit:
                 db.commit()
-            return goal_task
+            return goal_tasks
         except Exception as e:
             db.rollback()
             raise e
