@@ -31,6 +31,8 @@ def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
             raise HTTPException(status_code=404, detail='目標が見つかりません')
 
         return {"detail": "目標を取得しました", "goal": goal}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
@@ -46,13 +48,14 @@ def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id
         if goal is None:
             raise HTTPException(status_code=404, detail='目標が見つかりません')
         goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
-        if goal_tasks is None:
+        if not goal_tasks:
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         for goal_task in goal_tasks:
             goal_tasks_repository.delete_goal_task_from_db(db, goal_task, commit=True)
         goal_repository.delete_goal_from_db(db, goal, commit=True)
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")
 
@@ -68,13 +71,10 @@ def update_goal_status(user: user_dependency, db: db_dependency, goal_id: int, n
             db, goal_id, new_status, commit=True
         )
         if updated_goal is None:
-            raise HTTPException(status_code=404, detail="目標タスクが見つかりません")
-
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except StatusUnchangedError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except GoalNotFound as e:
+            raise HTTPException(status_code=404, detail="目標が見つかりません")
+    except HTTPException:
+        raise
+    except (ValueError, GoalNotFound, StatusUnchangedError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
+        raise HTTPException(status_code=500, detail=f"{str(e)}: データが更新できません")
