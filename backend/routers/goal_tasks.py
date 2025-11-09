@@ -146,8 +146,8 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             - 現実的な時間配分を守る
             - 生成条件が与えられない場合は無視してよい
             - 注意: daily_schedule は無視してください
-            -{goal_tasks}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
-            この{goal_tasks}は存在しない可能性もある。その場合は考慮しなくていい。
+            -{json.dumps(goal_tasks, ensure_ascii=False)}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
+            この{json.dumps(goal_tasks, ensure_ascii=False)}は存在しない可能性もある。その場合は考慮しなくていい。
             """
         )
         response_text = response.output_text
