@@ -64,7 +64,7 @@ class GoalRepository:
             # ステータス更新
             if new_goal_status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
                 raise ValueError("無効な目標ステータスです")
-            if goal.status != new_goal_status.value and new_goal_status.value != GoalsStatusEnum.Achieved.value:
+            if goal.status != new_goal_status.value and new_goal_status.value != GoalsStatusEnum.Unachieved.value:
                 goal.status = new_goal_status.value
                 if commit:
                     db.commit()
