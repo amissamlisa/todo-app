@@ -48,8 +48,6 @@ def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id
         if goal is None:
             raise HTTPException(status_code=404, detail='目標が見つかりません')
         goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
-        if not goal_tasks:
-            raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         for goal_task in goal_tasks:
             goal_tasks_repository.delete_goal_task_from_db(db, goal_task, commit=True)
