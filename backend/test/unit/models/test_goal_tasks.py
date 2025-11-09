@@ -18,6 +18,6 @@ class GoalTaskTest(TestCase):
                          "goal_task_nameの値が一致しません")
         self.assertEqual(goal_task.deadline, datetime.date(2030, 10, 15),
                          "deadlineの値が一致しません")
-        self.assertEqual(goal_task.goal_task_status,GoalsTasksStatusEnum.InProgress.value)
+        self.assertEqual(goal_task.goal_task_status, GoalsTasksStatusEnum.InProgress.value)
         self.assertEqual(goal_task.estimated_time, 180,
                          "estimated_timeの値が一致しません")
