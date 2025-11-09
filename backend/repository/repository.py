@@ -34,8 +34,7 @@ class GoalRepository:
         try:
             if goal.status not in [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]:
                 raise ValueError("無効な目標ステータスです")
-            existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value,
-                Goals.user_id == goal.user_id).first()
+            existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value, Goals.user_id == goal.user_id).first()
             if existing_goal:
                 raise UnachievedGoalAlreadyExists()
             db.add(goal)

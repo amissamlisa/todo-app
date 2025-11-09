@@ -77,8 +77,6 @@ class Goals(Base):
         weekends_count = 0
         holiday_count = 0
 
-        if self.start_day == self.target_day:
-            return 0
         current_day: datetime.date = self.start_day
         while current_day <= self.target_day:
             if jpholiday.is_holiday(current_day):
@@ -121,7 +119,7 @@ class GoalsTasks(Base):
     def validate_goal_task_status(self, key, value: str) -> str:
         valid_values = [GoalsTasksStatusEnum.Todo.value, GoalsTasksStatusEnum.InProgress.value,
                         GoalsTasksStatusEnum.Completed.value]
-        if not value in valid_values:
+        if value not in valid_values:
             raise ValueError("無効な目標達成タスクステータスです")
         return value
 
