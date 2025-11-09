@@ -34,7 +34,6 @@ class GoalRequestWithTasks(BaseModel):
 
 
 class SaveRequest(BaseModel):
-    detail: str
     goal: GoalsRequest
     goal_tasks: list[GoalsTasksOut]
 
