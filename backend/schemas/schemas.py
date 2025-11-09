@@ -3,8 +3,6 @@ from typing import Optional, List
 import datetime
 import re
 
-from backend.models.models import GoalsTasks, Goals
-
 
 class GoalsRequest(BaseModel):
     goal_name: str = Field(max_length=100)
