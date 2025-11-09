@@ -33,6 +33,8 @@ def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         return {"detail": "目標達成タスクを取得しました", "goal_tasks": goal_tasks}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
@@ -49,6 +51,8 @@ def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: in
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         goal_task_repository.delete_goal_task_from_db(db, goal_task, commit=True)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")
 
@@ -68,14 +72,9 @@ def update_goal_task_status(user: user_dependency, db: db_dependency, goal_task_
 
         if updated_task is None:
             raise HTTPException(status_code=404, detail="目標達成タスクが見つかりません")
-
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except DataError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except GoalTaskNotFound as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except StatusUnchangedError as e:
+    except HTTPException:
+        raise
+    except (ValueError, GoalTaskNotFound, StatusUnchangedError, DataError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが更新できません")
@@ -113,7 +112,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             - goal_tasks: タスク一覧（タスクの締め切りが早い順に並べる）
             - goal_task_name: 50字以内のタスク名(参考書に関するアドバイスも付け加える)
             - deadline: date型 (YYYY-MM-DD)(開始日と期限日・平日可用時間と休日の可用時間を考慮して)
-            - estimated_time: 実行時間(1日の平日可用時間もしくは休日の可用時間を合計で下回るか、それらの可用時間と同じになるように決めて)
+            - estimated_time: 実行時間(1日の平日可用時間もしくは休日の可用時間を合計で下回るか、それらの可用時間と同じになるようタスクを生成して)
 
             出力例
             {{
@@ -141,8 +140,9 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         }}
             注意事項
             - 優先度は内部的に考慮するが、出力フィールドには含めない
+            - タスクは優先度が高い順に締め切りを早く設定して
             - 長時間の作業は分割して複数タスクにする
-            - 1日に複数タスクを含めてもよいが、平日は平日可用時間と休日は休日の可用時間内に収める
+            - 1日に複数タスクを含めてもよいが、それらのタスクを合計して平日は平日可用時間と休日は休日の可用時間内に収める
             - 現実的な時間配分を守る
             - 生成条件が与えられない場合は無視してよい
             - 注意: daily_schedule は無視してください
@@ -166,15 +166,10 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             goal_tasks.append(GoalsTasksOut(**task))
 
         return {"detail": "目標達成タスクを生成しました", "goal_tasks": goal_tasks, "goal": goal}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except IntegrityError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except DataError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except GoalTaskNotFound as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except StatusUnchangedError as e:
+    
+    except HTTPException:
+        raise
+    except (ValueError, IntegrityError, DataError, GoalTaskNotFound, StatusUnchangedError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: タスクの生成に失敗しました")
@@ -206,13 +201,9 @@ def save_goals_and_goal_tasks_and(user: user_dependency, payload: SaveRequest,
             "detail": "達成目標と目標達成タスクが保存されました",
             "goal_id": goal_obj.goal_id
         }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except IntegrityError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except StatementError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except DataError as e:
+    except HTTPException:
+        raise
+    except (ValueError, IntegrityError, StatementError, DataError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
