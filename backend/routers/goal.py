@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from ..database import get_db
-from ..models.models import Goals, GoalsStatusEnum
+from ..models.models import Goals, GoalsStatusEnum, GoalsTasks
 from .auth import get_current_user
-from ..repository.repository import GoalRepository, StatusUnchangedError, GoalNotFound
+from ..repository.repository import GoalRepository, StatusUnchangedError, GoalNotFound, GoalTaskRepository
 
 router = APIRouter(
     prefix="/goal",
@@ -36,16 +36,21 @@ def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
 
 
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_goal(user: user_dependency, db: db_dependency, goal_id: int):
+def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
         goal_repository = GoalRepository()
+        goal_tasks_repository = GoalTaskRepository()
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
-
         if goal is None:
             raise HTTPException(status_code=404, detail='目標が見つかりません')
+        goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
+        if goal_tasks is None:
+            raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
+        for goal_task in goal_tasks:
+            goal_tasks_repository.delete_goal_task_from_db(db, goal_task, commit=True)
         goal_repository.delete_goal_from_db(db, goal, commit=True)
 
     except Exception as e:
