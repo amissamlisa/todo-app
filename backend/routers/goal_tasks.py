@@ -29,7 +29,7 @@ def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
             raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
 
-        if goal_tasks is None:
+        if not goal_tasks:
             raise HTTPException(status_code=404, detail='目標達成タスクが見つかりません')
 
         return {"detail": "目標達成タスクを取得しました", "goal_tasks": goal_tasks}
