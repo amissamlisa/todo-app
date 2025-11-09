@@ -41,7 +41,7 @@ class Goals(Base):
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
         CheckConstraint("length(goal_name) > 0", name="check_goal_name_greater_than_zero"),
-        CheckConstraint('start_day < target_day', name='check_start_before_target'),
+        CheckConstraint('start_day <= target_day', name='check_start_before_target'),
         CheckConstraint('start_day > CURRENT_DATE', name='check_start_before_now'),
         CheckConstraint('target_day > CURRENT_DATE', name='check_target_before_now'),
         CheckConstraint('length(status_against_goal) > 0', name="check_status_against_goal_greater_than_zero"),
