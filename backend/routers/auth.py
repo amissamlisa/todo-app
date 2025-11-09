@@ -56,7 +56,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     return {'username': username, 'user_id': user_id}
 
 
-@router.post("/",status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     user_repository = UserRepository()
     user = Users(
@@ -68,7 +68,7 @@ def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     return {"detail": "新規ユーザー登録しました"}
 
 
-@router.post("/token", response_model=Token,status_code=status.HTTP_201_CREATED)
+@router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
 def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
 
