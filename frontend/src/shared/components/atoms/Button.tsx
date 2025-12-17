@@ -4,6 +4,8 @@ import { memo } from "react";
 
 export const Button = memo(({ buttonColor, textColor, children }: ButtonProps) => {
   return (
-    <button className={`rounded-full shadow-xl px-[clamp(24px,24vw,100px)] ${buttonColor} ${textColor}`} >{children}</button>
+    <div className="w-[clamp(93px,68vw,400px)]">
+      <button className={`w-full rounded-full py-3 shadow-xl  ${buttonColor} ${textColor}`} >{children}</button>
+    </div>
   )
 })
