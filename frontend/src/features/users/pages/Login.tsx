@@ -9,7 +9,7 @@ export const Login = memo(() => {
   return (
     <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
       <div className="mt-[clamp(60px,13.1vh,200px)]">
-        <Logo fontSize="text-4xl" imageSize="139px" />
+        <Logo fontSize="text-4xl" imageSize="w-[139px] h-[139px]" />
       </div>
       <div className="mt-[clamp(50px,5.3vh,100px)]">
         <Input textColor="text-secondary" borderColor="border-secondary" formType="text" formName="email">メールアドレス</Input>
