@@ -13,7 +13,7 @@ export const PasswordInput = memo(({ textColor, borderColor, children, formName}
   };
   return (
     <div className="flex relative flex-col w-[clamp(93px,68vw,400px)]">
-      <label className={`${textColor}`} htmlFor={`${formName}`}>{children}</label>
+      <label className={`${textColor} font-bold`} htmlFor={`${formName}`}>{children}</label>
       <input className={`${borderColor} focus:outline-none 
  rounded-[5px] w-full p-2  border-4 border-solid block bg-secondary`} type={`${formType}`} name={`${formName}`} />
       {eye === true && <IoIosEye onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
