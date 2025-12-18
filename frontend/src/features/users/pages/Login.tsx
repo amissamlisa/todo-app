@@ -7,7 +7,7 @@ import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 
 export const Login = memo(() => {
   return (
-    <div className="bg-primary h-screen flex flex-col items-center ">
+    <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
       <div className="mt-[clamp(60px,13.1vh,200px)]">
         <Logo fontSize="text-4xl" imageSize="139px" />
       </div>
@@ -18,7 +18,7 @@ export const Login = memo(() => {
         <PasswordInput textColor="text-secondary" borderColor="border-secondary" formName="password">パスワード</PasswordInput>
       </div>
       <div className="text-right w-[clamp(93px,68vw,400px)]"><Link className="text-secondary" to="/forgot-password">パスワードを忘れた方はこちら</Link></div>
-      <div className="mt-[clamp(30px,6.6vh,70px)]">
+      <div className="mt-[clamp(30px,6.6vh,70px)] mb-[clamp(60px,13.1vh,200px)]">
         <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録"></TwoButton>
       </div>
     </div>
