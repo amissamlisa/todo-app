@@ -6,11 +6,15 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Login } from "./features/users/pages/Login";
+import { RegistrationForm } from "./features/users/pages/RegistrationForm"
 
 const router = createBrowserRouter([
-    {
+  {
     path: "/",
     element: <Login />,
+  }, {
+    path: "/user-registration",
+    element: <RegistrationForm />,
   }
 ]);
 createRoot(document.getElementById('root')!).render(
