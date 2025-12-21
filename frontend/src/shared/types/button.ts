@@ -6,5 +6,6 @@ type ButtonTextColor = "text-primary" | "text-secondary";
 export interface ButtonProps {
   buttonColor: ButtonBgColor,
   textColor: ButtonTextColor,
-  children: ReactNode
+  children: ReactNode,
+  onButtonClick: () => void;
 }
