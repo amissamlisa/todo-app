@@ -25,6 +25,12 @@ class StatusUnchangedError(Exception):
             f"現在の{self.args[0]}ステータスと同じステータスのため、変更できません"
         )
 
+class AchievedStatusImmutable(Exception):
+    def __str__(self):
+        return (
+            "達成から未達成へ目標ステータスを変更できません"
+        )
+
 
 class GoalRepository:
     def __init__(self):
@@ -32,8 +38,6 @@ class GoalRepository:
 
     def register_goal(self, db, goal: Goals, commit=True):
         try:
-            if goal.status not in [GoalsStatusEnum.Unachieved.value, GoalsStatusEnum.Achieved.value]:
-                raise ValueError("無効な目標ステータスです")
             existing_goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value, Goals.user_id == goal.user_id).first()
             if existing_goal:
                 raise UnachievedGoalAlreadyExists()
@@ -64,7 +68,9 @@ class GoalRepository:
             # ステータス更新
             if new_goal_status not in [GoalsStatusEnum.Unachieved, GoalsStatusEnum.Achieved]:
                 raise ValueError("無効な目標ステータスです")
-            if goal.status != new_goal_status.value and new_goal_status.value == GoalsStatusEnum.Achieved.value:
+            if new_goal_status.value == GoalsStatusEnum.Unachieved.value and goal.status == GoalsStatusEnum.Achieved.value:
+                raise AchievedStatusImmutable()
+            if goal.status != new_goal_status.value:
                 goal.status = new_goal_status.value
                 if commit:
                     db.commit()
