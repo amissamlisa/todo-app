@@ -1,4 +1,4 @@
-// import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import {
@@ -6,7 +6,9 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Login } from "./features/users/pages/Login";
-import { RegistrationForm } from "./features/users/pages/RegistrationForm"
+import {AccountRegistrationConfirm } from "./features/users/pages/AccountRegistrationConfirm"
+import { AccountRegistrationForm } from './features/users/pages/AccountRegistrationForm';
+import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
 
 const router = createBrowserRouter([
   {
@@ -14,9 +16,17 @@ const router = createBrowserRouter([
     element: <Login />,
   }, {
     path: "/user-registration",
-    element: <RegistrationForm />,
+    element: <AccountRegistrationForm />,
+  }, {
+    path: "/user-registration/confirm",
+    element: <AccountRegistrationConfirm />,
+  },{
+    path: "/user-registration/complete",
+    element: <AccountRegistrationComplete/>
   }
 ]);
 createRoot(document.getElementById('root')!).render(
-  <RouterProvider router={router} />
+  <StrictMode>
+    <RouterProvider router={router} />
+  </StrictMode>
 )
