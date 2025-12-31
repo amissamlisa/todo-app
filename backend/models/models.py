@@ -30,7 +30,7 @@ class Goals(Base):
     goal_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
     goal_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    status: Mapped[str] = mapped_column(default=GoalsStatusEnum.Unachieved.value, nullable=False)
+    status: Mapped[str] = mapped_column(default=GoalsStatusEnum.Unachieved.value, nullable=False) 
     start_day: Mapped[Date] = mapped_column(Date, nullable=False)
     target_day: Mapped[Date] = mapped_column(Date, nullable=False)
     status_against_goal: Mapped[str] = mapped_column(String(200), nullable=False)
