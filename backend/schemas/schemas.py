@@ -3,12 +3,15 @@ from typing import Optional, List
 import datetime
 import re
 
+from backend.models.models import GoalsStatusEnum
+
 
 class GoalsRequest(BaseModel):
     goal_name: str = Field(max_length=100)
     status_against_goal: str = Field(max_length=200)
     start_day: datetime.date
     target_day: datetime.date
+    status: str = GoalsStatusEnum.Unachieved.value
     weekday_available_time: int = Field(ge=1, le=720)
     weekends_available_time: int = Field(ge=1, le=720)
     total_estimated_time: int = Field(ge=1)
@@ -38,7 +41,7 @@ class SaveRequest(BaseModel):
     goal_tasks: list[GoalsTasksOut]
 
 class UserRequest(BaseModel):
-    username: str = Field(min_length=5)
+    username: str
     password: str = Field(min_length=10)
     confirmation_password: str = Field(min_length=10)
     email: EmailStr
