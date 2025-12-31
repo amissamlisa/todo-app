@@ -5,18 +5,12 @@ import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { PasswordInput } from "../../../shared/components/molecules/PasswordInput";
+import { type RegistrationFormType } from "../type/registrationForm";
 
-
-export const RegistrationForm = memo(() => {
+export const AccountRegistrationForm = memo(() => {
   const navigate = useNavigate();
 
-  type RegistrationFormType =
-    {
-      username: string,
-      email: string,
-      password: string,
-      confirmPassword: string
-    }
+  
   const { control, handleSubmit, formState: { errors }, getValues} = useForm<RegistrationFormType>({
     defaultValues: {
       username: "",
@@ -27,11 +21,11 @@ export const RegistrationForm = memo(() => {
   });
   const onPrimaryClick = (data: RegistrationFormType) => {
     console.log(data);
-    navigate("/user-registration/confirm", { state: data });
+    navigate("/user-registration/confirm", { state: data, replace: true }, );
   };
 
   const onSecondaryClick = () => {
-    navigate("/");
+    navigate("/", { replace: true });
   }
   return (
     <div className="overflow-y-auto h-screen ">
