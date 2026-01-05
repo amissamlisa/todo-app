@@ -3,5 +3,5 @@ export type RegistrationFormType =
     username: string,
     email: string,
     password: string,
-    confirmPassword: string
+    confirmation_password: string
   }
