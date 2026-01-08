@@ -59,8 +59,7 @@ class UserRequest(BaseModel):
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
         return self
-
-
+    
 class Token(BaseModel):
     access_token: str
     token_type: str
