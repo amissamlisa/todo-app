@@ -5,23 +5,23 @@ import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { PasswordInput } from "../../../shared/components/molecules/PasswordInput";
-import { type RegistrationFormType } from "../type/registrationForm";
+import { type RegistrationFormType } from "../types/registrationForm";
 
 export const AccountRegistrationForm = memo(() => {
   const navigate = useNavigate();
 
-  
-  const { control, handleSubmit, formState: { errors }, getValues} = useForm<RegistrationFormType>({
+
+  const { control, handleSubmit, formState: { errors }, getValues } = useForm<RegistrationFormType>({
     defaultValues: {
       username: "",
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmation_password: ""
     }
   });
   const onPrimaryClick = (data: RegistrationFormType) => {
     console.log(data);
-    navigate("/user-registration/confirm", { state: data, replace: true }, );
+    navigate("/user-registration/confirm", { state: data, replace: true });
   };
 
   const onSecondaryClick = () => {
@@ -37,6 +37,8 @@ export const AccountRegistrationForm = memo(() => {
             control={control}
             rules={{
               required: "ユーザー名を入力してください",
+              validate: (value) =>
+                !/[ \u3000]/.test(value) || "空白（全角・半角）は使用できません",
             }}
             name="username"
             render={({ field }) => (
@@ -59,8 +61,11 @@ export const AccountRegistrationForm = memo(() => {
           <Controller
             control={control}
             rules={{
-              required: "メールアドレスを入力してください", pattern: {
-                value: /^[a-zA-Z0-9.!#$%&'*+/\\=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+              required: "メールアドレスを入力してください",
+              validate: (value) =>
+                !/[ \u3000]/.test(value) || "空白（全角・半角）は使用できません",
+              pattern: {
+                value: /^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$/,
                 message: "メールアドレスはメールアドレス形式で入力してください",
               },
             }}
@@ -87,6 +92,9 @@ export const AccountRegistrationForm = memo(() => {
             control={control}
             rules={{
               required: "パスワードを入力してください",
+              validate: (value) =>
+                !/[ \u3000]/.test(value) || "空白（全角・半角）は使用できません"
+              ,
               minLength: {
                 value: 10,
                 message: "パスワードは10桁以上で入力してください",
@@ -119,13 +127,17 @@ export const AccountRegistrationForm = memo(() => {
             control={control}
             rules={{
               required: "確認パスワードを入力してください",
-              validate: {
-                validate: (value) =>
-                  value === getValues("password") ||
-                  "パスワードと確認パスワードが異なります",
-              }
+              validate: (value) => {
+                if (value !== getValues("password")) {
+                  return "パスワードと確認パスワードが異なります";
+                }
+                else if (/[ \u3000]/.test(value)) {
+                  return "空白（全角・半角）は使用できません";
+                }
+                return true;
+              },
             }}
-            name="confirmPassword"
+            name="confirmation_password"
             render={({ field }) => (
               <PasswordInput
                 value={field.value}
@@ -140,7 +152,7 @@ export const AccountRegistrationForm = memo(() => {
               </PasswordInput>
             )}
           />
-          {errors.confirmPassword && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.confirmPassword.message}</p>}
+          {errors.confirmation_password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.confirmation_password.message}</p>}
         </div>
 
         <div className="mb-24.5">
