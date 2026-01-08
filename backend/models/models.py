@@ -133,13 +133,12 @@ class GoalsTasks(Base):
 class Users(Base):
     __tablename__ = "users"
     user_id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
+    username: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     user_points: Mapped[int] = mapped_column(default=0, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
-        CheckConstraint("length(username) > 2", name="check_username_greater_than_two"),
         CheckConstraint("user_points >= 0", name="check_username_more_than_zero"),
     )
 
@@ -156,3 +155,13 @@ class Users(Base):
         if decimal_value.as_tuple().exponent <= -1:
             raise ValueError("小数点の値は無効です")
         return value
+    
+class RefreshTokens(Base):
+    __tablename__ = "refresh_tokens"
+    refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    token_prefix: Mapped[str] = mapped_column(String(6),nullable=False, unique=True)
+    hashed_token: Mapped[str] = mapped_column(String(60), nullable=False)
+    expires_at: Mapped[Date] = mapped_column(Date, nullable=False)
+    revoked_at: Mapped[DateTime] = mapped_column(DateTime,nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
