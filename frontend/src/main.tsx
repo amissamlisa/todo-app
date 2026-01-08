@@ -6,9 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Login } from "./features/users/pages/Login";
-import {AccountRegistrationConfirm } from "./features/users/pages/AccountRegistrationConfirm"
+import { AccountRegistrationConfirm } from "./features/users/pages/AccountRegistrationConfirm"
 import { AccountRegistrationForm } from './features/users/pages/AccountRegistrationForm';
 import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
+import { AuthProvider } from './features/users/auth/AuthProvider';
+import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
+import { PasswordReset } from './features/users/pages/PasswordReset';
 
 const router = createBrowserRouter([
   {
@@ -20,13 +23,21 @@ const router = createBrowserRouter([
   }, {
     path: "/user-registration/confirm",
     element: <AccountRegistrationConfirm />,
-  },{
+  }, {
     path: "/user-registration/complete",
-    element: <AccountRegistrationComplete/>
+    element: <AccountRegistrationComplete />
+  },{
+    path: "/user-registration/incomplete",
+    element: <AccountRegistrationIncomplete />
+  },{
+    path: "/password-reset",
+    element: <PasswordReset />
   }
 ]);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>
 )
