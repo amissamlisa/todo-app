@@ -8,8 +8,8 @@ export const RegistrationConfirmForm = memo(({ children, data, titleColor, subTi
       <p className={`${titleColor} font-bold text-center mb-[clamp(7px,1.6vh,28px)]`}>{children}</p>
       <div className={`${subTitleColor} ${backgroundColor} rounded-[5px]`}>
         {data.map((data) => (
-          <div className="mt-[clamp(15px,3.5vh,60px)] ml-[clamp(5px,2.5vh,20px)] mb-[clamp(15px,3.5vh,60px)]">
-            <p>{data.title}</p>
+          <div key={data.title} className="mt-[clamp(15px,3.5vh,60px)] ml-[clamp(5px,2.5vh,20px)] mb-[clamp(15px,3.5vh,60px)]">
+            <p >{data.title}</p>
             {data.title === "パスワード" ? <p>●●●●●●</p> : <p>{data.value}</p>}
           </div>
         ))} 
