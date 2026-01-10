@@ -165,3 +165,12 @@ class RefreshTokens(Base):
     expires_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     revoked_at: Mapped[DateTime] = mapped_column(DateTime,nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+
+class PasswordResetTokens(Base):
+    __tablename__ = "password_reset_tokens"
+    password_reset_token_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    token_prefix: Mapped[str] = mapped_column(String(6),nullable=False)
+    hashed_token: Mapped[str] = mapped_column(String(60), nullable=False, unique=True)
+    expires_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
