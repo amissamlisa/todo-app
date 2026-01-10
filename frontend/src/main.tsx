@@ -11,6 +11,7 @@ import { AccountRegistrationForm } from './features/users/pages/AccountRegistrat
 import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
 import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
+import { PasswordResetMessageSent } from './features/users/pages/PasswordResetMessageSent';
 import { PasswordReset } from './features/users/pages/PasswordReset';
 
 const router = createBrowserRouter([
@@ -32,6 +33,9 @@ const router = createBrowserRouter([
   },{
     path: "/password-reset",
     element: <PasswordReset />
+  },{
+    path: "/password-reset-message-sent",
+    element: <PasswordResetMessageSent />
   }
 ]);
 createRoot(document.getElementById('root')!).render(
