@@ -160,8 +160,8 @@ class RefreshTokens(Base):
     __tablename__ = "refresh_tokens"
     refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
-    token_prefix: Mapped[str] = mapped_column(String(6),nullable=False, unique=True)
+    token_prefix: Mapped[str] = mapped_column(String(6),nullable=False)
     hashed_token: Mapped[str] = mapped_column(String(60), nullable=False)
-    expires_at: Mapped[Date] = mapped_column(Date, nullable=False)
+    expires_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     revoked_at: Mapped[DateTime] = mapped_column(DateTime,nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
