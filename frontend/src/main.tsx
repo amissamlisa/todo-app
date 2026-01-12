@@ -12,7 +12,7 @@ import { AccountRegistrationComplete } from './features/users/pages/AccountRegis
 import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
 import { PasswordResetMessageSent } from './features/users/pages/PasswordResetMessageSent';
-import { PasswordReset } from './features/users/pages/PasswordReset';
+import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmailForm';
 
 const router = createBrowserRouter([
   {
@@ -31,8 +31,8 @@ const router = createBrowserRouter([
     path: "/user-registration/incomplete",
     element: <AccountRegistrationIncomplete />
   },{
-    path: "/password-reset",
-    element: <PasswordReset />
+    path: "/password-reset-email-form",
+    element: <PasswordResetEmailForm />
   },{
     path: "/password-reset-message-sent",
     element: <PasswordResetMessageSent />
