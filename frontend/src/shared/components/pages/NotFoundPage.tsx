@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { Header } from "../../../shared/components/molecules/Header";
+import { Header } from "../molecules/Header";
 import notFoundImg from "../../../assets/rain-cloud.png";
-import { Button } from "../../../shared/components/atoms/Button";
+import { Button } from "../atoms/Button";
 import { useNavigate } from "react-router-dom";
 
 export const NotFoundPage = memo(() => {
