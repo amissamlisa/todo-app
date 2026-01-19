@@ -5,10 +5,11 @@ import { Logo } from "../../../shared/components/atoms/Logo";
 import { Input } from "../../../shared/components/molecules/Input";
 import { PasswordInput } from "../../../shared/components/molecules/PasswordInput";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
-
-import { type LoginFormType } from "../type/loginForm";
+import { type LoginFormType } from "../types/loginForm";
+import { useAuth } from "../auth/useAuth";
 
 export const Login = memo(() => {
+
   const navigate = useNavigate();
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormType>({
@@ -17,14 +18,19 @@ export const Login = memo(() => {
       password: "",
     }
   });
-  const onPrimaryClick = (data: LoginFormType) => {
+  const { login, errorMessageFromServer } = useAuth();
+  const onPrimaryClick = async (data: LoginFormType) => {
     console.log(data);
-    navigate("/user-registration", { state: data, replace: true });
+    const isSucceeded = await login(data.email, data.password);
+    console.log(isSucceeded);
+    if (isSucceeded) {
+      navigate("/top", { replace: true });
+    } 
+
   };
 
-
   const onSecondaryClick = () => {
-    navigate("/user-registration", {replace: true});
+    navigate("/user-registration", { replace: true });
   }
   return (
     <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
@@ -52,7 +58,6 @@ export const Login = memo(() => {
             </Input>
           )}
         />
-        {errors.email && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.email.message}</p>}
       </div>
       <div className="mt-[clamp(9px,1.6vh,30px)]">
         <Controller
@@ -75,12 +80,22 @@ export const Login = memo(() => {
             </PasswordInput>
           )}
         />
-        {errors.password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.password.message}</p>}
       </div>
       <div className="text-right w-[clamp(93px,68vw,400px)]">
-
-        <Link className="text-secondary" to="/forgot-password">パスワードを忘れた方はこちら</Link>
+        <Link className="text-secondary" to="/password-reset-email-form">パスワードを忘れた方はこちら</Link>
       </div>
+
+      {errors.email && (
+        <p className="text-red-500">{errors.email.message}</p>
+      )}
+      {errors.password && (
+        <p className="text-red-500">{errors.password.message}</p>
+      )}
+
+      {/* サーバーエラー */}
+      {errorMessageFromServer && (
+        <p className="text-red-500">{errorMessageFromServer}</p>
+      )}
       <div className="mt-[clamp(30px,6.6vh,70px)] mb-[clamp(60px,13.1vh,200px)]">
         <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録" buttonBgColor="bg-secondary" buttonTextColor="text-primary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} ></TwoButton>
       </div>
