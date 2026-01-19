@@ -4,7 +4,12 @@ import { IoIosEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
 import type { InputProps } from "../../types/input";
 
-export const PasswordInput = memo(({ textColor, borderColor, children, value, onChangeText, onBlur, name }: InputProps) => {
+export const PasswordInput = memo(({ 
+  textColor,
+  borderColor,
+  children, 
+  value, 
+  onChangeText, onBlur, name }: InputProps) => {
   const [eye, setEye] = useState(false);
   const [formType, setFormType] = useState("password");
   const handleEyeClick = (eye: boolean) => {
@@ -17,9 +22,9 @@ export const PasswordInput = memo(({ textColor, borderColor, children, value, on
       <input value={value}
         onChange={(e) => onChangeText?.(e.target.value)}
         onBlur={onBlur} className={`${borderColor} focus:outline-none 
- rounded-[5px] w-full p-2  border-4 border-solid block bg-secondary`} type={`${formType}`} name={`${name}`} />
-      {eye === true && <IoIosEye onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
-      {eye === false && <IoIosEyeOff onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
+        rounded-[5px] w-full p-2  border-4 border-solid block bg-secondary`} type={`${formType}`} name={`${name}`} />
+        {eye === true && <IoIosEye onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
+        {eye === false && <IoIosEyeOff onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
     </div>
   )
 })
