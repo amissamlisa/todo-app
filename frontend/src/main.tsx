@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import {
@@ -13,35 +13,63 @@ import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
 import { PasswordResetMessageSent } from './features/users/pages/PasswordResetMessageSent';
 import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmailForm';
+import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
+import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';
+import { PasswordResetIncomplete } from './features/users/pages/PasswordResetIncomplete';
+import { Top } from './features/users/pages/Top';
+import { NotFoundPage } from './shared/components/pages/NotFoundPage';
+import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
+import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
+import { Logout } from './features/users/pages/Logout';
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Login />,
+    element: <PublicOnlyRoute><Login /></PublicOnlyRoute>,
   }, {
     path: "/user-registration",
-    element: <AccountRegistrationForm />,
+    element: <PublicOnlyRoute><AccountRegistrationForm /></PublicOnlyRoute>,
   }, {
     path: "/user-registration/confirm",
-    element: <AccountRegistrationConfirm />,
+    element: <PublicOnlyRoute><AccountRegistrationConfirm /></PublicOnlyRoute>,
   }, {
     path: "/user-registration/complete",
-    element: <AccountRegistrationComplete />
-  },{
+    element: <PublicOnlyRoute><AccountRegistrationComplete /></PublicOnlyRoute>
+  }, {
     path: "/user-registration/incomplete",
-    element: <AccountRegistrationIncomplete />
-  },{
+    element: <PublicOnlyRoute><AccountRegistrationIncomplete /></PublicOnlyRoute>
+  }, {
     path: "/password-reset-email-form",
-    element: <PasswordResetEmailForm />
-  },{
+    element: <PublicOnlyRoute><PasswordResetEmailForm /></PublicOnlyRoute>
+  }, {
     path: "/password-reset-message-sent",
-    element: <PasswordResetMessageSent />
+    element: <PublicOnlyRoute><PasswordResetMessageSent /></PublicOnlyRoute>
+  }, {
+    path: "/password-reset",
+    element: <PublicOnlyRoute><PasswordResetForm /></PublicOnlyRoute>
+  }, {
+    path: "/password-reset-complete",
+    element: <PublicOnlyRoute><PasswordResetComplete /></PublicOnlyRoute>
+  }, {
+    path: "/password-reset-incomplete",
+    element: <PublicOnlyRoute><PasswordResetIncomplete /></PublicOnlyRoute>
+  }, {
+    path: "/not-found",
+    element: <PublicOnlyRoute><NotFoundPage /></PublicOnlyRoute>
+  }, {
+    path: "/top",
+    element: <ProtectedRoute><Top /></ProtectedRoute>
+  }, {
+    path: "/logout",
+    element: <Logout />
   }
 ]);
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  // useEffectを2回使用するとリフレッシュトークンの挙動がおかしくなるためコメントアウト
+  // <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </StrictMode>
+  // </StrictMode>
 )
