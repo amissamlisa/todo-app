@@ -14,7 +14,7 @@ export const AccountRegistrationComplete = memo(() => {
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
-      <div className="flex flex-col justify-center items-center mt-[clamp(68.5px,16.2vh,274px)]">
+      <div className="flex flex-col justify-center items-center">
         <h2 className="text-primary mt-[clamp(15px,9.1vh,60px)] mb-[clamp(20px,4.7vh,80px)] text-2xl">アカウント登録完了</h2>
         <h2 className="text-primary">アカウント登録完了しました</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
