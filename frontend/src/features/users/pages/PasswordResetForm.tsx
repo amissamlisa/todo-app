@@ -12,7 +12,7 @@ export type PasswordResetType =
     confirmationPassword: string
   }
 export const PasswordResetForm = memo(() => {
-  const { doesResetPassword, verifyPasswordResetLink } = useAuth();
+  const { canResetPassword, verifyPasswordResetLink } = useAuth();
   const navigate = useNavigate();
   const search = useLocation().search;
   const query = new URLSearchParams(search);
@@ -61,7 +61,7 @@ export const PasswordResetForm = memo(() => {
     if (token === null) {
       navigate("/password-reset-incomplete", { replace: true })
     } else {
-      const isReset = await doesResetPassword(data.password, token);
+      const isReset = await canResetPassword(data.password, token);
       console.log(isReset);
       if (isReset) {
         navigate("/password-reset-complete", { replace: true },);
@@ -149,8 +149,8 @@ export const PasswordResetForm = memo(() => {
           />
           {errors.confirmationPassword && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.confirmationPassword.message}</p>}
           <div className="mt-[clamp(16.5px,3.9vh,66px)] mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={handleSubmit(onButtonClick)} buttonColor="bg-primary" textColor="text-secondary">パスワード再設定</Button>
-        </div>
+            <Button onButtonClick={handleSubmit(onButtonClick)} buttonColor="bg-primary" textColor="text-secondary">パスワード再設定</Button>
+          </div>
         </div>
       </div>
     </div>
