@@ -11,7 +11,7 @@ export type PasswordResetEmailType =
   }
 export const PasswordResetEmailForm = memo(() => {
   const navigate = useNavigate();
-  const { canSendResetPasswordEmail } = useAuth();
+  const { doseSendResetPasswordEmail } = useAuth();
   const { control, handleSubmit, formState: { errors } } = useForm<PasswordResetEmailType>({
     defaultValues: {
       email: "",
@@ -19,7 +19,7 @@ export const PasswordResetEmailForm = memo(() => {
   });
   const onPrimaryClick = async (data: PasswordResetEmailType) => {
     console.log(data);
-    await canSendResetPasswordEmail(data.email)
+    await doseSendResetPasswordEmail(data.email)
     navigate("/password-reset-message-sent", { replace: true },);
   };
 
@@ -33,7 +33,7 @@ export const PasswordResetEmailForm = memo(() => {
         <h2 className="text-primary mt-[clamp(15px,9.1vh,60px)] mb-[clamp(20px,4.7vh,80px)] text-2xl">パスワード再設定リンク送信</h2>
         <h2 className="text-primary w-[clamp(93px,68vw,400px)] mb-[clamp(11.5px,2.7vh,46px)]">登録いただいたメールアドレスを入力してください。パスワード再設定用のメールを送信します。</h2>
         <div className="mb-[clamp(26px,6.1vh,104px)]">
-          <Controller
+          <Controller  
             control={control}
             rules={{
               required: "メールアドレスを入力してください",
