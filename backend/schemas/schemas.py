@@ -34,8 +34,6 @@ class GoalRequestWithTasks(BaseModel):
     goal: GoalsRequest
     goal_tasks_list: Optional[List[GoalsTasksOut]] = None
 
-
-
 class SaveRequest(BaseModel):
     goal: GoalsRequest
     goal_tasks: list[GoalsTasksOut]
@@ -59,7 +57,15 @@ class UserRequest(BaseModel):
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
         return self
-    
+
+class PasswordResetEmailRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetRequest(BaseModel):
+    password: str
+    token: str | None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
