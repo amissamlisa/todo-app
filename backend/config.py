@@ -13,5 +13,5 @@ class Settings(BaseModel):
     PASSWORD_RESET_URL: str = os.environ["PASSWORD_RESET_URL"]
     SENDER_ADDRESS: str = os.environ["SENDER_ADDRESS"]
     SENDER_ADDRESS_PASSWORD: str = os.environ["SENDER_ADDRESS_PASSWORD"]
-    ALLOWED_ORIGIN_URL: str = os.getenv("ALLOWED_ORIGIN_URL")
+    ALLOWED_ORIGIN_URL: str = os.environ["ALLOWED_ORIGIN_URL"]
 settings = Settings()
