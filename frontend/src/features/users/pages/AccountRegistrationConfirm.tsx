@@ -7,7 +7,7 @@ import { RegistrationConfirmForm } from "../../../shared/components/molecules/Re
 import type { RegistrationFormType } from "../types/registrationForm";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const url = API_BASE_URL + "/auth";
+const url = API_BASE_URL + "/auth/registration";
 
 export const AccountRegistrationConfirm = memo(() => {
   const navigate = useNavigate();
