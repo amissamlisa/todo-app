@@ -5,15 +5,19 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from starlette import status
 
+from backend.utils.auth_helpers import get_current_user
+
 from ..database import get_db
 from ..models.models import Goals, GoalsStatusEnum, GoalsTasks
-from .auth import get_current_user
-from ..repository.repository import GoalRepository, StatusUnchangedError, GoalNotFound, GoalTaskRepository
 
-router = APIRouter(
-    prefix="/goal",
-    tags=["goal"]
+from ..repository.repository import (
+    GoalRepository,
+    StatusUnchangedError,
+    GoalNotFound,
+    GoalTaskRepository,
 )
+
+router = APIRouter(prefix="/goal", tags=["goal"])
 
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
@@ -24,11 +28,17 @@ def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal = db.query(Goals).filter(Goals.status == GoalsStatusEnum.Unachieved.value,
-                                      Goals.goal_id == goal_id).first()
+        goal = (
+            db.query(Goals)
+            .filter(
+                Goals.status == GoalsStatusEnum.Unachieved.value,
+                Goals.goal_id == goal_id,
+            )
+            .first()
+        )
 
         if goal is None:
-            raise HTTPException(status_code=404, detail='目標が見つかりません')
+            raise HTTPException(status_code=404, detail="目標が見つかりません")
 
         return {"detail": "目標を取得しました", "goal": goal}
     except HTTPException:
@@ -46,7 +56,7 @@ def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id
             raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
         if goal is None:
-            raise HTTPException(status_code=404, detail='目標が見つかりません')
+            raise HTTPException(status_code=404, detail="目標が見つかりません")
         goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
 
         for goal_task in goal_tasks:
@@ -59,7 +69,9 @@ def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id
 
 
 @router.put("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
-def update_goal_status(user: user_dependency, db: db_dependency, goal_id: int, new_status: GoalsStatusEnum):
+def update_goal_status(
+    user: user_dependency, db: db_dependency, goal_id: int, new_status: GoalsStatusEnum
+):
     try:
         goal_repository = GoalRepository()
         if user is None:
