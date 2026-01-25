@@ -96,7 +96,7 @@ def create_refresh_token(user_id: int, db: Session):
                 hashed_token=hashed_token,
                 expires_at=datetime.now(timezone.utc) + refresh_token_expires,
             )
-            refresh_token_repository.register_refreshToken(
+            refresh_token_repository.register_refresh_token(
                 db, refresh_token_record, commit=True
             )
             return raw_token

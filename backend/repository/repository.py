@@ -166,7 +166,7 @@ class GoalTaskRepository:
 class UserRepository:
     def __init__(self):
         pass
-    
+
     def find_user_by_email(self, db: Session, email: str):
         user = db.query(Users).filter(Users.email == email).first()
         return user
@@ -204,7 +204,7 @@ class RefreshTokenRepository:
     def __init__(self):
         pass
 
-    def register_refreshToken(
+    def register_refresh_token(
         self, db: Session, refresh_token: RefreshTokens, commit=True
     ):
         try:
