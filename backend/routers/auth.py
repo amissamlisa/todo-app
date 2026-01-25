@@ -100,7 +100,7 @@ def reset_password(
     password_reset_repository.update_password_from_db(
         db, record.user_id, hashed_new_password, commit=True
     )
-    refresh_token_repository.disable_refresh_token(db, record.user_id, commit=True)
+    refresh_token_repository.revoke_all_user_tokens(db, record.user_id, commit=True)
 
     return {"message": "Password has been reset successfully"}
 
