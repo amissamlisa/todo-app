@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const AccountRegistrationIncomplete = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const errMessage = location.state?.error;
+  const errMessage = location.state?.error || "アカウント登録に失敗しました";
 
   useEffect(() => {
     if (!errMessage) {
