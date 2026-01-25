@@ -44,7 +44,7 @@ export const PasswordResetForm = memo(() => {
           setIsVerifying(false);
         }
       } else {
-        navigate("/password-reset-incomplete", { replace: true });
+        navigate("/not-found", { replace: true });
       }
     };
 
