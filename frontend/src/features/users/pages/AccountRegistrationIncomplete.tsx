@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
 import rainCloudImg from "../../../assets/rain-cloud.png";
 import { Button } from "../../../shared/components/atoms/Button";
@@ -8,7 +8,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const AccountRegistrationIncomplete = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const errMessage = location.state.error;
+  const errMessage = location.state?.error;
+
+  useEffect(() => {
+    if (!errMessage) {
+      navigate("/", { replace: true });
+    }
+  }, [errMessage, navigate]);
+
+  if (!errMessage) {
+    return null;
+  }
+
   const onButtonClick = () => {
     navigate("/", { replace: true });
   }
