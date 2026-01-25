@@ -217,21 +217,6 @@ class RefreshTokenRepository:
             db.rollback()
             raise e
 
-    def disable_refresh_token(
-        self, db: Session, refresh_token: RefreshTokens, user_id: int, commit=True
-    ):
-        try:
-            refresh_token = (
-                db.query(RefreshTokens).filter(RefreshTokens.user_id == user_id).all()
-            )
-            for refresh_token in refresh_token:
-                refresh_token.revoked_at = datetime.now(timezone.utc)
-            if commit:
-                db.commit()
-                return refresh_token
-        except Exception as e:
-            db.rollback()
-            raise e
 
     def revoke_refresh_token(self, db: Session, token_id: int, commit=True):
         try:
