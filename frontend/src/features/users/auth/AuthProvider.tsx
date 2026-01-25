@@ -161,7 +161,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           && !originalRequest.url?.includes('/auth/refresh')
 
         ) {
-          originalRequest._retry = true
+          originalRequest._retry = true;
           try {
             const res = await api.post(
               '/auth/refresh',
