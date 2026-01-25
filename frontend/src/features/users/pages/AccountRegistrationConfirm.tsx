@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { Header } from "../../../shared/components/molecules/Header";
@@ -14,6 +14,16 @@ export const AccountRegistrationConfirm = memo(() => {
   const location = useLocation();
 
   const data = location.state as RegistrationFormType;
+
+  useEffect(() => {
+    if (!data) {
+      navigate("/", { replace: true });
+    }
+  }, [data, navigate]);
+
+  if (!data) {
+    return null;
+  }
 
   const userData = [
     { title: "ユーザー名", value: data.username },
