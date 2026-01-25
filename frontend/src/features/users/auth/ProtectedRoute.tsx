@@ -10,7 +10,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const isAuthenticated = validateAccessToken();
 
   if (!isAuthenticated) {
-    return <Navigate to="/logout" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
