@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else {
           setErrorMessageFromServer("ログインに失敗しました");
         }
-      } 
+      }
       else {
         console.error("予期しないエラー", err);
       }
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return isValid;
   }
 
-  const canSendResetPasswordEmail = async (email: string): Promise<void> => {
+  const sendResetEmailAndComplete = async (email: string): Promise<void> => {
     try {
       await api.post(
         '/auth/password-reset/request',
@@ -88,11 +88,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           email: email,
         }
       );
-    } catch (err) {
-      console.error("エラー", err);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        const errorCode = e.response?.data?.error_code;
+        const errorMessage = e.response?.data?.error_message;
+        console.error(errorCode + " " + errorMessage);
+      } else {
+        console.error("予期しないエラー", e);
+      }
     }
   }
-
   const verifyPasswordResetLink = async (token: string): Promise<void> => {
     try {
       await api.get("/auth/password-reset/verification", { params: { token } })
@@ -197,7 +202,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, canSendResetPasswordEmail, canResetPassword, verifyPasswordResetLink, validateAccessToken }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken }}>
       {children}
     </AuthContext.Provider>
   );

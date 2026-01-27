@@ -13,7 +13,7 @@ export type PasswordResetEmailType =
 export const PasswordResetEmailForm = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { canSendResetPasswordEmail } = useAuth();
+  const { sendResetEmailAndComplete } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const PasswordResetEmailForm = memo(() => {
     console.log(data);
     setIsLoading(true);
     try {
-      await canSendResetPasswordEmail(data.email)
+      await sendResetEmailAndComplete(data.email)
       navigate("/password-reset-message-sent", { replace: true },);
     } finally {
       setIsLoading(false);
