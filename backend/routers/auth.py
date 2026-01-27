@@ -164,7 +164,7 @@ def login_for_access_token(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
+        secure=True,
         samesite="lax",
         path="/",
     )
@@ -220,7 +220,7 @@ def refresh(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=False,
+        secure=True,
         samesite="lax",
         path="/",
     )
