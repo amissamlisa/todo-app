@@ -158,11 +158,10 @@ def find_valid_password_token(password_reset_token: str, db: Session):
             elif matched_token.expires_at < datetime.now(timezone.utc):
                 raise expired_password_reset_link_exception
             return matched_token
-    return None
+    raise invalid_password_reset_link_exception
 
 
 def get_token_from_cookie(refresh_token: str | None = Cookie(default=None)):
-    print("Cookie stored refresh tokens:", refresh_token)
     if refresh_token is None:
         raise credentials_exception
     return refresh_token
