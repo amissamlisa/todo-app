@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from backend.exceptions.app_exception import AppException
-from backend.utils import parse
+from backend.utils.parse import parse_validation_errors
 
 def generate_error_response(
     status_code: int,
@@ -43,7 +43,7 @@ def app_exception_handler(request: Request, exc: AppException):
 
 # バリデーションエラー用
 def validation_exception_handler(request: Request, exc: RequestValidationError):
-    errors = parse(exc.errors())
+    errors = parse_validation_errors(exc.errors())
     return generate_error_response(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         error_code="VALIDATION_ERROR",
