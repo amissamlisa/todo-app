@@ -218,11 +218,11 @@ class RefreshTokenRepository:
             raise e
 
 
-    def revoke_refresh_token(self, db: Session, token_id: int, commit=True):
+    def revoke_refresh_token(self, db: Session, refresh_token_id: int, commit=True):
         try:
             token = (
                 db.query(RefreshTokens)
-                .filter(RefreshTokens.refresh_token_id == token_id)
+                .filter(RefreshTokens.refresh_token_id == refresh_token_id)
                 .first()
             )
             if token:
