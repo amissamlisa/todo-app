@@ -184,7 +184,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setIsLoggedIn(false);
             setToken(null);
             console.log(e);
-            logout();
+            await logout();
           }
         }
         return Promise.reject(error);
