@@ -311,7 +311,8 @@ class TestGoalTasks(TestBase):
         )]
         goal_tasks = self.goal_task_repository.register_goal_task(self.db, goal_task_data, commit=True)
         now = datetime.datetime.now()
-        self.assertTrue(abs((now - goal_tasks[0].created_at).total_seconds()) < 5)
+        diff_seconds = abs((now - goal_tasks[0].created_at).total_seconds())
+        self.assertLess(diff_seconds, 5)
 
     def test_delete_goal_task_from_db(self):
         goal_task_data = [GoalsTasks(
