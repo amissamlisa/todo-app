@@ -10,4 +10,5 @@ export const AuthContext = createContext<{
   verifyPasswordResetLink: (token: string) => Promise<void>;
   canResetPassword: (password: string, token: string) => Promise<boolean>;
   validateAccessToken: () => boolean;
+  clearErrorMessage: () => void;
 } | null>(null);

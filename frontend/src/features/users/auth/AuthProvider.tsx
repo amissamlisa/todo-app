@@ -80,6 +80,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return isValid;
   }
 
+  const clearErrorMessage = (): void => {
+    setErrorMessageFromServer(null);
+  }
+
   const sendResetEmailAndComplete = async (email: string): Promise<void> => {
     try {
       await api.post(
@@ -202,7 +206,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearErrorMessage }}>
       {children}
     </AuthContext.Provider>
   );

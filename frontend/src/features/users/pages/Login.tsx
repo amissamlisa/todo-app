@@ -18,19 +18,22 @@ export const Login = memo(() => {
       password: "",
     }
   });
-  const { login, errorMessageFromServer } = useAuth();
+  const { login, errorMessageFromServer, clearErrorMessage } = useAuth();
   const onPrimaryClick = async (data: LoginFormType) => {
     console.log(data);
     const isSucceeded = await login(data.email, data.password);
     console.log(isSucceeded);
     if (isSucceeded) {
       navigate("/top", { replace: true });
-    } 
+    }
 
   };
 
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
+    if (errorMessageFromServer !== null) {
+        clearErrorMessage();
+      }
   }
   return (
     <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
