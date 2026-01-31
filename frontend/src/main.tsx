@@ -21,6 +21,7 @@ import { NotFoundPage } from './shared/components/pages/NotFoundPage';
 import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
+import { StrictMode } from 'react';
 
 
 const router = createBrowserRouter([
@@ -66,10 +67,9 @@ const router = createBrowserRouter([
   }
 ]);
 createRoot(document.getElementById('root')!).render(
-  // useEffectを2回使用するとリフレッシュトークンの挙動がおかしくなるためコメントアウト
-  // <StrictMode>
+  <StrictMode>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  // </StrictMode>
+  </StrictMode>
 )
