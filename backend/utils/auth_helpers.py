@@ -87,7 +87,7 @@ def create_token(user_id: int, expires_delta: timedelta):
 def create_refresh_token(user_id: int, db: Session):
     refresh_token_repository = RefreshTokenRepository()
     for _ in range(3):
-        raw_token = generate_secure_string(length=60)
+        raw_token = generate_secure_string(length=72)
         hashed_token = bcrypt_context.hash(raw_token)
         token_prefix = raw_token[:6]
         refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
@@ -114,7 +114,7 @@ def create_password_reset_token(user_id: int, db: Session = Depends(get_db)):
     password_reset_token_repository = PasswordResetRepository()
 
     for _ in range(3):
-        raw_token = generate_secure_string(length=60)
+        raw_token = generate_secure_string(length=72)
         hashed_token = bcrypt_context.hash(raw_token)
         token_prefix = raw_token[:6]
         password_reset_token_expires = datetime.now(timezone.utc) + timedelta(
