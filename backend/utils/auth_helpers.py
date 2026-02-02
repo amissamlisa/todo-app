@@ -17,7 +17,10 @@ from ..repository.repository import (
 from ..database import get_db
 from ..config import settings
 from ..exceptions.app_exception import AppException
+import logging
 
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -102,7 +105,7 @@ def create_refresh_token(user_id: int, db: Session):
             return raw_token
 
         except IntegrityError:
-            print("失敗しました。もう一度繰り返します")
+            logger.error("失敗しました。もう一度繰り返します")
 
     raise token_generation_exception
 
@@ -131,7 +134,7 @@ def create_password_reset_token(user_id: int, db: Session = Depends(get_db)):
             return raw_token
 
         except IntegrityError:
-            print("失敗しました。もう一度繰り返します")
+            logger.error("失敗しました。もう一度繰り返します")
     raise token_generation_exception
 
 
