@@ -82,7 +82,10 @@ def send_reset_password_email(
 
 @router.get("/password-reset/verification", status_code=status.HTTP_200_OK)
 def verify_password_reset_link(token: str, db: Session = Depends(get_db)):
-    password_reset_token_record = find_valid_password_token(token, db)
+    password_reset_token_record = find_valid_password_token(
+        token,
+        db,
+    )
 
     if not password_reset_token_record:
         raise invalid_password_reset_link_exception
@@ -94,7 +97,10 @@ def reset_password(
     password_reset_request: PasswordResetRequest,
     db: Session = Depends(get_db),
 ):
-    record = find_valid_password_token(password_reset_request.token, db)
+    record = find_valid_password_token(
+        password_reset_request.token,
+        db
+    )
     hashed_new_password = bcrypt_context.hash(password_reset_request.password)
 
     password_reset_repository.update_password_from_db(
@@ -186,9 +192,7 @@ def refresh(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    refresh_token_repository = RefreshTokenRepository()
     matched_refresh_token = verify_and_find_refresh_token(refresh_token, db)
-
     if not matched_refresh_token or matched_refresh_token.expires_at < datetime.now(
         timezone.utc
     ):
