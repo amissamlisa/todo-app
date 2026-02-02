@@ -4,3 +4,8 @@
 fastapienv/
 **/__pycache__/**
 .idea/
+
+# Alembic 設定ファイル
+backend/alembic.ini
+backend/alembic/env.py
+backend/alembic/script.py.mako

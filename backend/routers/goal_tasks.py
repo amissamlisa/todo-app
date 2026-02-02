@@ -3,6 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.exc import IntegrityError, StatementError, DataError
 
+from backend.utils.auth_helpers import get_current_user
+
 from ..database import get_db
 from sqlalchemy.orm import Session
 from ..schemas.schemas import GoalsTasksOut, GoalRequestWithTasks, SaveRequest
@@ -11,7 +13,7 @@ from openai import OpenAI
 import os
 import json
 from ..repository.repository import GoalTaskRepository, GoalRepository, GoalTaskNotFound, StatusUnchangedError
-from .auth import get_current_user
+
 
 router = APIRouter(
     prefix="/goal_tasks",

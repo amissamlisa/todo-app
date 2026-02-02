@@ -1,6 +1,6 @@
 import datetime
 from backend.models.models import Goals, GoalsStatusEnum, Users
-from backend.repository.repository import GoalRepository, UserRepository
+from backend.repository.repository import GoalRepository, UserRepository, AchievedStatusImmutable, StatusUnchangedError
 from backend.test.integration.models.test_base import TestBase
 from sqlalchemy.exc import DataError, IntegrityError, StatementError
 
@@ -166,13 +166,13 @@ class GoalsTest(TestBase):
         goal = self.goal_repository.register_goal(self.db, goal_data, commit=True)
         self.assertEqual(goal.status, GoalsStatusEnum.Unachieved.value)
 
-    def test_valid_status_enum_is_applied(self):
+    def test_achieved_status_enum_is_applied(self):
         goal_data = Goals(
             goal_name="TOEIC800点取得",
             user_id=self.user.user_id,
-            status=GoalsStatusEnum.Achieved.value,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=90,
             weekends_available_time=300,
@@ -183,21 +183,19 @@ class GoalsTest(TestBase):
         self.assertEqual(goal.status, GoalsStatusEnum.Achieved.value)
 
     def test_invalid_status_enum_is_applied(self):
-        goal_data = Goals(
-            goal_name="TOEIC800点取得",
-            status="進行中",
-            user_id=self.user.user_id,
-            start_day=datetime.date(2030, 10, 15),
-            target_day=datetime.date(2030, 10, 22),
-            status_against_goal="TOEIC模擬テストで400点を取得",
-            weekday_available_time=90,
-            weekends_available_time=300,
-            total_estimated_time=1140,
-            task_creation_rule="リーディングに重点をおいてタスク生成したい"
-        )
-
         with self.assertRaises(ValueError):
-            self.goal_repository.register_goal(self.db, goal_data, commit=True)
+            Goals(
+                goal_name="TOEIC800点取得",
+                status="進行中",
+                user_id=self.user.user_id,
+                start_day=datetime.date(2030, 10, 15),
+                target_day=datetime.date(2030, 10, 22),
+                status_against_goal="TOEIC模擬テストで400点を取得",
+                weekday_available_time=90,
+                weekends_available_time=300,
+                total_estimated_time=1140,
+                task_creation_rule="リーディングに重点をおいてタスク生成したい"
+            )
 
 
     def test_create_goal_with_start_day_before_target_day(self):
@@ -228,8 +226,9 @@ class GoalsTest(TestBase):
             total_estimated_time=1140,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
-        with self.assertRaises(IntegrityError):
-            self.goal_repository.register_goal(self.db, goal_data, commit=True)
+        goal = self.goal_repository.register_goal(self.db, goal_data, commit=True)
+        self.assertEqual(goal.start_day, goal_data.start_day)
+        self.assertEqual(goal.target_day, goal_data.target_day)
 
 
     def test_create_goal_with_start_day_after_target_day(self):
@@ -284,6 +283,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day=None,
                 target_day=datetime.date(2025, 10, 14),
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -298,6 +298,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day=datetime.date(2030, 10, 15),
                 target_day=None,
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -312,6 +313,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day="2030/10/10",
                 target_day=datetime.date(2030, 10, 22),
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -326,6 +328,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day=datetime.date(2030, 10, 15),
                 target_day="2030/10/22",
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -340,6 +343,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day="TOEIC800点取得",
                 target_day=datetime.date(2030, 10, 22),
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -354,6 +358,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day=datetime.date(2030, 10, 15),
                 target_day="TOEIC800点取得",
+
                 status_against_goal="TOEIC模擬テストで400点を取得",
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -472,6 +477,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="あ" * 201,
             weekday_available_time=90,
             weekends_available_time=300,
@@ -487,6 +493,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="あ" * 500,
             weekday_available_time=90,
             weekends_available_time=300,
@@ -503,6 +510,7 @@ class GoalsTest(TestBase):
                 user_id=self.user.user_id,
                 start_day=datetime.date(2030, 10, 15),
                 target_day=datetime.date(2030, 10, 22),
+                status=GoalsStatusEnum.Achieved.value,
                 status_against_goal=None,
                 weekday_available_time=90,
                 weekends_available_time=300,
@@ -516,6 +524,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal=" ",
             weekday_available_time=90,
             weekends_available_time=300,
@@ -531,9 +540,10 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=-90,
-            weekends_available_time=-300,
+            weekends_available_time=300,
             total_estimated_time=1140,
             task_creation_rule="リーディングに重点をおいてタスク生成したい"
         )
@@ -546,6 +556,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=0,
             weekends_available_time=300,
@@ -561,6 +572,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=1,
             weekends_available_time=300,
@@ -576,6 +588,7 @@ class GoalsTest(TestBase):
             user_id=self.user.user_id,
             start_day=datetime.date(2030, 10, 15),
             target_day=datetime.date(2030, 10, 22),
+            status = GoalsStatusEnum.Unachieved.value,
             status_against_goal="TOEIC模擬テストで400点を取得",
             weekday_available_time=2,
             weekends_available_time=300,
@@ -1055,3 +1068,37 @@ class GoalsTest(TestBase):
         registered_goal = self.goal_repository.register_goal(self.db, goal_data, commit=True)
         self.goal_repository.update_goal_status_from_db(self.db, registered_goal.goal_id, GoalsStatusEnum.Achieved, commit=True)
         self.assertEqual(registered_goal.status, GoalsStatusEnum.Achieved.value)
+
+    def test_update_goal_status_from_achieved_to_unachieved(self):
+        goal_data = Goals(
+            goal_name="TOEIC800点取得",
+            user_id=self.user.user_id,
+            start_day=datetime.date(2030, 10, 15),
+            target_day=datetime.date(2030, 10, 22),
+            status=GoalsStatusEnum.Achieved.value,
+            status_against_goal="TOEIC模擬テストで400点を取得",
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=1140,
+            task_creation_rule="リーディングに重点をおいてタスク生成したい"
+        )
+        registered_goal = self.goal_repository.register_goal(self.db, goal_data, commit=True)
+        with self.assertRaises(AchievedStatusImmutable):
+            self.goal_repository.update_goal_status_from_db(self.db, registered_goal.goal_id, GoalsStatusEnum.Unachieved, commit=True)
+
+    def test_update_same_goal_status_from_db(self):
+        goal_data = Goals(
+            goal_name="TOEIC800点取得",
+            user_id=self.user.user_id,
+            start_day=datetime.date(2030, 10, 15),
+            target_day=datetime.date(2030, 10, 22),
+            status_against_goal="TOEIC模擬テストで400点を取得",
+            weekday_available_time=90,
+            weekends_available_time=300,
+            total_estimated_time=1140,
+            task_creation_rule="リーディングに重点をおいてタスク生成したい"
+        )
+        registered_goal = self.goal_repository.register_goal(self.db, goal_data, commit=True)
+        with self.assertRaises(StatusUnchangedError):
+            self.goal_repository.update_goal_status_from_db(self.db, registered_goal.goal_id, GoalsStatusEnum.Unachieved, commit=True)
+

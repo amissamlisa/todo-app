@@ -38,7 +38,7 @@ class Goals(Base):
     weekends_available_time: Mapped[int] = mapped_column(Integer, nullable=False)
     total_estimated_time: Mapped[int] = mapped_column(Integer, nullable=False)
     task_creation_rule: Mapped[str | None] = mapped_column(String(800))
-    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
         CheckConstraint("length(goal_name) > 0", name="check_goal_name_greater_than_zero"),
         CheckConstraint('start_day <= target_day', name='check_start_before_target'),
@@ -100,7 +100,7 @@ class GoalsTasks(Base):
     goal_task_status: Mapped[str] = mapped_column(default=GoalsTasksStatusEnum.Todo.value, nullable=False)
     deadline: Mapped[Date] = mapped_column(Date, nullable=False)
     estimated_time: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
         CheckConstraint("length(goal_task_name) > 0", name="check_goal_task_name_greater_than_zero"),
         CheckConstraint('deadline > CURRENT_DATE', name='check_deadline_before_now'),
@@ -133,13 +133,12 @@ class GoalsTasks(Base):
 class Users(Base):
     __tablename__ = "users"
     user_id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
+    username: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     user_points: Mapped[int] = mapped_column(default=0, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.current_timestamp(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
-        CheckConstraint("length(username) > 2", name="check_username_greater_than_two"),
         CheckConstraint("user_points >= 0", name="check_username_more_than_zero"),
     )
 
@@ -156,3 +155,22 @@ class Users(Base):
         if decimal_value.as_tuple().exponent <= -1:
             raise ValueError("小数点の値は無効です")
         return value
+    
+class RefreshTokens(Base):
+    __tablename__ = "refresh_tokens"
+    refresh_token_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    token_prefix: Mapped[str] = mapped_column(String(6), nullable=False)
+    hashed_token: Mapped[str] = mapped_column(String(72), nullable=False, unique=True)
+    expires_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
+
+class PasswordResetTokens(Base):
+    __tablename__ = "password_reset_tokens"
+    password_reset_token_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False)
+    token_prefix: Mapped[str] = mapped_column(String(6), nullable=False)
+    hashed_token: Mapped[str] = mapped_column(String(72), nullable=False, unique=True)
+    expires_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
