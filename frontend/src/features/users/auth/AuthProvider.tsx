@@ -11,6 +11,9 @@ const api = axios.create({
   withCredentials: true
 });
 
+let rehydratePromise: Promise<string | null> | null = null;
+let interceptorCalled = false;
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -143,59 +146,82 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const rehydrateToken = async () => {
       try {
-        const res = await api.post('/auth/refresh');
-        setToken(res.data.access_token);
-        setIsLoggedIn(true);
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('[rehydrateToken] Response:', error.response?.data);
-          console.error('[rehydrateToken] Status:', error.response?.status);
+        if (!rehydratePromise) {
+          rehydratePromise = (async () => {
+            try {
+              const res = await api.post('/auth/refresh');
+              return res.data.access_token as string;
+            } catch (error) {
+              if (axios.isAxiosError(error)) {
+                console.error('[rehydrateToken] Response:', error.response?.data);
+                console.error('[rehydrateToken] Status:', error.response?.status);
+              }
+              return null;
+            }
+          })();
         }
-        setToken(null);
-        setIsLoggedIn(false);
+
+        const accessToken = await rehydratePromise;
+          if (accessToken) {
+            setToken(accessToken);
+            setIsLoggedIn(true);
+          } else {
+            setToken(null);
+            setIsLoggedIn(false);
+          }
       } finally {
-        setIsRehydrating(false);
+          setIsRehydrating(false);
       }
     };
     rehydrateToken();
   }, []);
 
   useEffect(() => {
-    const interceptor = api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-
-        if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/login')
-          && !originalRequest.url?.includes('/auth/refresh')
-
-        ) {
-          originalRequest._retry = true;
-          try {
-            const res = await api.post(
-              '/auth/refresh',
-              {},
-            );
-
-            const accessToken = res.data.access_token;
-            setToken(accessToken);
-
-            api.defaults.headers.common.Authorization =
-              `Bearer ${accessToken}`;
-
-            return api(originalRequest);
-          } catch (e) {
-            setIsLoggedIn(false);
-            setToken(null);
-            console.log(e);
-            await logout();
-          }
-        }
-        return Promise.reject(error);
+    const setupInterceptor = () => {
+      if (interceptorCalled) {
+        return () => { };
       }
-    );
+      interceptorCalled = true;
+
+      const interceptor = api.interceptors.response.use(
+        (response) => response,
+        async (error) => {
+          const originalRequest = error.config;
+
+          if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/login')
+            && !originalRequest.url?.includes('/auth/refresh')
+
+          ) {
+            originalRequest._retry = true;
+            try {
+              const res = await api.post(
+                '/auth/refresh',
+                {},
+              );
+
+              const accessToken = res.data.access_token;
+              setToken(accessToken);
+
+              api.defaults.headers.common.Authorization =
+                `Bearer ${accessToken}`;
+
+              return api(originalRequest);
+            } catch (e) {
+              setIsLoggedIn(false);
+              setToken(null);
+              console.log(e);
+              await logout();
+            }
+          }
+          return Promise.reject(error);
+        }
+      );
+      return () => {
+        api.interceptors.response.eject(interceptor);
+      };
+    };
     return () => {
-      api.interceptors.response.eject(interceptor);
+      setupInterceptor();
     };
   }, []);
 
