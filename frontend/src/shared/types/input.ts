@@ -12,4 +12,5 @@ export interface InputProps {
   name: string;
   formType?: InputType;
   children: ReactNode;
+  placeholder?: string;
 }
