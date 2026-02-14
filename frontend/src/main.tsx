@@ -16,12 +16,13 @@ import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmai
 import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
 import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';
 import { PasswordResetIncomplete } from './features/users/pages/PasswordResetIncomplete';
-import { Top } from './features/users/pages/Top';
+import { Top } from './features/tasks/Top';
 import { NotFoundPage } from './shared/components/pages/NotFoundPage';
 import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
 import { StrictMode } from 'react';
+import { TaskRegistrationForm } from './features/tasks/TaskRegistrationForm';
 
 
 const router = createBrowserRouter([
@@ -61,7 +62,10 @@ const router = createBrowserRouter([
   }, {
     path: "/top",
     element: <ProtectedRoute><Top /></ProtectedRoute>
-  }, {
+  },{
+    path: "/tasks-registration",
+    element:<ProtectedRoute><TaskRegistrationForm /></ProtectedRoute>
+  },  {
     path: "/logout",
     element: <Logout />
   }
