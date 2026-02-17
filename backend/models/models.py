@@ -96,7 +96,7 @@ class GoalsTasks(Base):
 
     goal_task_id: Mapped[int] = mapped_column(primary_key=True)
     goal_id: Mapped[int] = mapped_column(ForeignKey("goals.goal_id"), nullable=False)
-    goal_task_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    goal_task_name: Mapped[str] = mapped_column(String(100), nullable=False)
     goal_task_status: Mapped[str] = mapped_column(default=GoalsTasksStatusEnum.Todo.value, nullable=False)
     deadline: Mapped[Date] = mapped_column(Date, nullable=False)
     estimated_time: Mapped[int] = mapped_column(Integer, nullable=False)
