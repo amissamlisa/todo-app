@@ -5,8 +5,11 @@ export interface RegistrationConfirmFormProps {
   titleColor: string;
   subTitleColor: string;
   backgroundColor: string;
+  height?: string;
+  width?: string;
+  centerItems?: boolean;
   data: {
-    title: string;
+    title?: string;
     value: string;
   }[]
 }
