@@ -6,7 +6,6 @@ from sqlalchemy.orm import DeclarativeBase, validates
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import Mapped
 import datetime
-import jpholiday
 
 
 class GoalsTasksStatusEnum(enum.Enum):
@@ -19,10 +18,14 @@ class GoalsStatusEnum(enum.Enum):
     Unachieved = "未達成"
     Achieved = "達成"
 
+class RankEnum(enum.Enum):
+    Droplet = "雫"
+    Mist = "霧"
+    Cloud = "雲"
+    GlowingCloud = "光雲"
 
 class Base(DeclarativeBase):
     pass
-
 
 class Goals(Base):
     __tablename__ = "goals"
@@ -72,24 +75,6 @@ class Goals(Base):
             raise ValueError("無効な目標ステータスです")
         return value
 
-    def calculate_total_estimated_time(self):
-        weekday_count = 0
-        weekends_count = 0
-        holiday_count = 0
-
-        current_day: datetime.date = self.start_day
-        while current_day <= self.target_day:
-            if jpholiday.is_holiday(current_day):
-                holiday_count += self.weekends_available_time
-            elif current_day.weekday() < 5:
-                weekday_count += self.weekday_available_time
-            else:
-                weekends_count += self.weekends_available_time
-            current_day += datetime.timedelta(days=1)
-        total_estimated_time = weekends_count + weekday_count + holiday_count
-
-        return total_estimated_time
-
 
 class GoalsTasks(Base):
     __tablename__ = "goals_tasks"
@@ -137,6 +122,7 @@ class Users(Base):
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     user_points: Mapped[int] = mapped_column(default=0, nullable=False)
+    user_rank: Mapped[str] = mapped_column(default=RankEnum.Droplet.value, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.current_timestamp(), nullable=False)
     __table_args__ = (
         CheckConstraint("user_points >= 0", name="check_username_more_than_zero"),
