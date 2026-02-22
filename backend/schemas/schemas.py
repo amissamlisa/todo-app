@@ -37,6 +37,7 @@ class GoalRequestWithTasks(BaseModel):
 class SaveRequest(BaseModel):
     goal: GoalsRequest
     goal_tasks: list[GoalsTasksOut]
+    goal_total_estimated_time: int = Field(ge=1)
 
 
 class UserRequest(BaseModel):
