@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from backend.exceptions.app_exception import AppException
+from backend.routers import top
 from .routers import goal_tasks, auth, goal
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
@@ -29,6 +30,7 @@ app.add_middleware(
 app.include_router(goal_tasks.router)
 app.include_router(auth.router)
 app.include_router(goal.router)
+app.include_router(top.router)
 
 app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
