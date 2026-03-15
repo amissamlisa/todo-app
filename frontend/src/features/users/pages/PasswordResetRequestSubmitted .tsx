@@ -31,7 +31,7 @@ export const PasswordResetMessageSent = memo(() => {
         <h2 className="text-primary w-[clamp(134.5px,68.7vw,536px)]">入力されているメールアドレスが登録されている場合、パスワード再設定用のメールが送信されます。
         その場合メールに記載されているリンクから再設定をおこなってください。</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
-        <div className="mb-[clamp(251px,59.5vh,1006px)]">
+        <div>
           <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>

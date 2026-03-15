@@ -47,7 +47,7 @@ export const PasswordResetEmailForm = memo(() => {
   }
 
   if (isLoading) {
-    return <LoadingSpinner message="送信中..." />;
+    return <LoadingSpinner message="パスワード再設定リンク送信中..." />;
   }
 
   return (

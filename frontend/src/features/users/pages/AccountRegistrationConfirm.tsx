@@ -1,10 +1,11 @@
-import { memo, useEffect } from "react";
+import { memo, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { Header } from "../../../shared/components/molecules/Header";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { RegistrationConfirmForm } from "../../../shared/components/molecules/RegistrationConfirmForm";
 import type { RegistrationFormType } from "../types/registrationForm";
+import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const url = API_BASE_URL + "/auth/registration";
@@ -14,7 +15,7 @@ export const AccountRegistrationConfirm = memo(() => {
   const location = useLocation();
 
   const data = location.state as RegistrationFormType;
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (!data) {
       navigate("/", { replace: true });
@@ -38,6 +39,7 @@ export const AccountRegistrationConfirm = memo(() => {
 
   const onPrimaryClick = async () => {
     try {
+      setIsLoading(true);
       await setAccountInfo(data);
       navigate("/user-registration/complete", { replace: true });
     } catch (err) {
@@ -51,11 +53,20 @@ export const AccountRegistrationConfirm = memo(() => {
       } else {
         console.error("予期しないエラー", err);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
   }
+  if (location.key === 'default') {
+    return null;
+  }
+  if (isLoading) {
+    return <LoadingSpinner message="新規会員登録中..." />;
+  }
+  
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
