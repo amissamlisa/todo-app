@@ -4,6 +4,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import Annotated
 
+
+
 from backend.exceptions.app_exception import AppException
 from backend.utils.email_helpers import send_email
 from backend.utils.auth_helpers import (
@@ -97,10 +99,7 @@ def reset_password(
     password_reset_request: PasswordResetRequest,
     db: Session = Depends(get_db),
 ):
-    record = find_valid_password_token(
-        password_reset_request.token,
-        db
-    )
+    record = find_valid_password_token(password_reset_request.token, db)
     hashed_new_password = bcrypt_context.hash(password_reset_request.password)
 
     password_reset_repository.update_password_from_db(
@@ -163,7 +162,9 @@ def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    access_token = create_token(user.user_id, expires_delta=access_token_expires)
+    access_token = create_token(
+        user.user_id, user.username, expires_delta=access_token_expires
+    )
     refresh_token = create_refresh_token(user.user_id, db)
 
     response.set_cookie(
@@ -210,9 +211,14 @@ def refresh(
         )
 
     user_id = matched_refresh_token.user_id
+    user = user_repository.find_user_by_user_id(db, user_id)
+    if user is None:
+        raise credentials_exception
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    access_token = create_token(user_id, expires_delta=access_token_expires)
+    access_token = create_token(
+        user_id, user.username, expires_delta=access_token_expires
+    )
 
     refresh_token_repository.revoke_refresh_token(
         db, matched_refresh_token.refresh_token_id, commit=True
