@@ -47,6 +47,20 @@ class GoalRepository:
     def __init__(self):
         pass
 
+    def find_goal_by_user_id(self, db, user_id: int):
+        goals = (
+            db.query(Goals)
+            .filter(
+                Goals.user_id == user_id,
+                Goals.status == GoalsStatusEnum.Unachieved.value,
+            )
+            .all()
+        )
+        return goals
+
+    def get_goal_by_id_from_db(self, db: Session, goal_id: int):
+        return db.query(Goals).filter(Goals.goal_id == goal_id).first()
+
     def register_goal(self, db, goal: Goals, commit=True):
         try:
             existing_goal = (
@@ -74,6 +88,38 @@ class GoalRepository:
             db.delete(goal)
             if commit:
                 db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def update_goal_from_db(self, db: Session, new_goal: Goals, commit=True):
+        try:
+            if new_goal.status != GoalsStatusEnum.Unachieved.value:
+                raise ValueError("無効な目標ステータスです")
+
+            existing_goal = (
+                db.query(Goals)
+                .filter(
+                    Goals.user_id == new_goal.user_id,
+                    Goals.status == GoalsStatusEnum.Unachieved.value,
+                )
+                .first()
+            )
+            if existing_goal is None:
+                raise GoalNotFound()
+
+            existing_goal.status_against_goal = new_goal.status_against_goal
+            existing_goal.start_day = new_goal.start_day
+            existing_goal.target_day = new_goal.target_day
+            existing_goal.weekday_available_time = new_goal.weekday_available_time
+            existing_goal.weekends_available_time = new_goal.weekends_available_time
+            existing_goal.total_estimated_time = new_goal.total_estimated_time
+            existing_goal.task_creation_rule = new_goal.task_creation_rule
+            existing_goal.status = new_goal.status
+            if commit:
+                db.commit()
+                db.refresh(existing_goal)
+            return existing_goal
         except Exception as e:
             db.rollback()
             raise e
@@ -113,8 +159,30 @@ class GoalTaskRepository:
     def __init__(self):
         pass
 
+    def find_goal_task_by_goal_id(self, db, goal_id: int):
+        goal_tasks = (
+            db.query(GoalsTasks)
+            .filter(
+                GoalsTasks.goal_id == goal_id,
+            )
+            .order_by(GoalsTasks.order_num.asc(), GoalsTasks.goal_task_id.asc())
+            .all()
+        )
+        return goal_tasks
+
+    def get_goal_tasks_by_goal_id_from_db(self, db: Session, goal_id: int):
+        return (
+            db.query(GoalsTasks)
+            .filter(GoalsTasks.goal_id == goal_id)
+            .order_by(GoalsTasks.order_num.asc(), GoalsTasks.goal_task_id.asc())
+            .all()
+        )
+
     def register_goal_task(self, db, goal_tasks: List[GoalsTasks], commit=True):
         try:
+            for index, task in enumerate(goal_tasks, start=1):
+                if task.order_num is None:
+                    task.order_num = index
             db.add_all(goal_tasks)
             db.flush()
             if commit:
@@ -124,20 +192,49 @@ class GoalTaskRepository:
             db.rollback()
             raise e
 
-    def delete_goal_task_from_db(self, db: Session, goal: GoalsTasks, commit=True):
+    def delete_goal_task_from_db(
+        self, db: Session, goal_tasks: GoalsTasks, commit=True
+    ):
         try:
-            db.delete(goal)
+            db.delete(goal_tasks)
             if commit:
                 db.commit()
         except Exception as e:
             db.rollback()
             raise e
 
-    def update_goal_task_status_from_db(
+    def replace_goal_tasks_from_db(
+        self, db: Session, goal_id: int, goal_tasks: List[GoalsTasks], commit=True
+    ):
+        try:
+            existing_goal_tasks = (
+                db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
+            )
+            if existing_goal_tasks is None:
+                raise GoalTaskNotFound()
+
+            for task in existing_goal_tasks:
+                db.delete(task)
+
+            for index, task in enumerate(goal_tasks, start=1):
+                if task.order_num is None:
+                    task.order_num = index
+            db.add_all(goal_tasks)
+            db.flush()
+
+            if commit:
+                db.commit()
+            return goal_tasks
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def update_goal_task_status_and_order_from_db(
         self,
         db: Session,
         goal_task_id,
         new_goal_task_status: GoalsTasksStatusEnum,
+        order_num: int,
         commit=True,
     ):
         try:
@@ -152,12 +249,111 @@ class GoalTaskRepository:
             # ステータス更新
             if goal_task.goal_task_status != new_goal_task_status.value:
                 goal_task.goal_task_status = new_goal_task_status.value
+                goal_task.order_num = order_num
                 if commit:
                     db.commit()
                     db.refresh(goal_task)
                 return goal_task
             else:
                 raise StatusUnchangedError("目標達成タスク")
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def update_goal_task_order_from_db(
+        self,
+        db: Session,
+        from_goal_task_id: int,
+        to_goal_task_id: int,
+        commit=True,
+    ):
+        try:
+            from_goal_task = (
+                db.query(GoalsTasks)
+                .filter(GoalsTasks.goal_task_id == from_goal_task_id)
+                .first()
+            )
+            if from_goal_task is None:
+                raise GoalTaskNotFound()
+
+            to_goal_task = (
+                db.query(GoalsTasks)
+                .filter(GoalsTasks.goal_task_id == to_goal_task_id)
+                .first()
+            )
+            if to_goal_task is None:
+                raise GoalTaskNotFound()
+
+            if from_goal_task.goal_id != to_goal_task.goal_id:
+                raise ValueError("同じ目標内のタスクのみ並び替えできます")
+
+            goal_tasks = (
+                db.query(GoalsTasks)
+                .filter(GoalsTasks.goal_id == from_goal_task.goal_id)
+                .order_by(GoalsTasks.order_num.asc(), GoalsTasks.goal_task_id.asc())
+                .all()
+            )
+
+            from_index = None
+            for i, task in enumerate(goal_tasks):
+                if task.goal_task_id == from_goal_task_id:
+                    from_index = i
+                    break
+
+            to_index = None
+            for i, task in enumerate(goal_tasks):
+                if task.goal_task_id == to_goal_task_id:
+                    to_index = i
+                    break
+
+            if from_index is None or to_index is None:
+                raise GoalTaskNotFound()
+            if from_index == to_index:
+                raise StatusUnchangedError("目標達成タスク")
+
+            moved_task = goal_tasks.pop(from_index)
+            goal_tasks.insert(to_index, moved_task)
+
+            for index, task in enumerate(goal_tasks, start=1):
+                task.order_num = index
+
+            db.flush()
+
+            if commit:
+                db.commit()
+                db.refresh(from_goal_task)
+                db.refresh(to_goal_task)
+            return from_goal_task, to_goal_task
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def update_goal_task_from_db(
+        self,
+        db: Session,
+        goal_task_id: int,
+        goal_task_name: str,
+        deadline: datetime.date,
+        estimated_time: int,
+        commit=True,
+    ):
+        try:
+            goal_task = (
+                db.query(GoalsTasks)
+                .filter(GoalsTasks.goal_task_id == goal_task_id)
+                .first()
+            )
+            if goal_task is None:
+                raise GoalTaskNotFound()
+
+            goal_task.goal_task_name = goal_task_name
+            goal_task.deadline = deadline
+            goal_task.estimated_time = estimated_time
+
+            if commit:
+                db.commit()
+                db.refresh(goal_task)
+            return goal_task
         except Exception as e:
             db.rollback()
             raise e
@@ -171,6 +367,10 @@ class UserRepository:
         user = db.query(Users).filter(Users.email == email).first()
         return user
 
+    def find_user_by_user_id(self, db: Session, user_id: int):
+        user = db.query(Users).filter(Users.user_id == user_id).first()
+        return user
+
     def register_user(self, db: Session, user: Users, commit=True):
         try:
             existing_email = db.query(Users).filter(Users.email == user.email).first()
@@ -182,6 +382,17 @@ class UserRepository:
                 db.commit()
                 return user
 
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def update_user_points_from_db(self, db: Session, user_id, new_points, commit=True):
+        try:
+            user = db.query(Users).filter(Users.user_id == user_id).first()
+            user.user_points = new_points
+            if commit:
+                db.commit()
+                return user
         except Exception as e:
             db.rollback()
             raise e
@@ -216,7 +427,6 @@ class RefreshTokenRepository:
         except Exception as e:
             db.rollback()
             raise e
-
 
     def revoke_refresh_token(self, db: Session, refresh_token_id: int, commit=True):
         try:
