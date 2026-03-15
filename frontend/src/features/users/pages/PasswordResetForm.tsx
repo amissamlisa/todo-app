@@ -149,7 +149,7 @@ export const PasswordResetForm = memo(() => {
           />
           {errors.confirmationPassword && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.confirmationPassword.message}</p>}
           <div className="mt-[clamp(16.5px,3.9vh,66px)] mb-[clamp(251px,59.5vh,1006px)]">
-            <Button onButtonClick={handleSubmit(onButtonClick)} buttonColor="bg-primary" textColor="text-secondary">パスワード再設定</Button>
+            <Button onClick={handleSubmit(onButtonClick)} buttonColor="bg-primary" textColor="text-secondary">パスワード再設定</Button>
           </div>
         </div>
       </div>

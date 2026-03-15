@@ -29,7 +29,7 @@ export const PasswordResetIncomplete = memo(() => {
         <h2 className="text-primary w-[clamp(112.5px,57.6vw,450px)]">申し訳ございません。パスワード再設定リンクが無効です。再度、リンクを発行しなおしてください</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainCloudImg} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>

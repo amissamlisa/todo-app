@@ -29,7 +29,7 @@ export const PasswordResetComplete = memo(() => {
         <h2 className="text-primary w-[clamp(112.5px,57.6vw,450px)]">パスワード再設定が完了しました。ログイン時は新しいパスワードを使用してください</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>

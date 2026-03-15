@@ -27,7 +27,7 @@ export const Logout = memo(() => {
         <h2 className="text-primary w-[clamp(112.5px,57.6vw,450px)]">ログアウトしました。あなたが育てた雲は、またここから成長を始めます。</h2>
         <img className=" w-[clamp(69.5px,35.6vw,278px)] " src={logoIcon} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>

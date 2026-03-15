@@ -7,5 +7,5 @@ export interface ButtonProps {
   buttonColor: ButtonBgColor,
   textColor: ButtonTextColor,
   children: ReactNode,
-  onButtonClick: () => void;
+  onClick?: () => void;
 }

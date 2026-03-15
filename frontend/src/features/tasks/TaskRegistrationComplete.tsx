@@ -56,7 +56,7 @@ export const TaskRegistrationComplete = memo(() => {
         <h2 className="text-primary">目標タスク登録が完了しました</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">
+          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">
             TOP画面へ
           </Button>
         </div>

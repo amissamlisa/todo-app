@@ -6,9 +6,9 @@ export const TwoButton = memo(({ buttonTitle1, buttonTitle2, buttonBgColor, butt
   return (
     <div >
       <div className="mb-[3vh]">
-        <Button onButtonClick={onPrimaryClick}  buttonColor={buttonBgColor} textColor={buttonTextColor}  >{buttonTitle1}</Button>
+        <Button onClick={onPrimaryClick}  buttonColor={buttonBgColor} textColor={buttonTextColor}  >{buttonTitle1}</Button>
       </div>
-      <Button onButtonClick={onSecondaryClick}  buttonColor={buttonBgColor} textColor={buttonTextColor} >{buttonTitle2}</Button>
+      <Button onClick={onSecondaryClick}  buttonColor={buttonBgColor} textColor={buttonTextColor} >{buttonTitle2}</Button>
     </div>
   )
 })
