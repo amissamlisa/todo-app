@@ -4,7 +4,7 @@ import { ModalButton } from "../atoms/ModalButton";
 import logoIcon from "../../../assets/cloud_icon.png"
 import type { TwoButtonModalProps } from "../../types/twoButtonModal";
 
-export const TwoButtonModal = memo(({ title, content, hasPartyPopper, showFlag, setIsOpenModal, onClickChange }: TwoButtonModalProps) => {
+export const TwoButtonModal = memo(({ title, content, hasPartyPopper, hasTwoButtons, showFlag, setIsOpenModal, onClickChange }: TwoButtonModalProps) => {
   const closeModal = () => {
     setIsOpenModal(false);
   }
@@ -23,11 +23,16 @@ export const TwoButtonModal = memo(({ title, content, hasPartyPopper, showFlag, 
 
             </div>
             <p className="text-primary" >{content}</p>
-            <div className="pb-[clamp(8px,1.8vh,32px)] flex justify-around ">
-              <ModalButton onButtonClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">いいえ</ModalButton>
-              <div className="mr-[clamp(35px,17.9vw,140px)]"></div>
-              <ModalButton onButtonClick={onClickChange} buttonColor="bg-primary" textColor="text-secondary">はい</ModalButton>
-            </div>
+            {hasTwoButtons ? (
+              <div className="pb-[clamp(8px,1.8vh,32px)] flex justify-around ">
+                <ModalButton onButtonClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">いいえ</ModalButton>
+                <div className="mr-[clamp(35px,17.9vw,140px)]"></div>
+                <ModalButton onButtonClick={onClickChange} buttonColor="bg-primary" textColor="text-secondary">はい</ModalButton>
+              </div>) : (
+              <div className="pb-[clamp(8px,1.8vh,32px)]">
+                <ModalButton onButtonClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
+              </div>
+            )}
           </div>
         </div>
       ) : (
