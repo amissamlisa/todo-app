@@ -89,6 +89,8 @@ class UserRequest(BaseModel):
 class UserPointsUpdateRequest(BaseModel):
     points: int = Field(ge=0)
 
+class UserRankUpdateRequest(BaseModel):
+    user_rank: str
 
 class PasswordResetEmailRequest(BaseModel):
     email: EmailStr
