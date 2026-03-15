@@ -3,7 +3,7 @@ from typing import Optional, List
 import datetime
 import re
 
-from backend.models.models import GoalsStatusEnum
+from backend.models.models import GoalsStatusEnum, GoalsTasksStatusEnum
 
 
 class GoalsRequest(BaseModel):
@@ -40,6 +40,31 @@ class SaveRequest(BaseModel):
     goal_total_estimated_time: int = Field(ge=1)
 
 
+class GoalTaskOrderUpdateRequest(BaseModel):
+    from_goal_task_id: int
+    to_goal_task_id: int
+    from_goal_task_order: int = Field(ge=1)
+    to_goal_task_order: int = Field(ge=1)
+
+
+class GoalTaskUpdateRequest(BaseModel):
+    goal_task_name: str
+    deadline: datetime.date
+    estimated_time: int = Field(ge=1, le=720)
+
+
+class GoalTaskCreateRequest(BaseModel):
+    goal_task_name: str = Field(min_length=1, max_length=100)
+    deadline: datetime.date
+    estimated_time: int = Field(ge=1, le=720)
+    goal_task_status: GoalsTasksStatusEnum
+
+
+class GoalTaskStatusAndOrderUpdateRequest(BaseModel):
+    order_num: int = Field(ge=1)
+    new_status: GoalsTasksStatusEnum
+
+
 class UserRequest(BaseModel):
     username: str = Field(min_length=1)
     password: str = Field(min_length=10)
@@ -61,12 +86,16 @@ class UserRequest(BaseModel):
         return self
 
 
+class UserPointsUpdateRequest(BaseModel):
+    points: int = Field(ge=0)
+
+
 class PasswordResetEmailRequest(BaseModel):
     email: EmailStr
 
 
 class PasswordResetRequest(BaseModel):
-    password: str
+    password: str = Field(min_length=10)
     token: str | None
 
 
