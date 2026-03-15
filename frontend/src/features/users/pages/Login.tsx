@@ -9,9 +9,7 @@ import { type LoginFormType } from "../types/loginForm";
 import { useAuth } from "../auth/useAuth";
 
 export const Login = memo(() => {
-
   const navigate = useNavigate();
-
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormType>({
     defaultValues: {
       email: "",
@@ -28,14 +26,13 @@ export const Login = memo(() => {
     } if (errorMessageFromServer !== null) {
         clearErrorMessage();
       }
-
   };
 
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
     if (errorMessageFromServer !== null) {
         clearErrorMessage();
-      }
+    }
   }
   return (
     <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
@@ -90,18 +87,13 @@ export const Login = memo(() => {
         <Link className="text-secondary" to="/password-reset-email-form">パスワードを忘れた方はこちら</Link>
       </div>
 
-      {errors.email && (
-        <p className="text-red-500">{errors.email.message}</p>
-      )}
-      {errors.password && (
-        <p className="text-red-500">{errors.password.message}</p>
-      )}
+        <p className="text-red-500">{errors.email?.message || errors.password?.message }</p>
 
       {/* サーバーエラー */}
       {errorMessageFromServer && (
         <p className="text-red-500">{errorMessageFromServer}</p>
       )}
-      <div className="mt-[clamp(30px,6.6vh,70px)] mb-[clamp(60px,13.1vh,200px)]">
+      <div className="mt-[clamp(9px,2.1vh,32px)]">
         <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録" buttonBgColor="bg-secondary" buttonTextColor="text-primary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} ></TwoButton>
       </div>
     </div>
