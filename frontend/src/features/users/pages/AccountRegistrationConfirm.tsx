@@ -30,7 +30,7 @@ export const AccountRegistrationConfirm = memo(() => {
     { title: "メールアドレス", value: data.email },
     { title: "パスワード", value: data.password }
   ]
-
+  
   const setAccountInfo = async (body: RegistrationFormType) => {
     const response = await axios.post(url, body);
     return response.data;
@@ -62,7 +62,7 @@ export const AccountRegistrationConfirm = memo(() => {
       <div className="bg-secondary flex flex-col items-center">
         <h1 className="text-primary mt-[clamp(15px,4vh,60px)] mb-[clamp(20px,4.8vh,80px)] text-2xl">新規会員登録確認</h1>
         <div className="mt-[clamp(15px,4vh,60px) mb-[clamp(10px,2.6vh,40px)]">
-          <RegistrationConfirmForm titleColor="text-primary" subTitleColor="text-secondary" backgroundColor="bg-primary" data={userData}>会員情報</RegistrationConfirmForm>
+          <RegistrationConfirmForm height="h-[clamp(110px,26vh,440px)]" titleColor="text-primary" subTitleColor="text-secondary" backgroundColor="bg-primary" data={userData}>会員情報</RegistrationConfirmForm>
         </div>
         <div className="mt-[clamp(76.5px,18.1vh,306px)] mb-24.5">
           <TwoButton buttonTitle1="登録" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={onPrimaryClick} onSecondaryClick={onSecondaryClick} />
