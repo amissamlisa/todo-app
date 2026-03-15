@@ -23,6 +23,11 @@ import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
 import { StrictMode } from 'react';
 import { TaskRegistrationForm } from './features/tasks/TaskRegistrationForm';
+import { TaskRegistrationConfirm } from './features/tasks/TaskRegistrationConfirm';
+import { TaskRegistrationComplete } from './features/tasks/TaskRegistrationComplete';
+import { TaskRegistrationIncomplete } from './features/tasks/TaskRegistrationIncomplete';
+import { TaskUpdateForm } from './features/tasks/TaskUpdateForm';
+import { TaskUpdateConfirm } from './features/tasks/TaskUpdateConfirm';
 
 
 const router = createBrowserRouter([
@@ -62,10 +67,25 @@ const router = createBrowserRouter([
   }, {
     path: "/top",
     element: <ProtectedRoute><Top /></ProtectedRoute>
-  },{
+  }, {
     path: "/tasks-registration",
-    element:<ProtectedRoute><TaskRegistrationForm /></ProtectedRoute>
-  },  {
+    element: <ProtectedRoute><TaskRegistrationForm /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/confirm",
+    element: <ProtectedRoute><TaskRegistrationConfirm /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/complete",
+    element: <ProtectedRoute><TaskRegistrationComplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/incomplete",
+    element: <ProtectedRoute><TaskRegistrationIncomplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-update",
+    element: <ProtectedRoute><TaskUpdateForm /></ProtectedRoute>
+  }, {
+    path: "/tasks-update/confirm",
+    element: <ProtectedRoute><TaskUpdateConfirm /></ProtectedRoute>
+  }, {
     path: "/logout",
     element: <Logout />
   }
