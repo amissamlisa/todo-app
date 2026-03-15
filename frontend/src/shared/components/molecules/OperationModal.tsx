@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { ImCross } from "react-icons/im";
-import type {OperationModalProps} from "../types/operationModal";
+import type { OperationModalProps } from "../types/operationModal";
 
 export const OperationModal = memo(({ operation, titles, showFlag, setIsOpenModal, handleEdit, handleDelete }: OperationModalProps) => {
   const closeModal = () => {
