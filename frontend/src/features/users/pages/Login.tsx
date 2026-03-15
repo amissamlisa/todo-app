@@ -25,7 +25,9 @@ export const Login = memo(() => {
     console.log(isSucceeded);
     if (isSucceeded) {
       navigate("/top", { replace: true });
-    }
+    } if (errorMessageFromServer !== null) {
+        clearErrorMessage();
+      }
 
   };
 
