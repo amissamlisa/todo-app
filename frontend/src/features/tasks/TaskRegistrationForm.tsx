@@ -26,7 +26,9 @@ export const TaskRegistrationForm = memo(() => {
   const location = useLocation();
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-
+  const validateDate = (date: string, format: string) => {
+    return dayjs(date, format).format(format) === date;
+  }
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskRegistrationFormType>({
     defaultValues: {
       goal: "",
@@ -168,9 +170,14 @@ export const TaskRegistrationForm = memo(() => {
               validate: (value) => {
                 if (/[ \u3000]/.test(value)) {
                   return "空白（全角・半角）は使用できません";
-                } else if (!dayjs(value, 'YYYY/MM/DD', true).isValid()) {
+                } else if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
                   return "開始日を日付形式で入力してください";
-                } else if (new Date(value) < new Date()) {
+                } else if (!dayjs(value, 'YYYY/MM/DD',).isValid()) {
+                  return "開始日を日付形式で入力してください";
+                } else if (!validateDate(value, 'YYYY/MM/DD')) {
+                  return "開始日を日付形式で入力してください";
+                }
+                else if (new Date(value) < new Date()) {
                   return "開始日は本日以降の日付を入力してください";
                 } else if (getValues("endDate") && new Date(value) > new Date(getValues("endDate"))) {
                   return "開始日は終了日以前の日付を入力してください";
@@ -203,7 +210,11 @@ export const TaskRegistrationForm = memo(() => {
               validate: (value) => {
                 if (/[ \u3000]/.test(value)) {
                   return "空白（全角・半角）は使用できません";
+                } else if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+                  return "終了日をYYYY/MM/DDの形式で入力してください";
                 } else if (!dayjs(value, 'YYYY/MM/DD', true).isValid()) {
+                  return "終了日を日付形式で入力してください";
+                } else if (!validateDate(value, 'YYYY/MM/DD')) {
                   return "終了日を日付形式で入力してください";
                 } else if (new Date(value) < new Date()) {
                   return "終了日は本日以降の日付を入力してください";
