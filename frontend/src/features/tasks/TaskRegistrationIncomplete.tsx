@@ -26,6 +26,7 @@ export const TaskRegistrationIncomplete = memo(() => {
       title="タスク登録失敗"
       message={errMessage}
       buttonText="タスク登録画面へ"
+      hasLogoutButton={true}
       onButtonClick={onButtonClick}
     />
   );

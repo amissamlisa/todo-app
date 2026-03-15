@@ -26,6 +26,7 @@ export const TaskGenerationIncomplete = memo(() => {
       title="目標タスク生成失敗"
       message={errMessage}
       buttonText="タスク生成画面へ"
+      hasLogoutButton={true}
       onButtonClick={onButtonClick}
     />
   );
