@@ -4,7 +4,7 @@ import { type RegistrationConfirmFormProps } from "../../types/registrationConfi
 export const RegistrationConfirmForm = memo(({ children, data, titleColor, subTitleColor, backgroundColor, height, width, centerItems }: RegistrationConfirmFormProps) => {
   const heightClass = height ?? "h-screen";
   const widthClass = width ?? "w-[clamp(93px,68vw,400px)]";
-  const itemClassName = `mt-[clamp(15px,3.5vh,60px)] mb-[clamp(15px,3.5vh,60px)]${centerItems ? " text-center" : " ml-[clamp(5px,2.5vh,20px)]"
+  const itemClassName = `${centerItems ? "mt-[clamp(15px,3.5vh,60px)] mb-[clamp(15px,3.5vh,60px)] text-center" : "mt-[clamp(8px,1.8vh,32px)] mb-[clamp(8px,1.8vh,32px)] ml-[clamp(5px,2.5vh,20px)]"
     }`;
   return (
     <div className={`flex flex-col ${widthClass}`}>
