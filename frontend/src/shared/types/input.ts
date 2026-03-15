@@ -13,4 +13,6 @@ export interface InputProps {
   formType?: InputType;
   children: ReactNode;
   placeholder?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
 }
