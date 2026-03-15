@@ -54,10 +54,10 @@ def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id
         goal_tasks_repository = GoalTaskRepository()
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal = db.query(Goals).filter(Goals.goal_id == goal_id).first()
+        goal = goal_repository.get_goal_by_id_from_db(db, goal_id)
         if goal is None:
             raise HTTPException(status_code=404, detail="目標が見つかりません")
-        goal_tasks = db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
+        goal_tasks = goal_tasks_repository.get_goal_tasks_by_goal_id_from_db(db, goal_id)
 
         for goal_task in goal_tasks:
             goal_tasks_repository.delete_goal_task_from_db(db, goal_task, commit=True)
