@@ -1,4 +1,5 @@
 from typing import Any
+import logging
 from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -25,6 +26,10 @@ def generate_error_response(
 
 # HTTPException 用
 def http_exception_handler(request: Request, exc: HTTPException):
+    logging.warning("HTTP error on %s %s: %s",
+                request.method,
+                request.url.path,
+                exc.detail)
     return generate_error_response(
         status_code=exc.status_code,
         error_code="HTTP_ERROR",
@@ -33,6 +38,11 @@ def http_exception_handler(request: Request, exc: HTTPException):
     )
 # カスタムエラー用
 def app_exception_handler(request: Request, exc: AppException):
+    logging.warning("App error on %s %s: %s",
+                    request.method,
+                    request.url.path,
+                    exc.error_message)
+    
     return generate_error_response(
         status_code=exc.status_code,
         headers=exc.headers,
@@ -44,6 +54,7 @@ def app_exception_handler(request: Request, exc: AppException):
 # バリデーションエラー用
 def validation_exception_handler(request: Request, exc: RequestValidationError):
     errors = parse_validation_errors(exc.errors())
+    logging.warning("Validation error on %s %s: %s", request.method, request.url.path, errors)
     return generate_error_response(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         error_code="VALIDATION_ERROR",
@@ -53,6 +64,7 @@ def validation_exception_handler(request: Request, exc: RequestValidationError):
 
 # 想定外エラー用
 def generic_exception_handler(request: Request, exc: Exception):
+    logging.error("Unexpected error on %s %s: %s", request.method, request.url.path, str(exc))
     return generate_error_response(
         status_code=500,
         error_code="INTERNAL_ERROR",
