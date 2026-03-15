@@ -396,6 +396,17 @@ class UserRepository:
         except Exception as e:
             db.rollback()
             raise e
+    
+    def update_user_rank_from_db(self, db: Session, user_id, new_user_rank, commit=True):
+        try:
+            user = db.query(Users).filter(Users.user_id == user_id).first()
+            user.user_rank = new_user_rank
+            if commit:
+                db.commit()
+                return user
+        except Exception as e:
+            db.rollback()
+            raise e
 
     def update_user_from_db(self, db: Session, user_id, new_data, commit=True):
         try:
