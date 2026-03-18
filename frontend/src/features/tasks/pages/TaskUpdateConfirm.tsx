@@ -1,9 +1,9 @@
 import { memo, useEffect } from "react";
-import { RegistrationConfirmForm } from "../../shared/components/molecules/RegistrationConfirmForm";
+import { RegistrationConfirmForm } from "../../../shared/components/molecules/RegistrationConfirmForm";
 import { useLocation, useNavigate } from "react-router-dom";
-import { HeaderWithLogoutIcon } from "../../shared/components/molecules/HeaderWithLogoutIcon";
-import { TwoButton } from "../../shared/components/molecules/TwoButton";
-import { useAuth } from "../users/auth/useAuth";
+import { HeaderWithLogoutIcon } from "../../../shared/components/molecules/HeaderWithLogoutIcon";
+import { TwoButton } from "../../../shared/components/molecules/TwoButton";
+import { useAuth } from "../../users/auth/useAuth";
 import axios from "axios";
 
 export const TaskUpdateConfirm = memo(() => {

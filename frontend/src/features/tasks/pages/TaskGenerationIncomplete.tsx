@@ -1,6 +1,6 @@
 import { memo, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Incomplete } from "../../shared/components/pages/Incomplete";
+import { Incomplete } from "../../../shared/components/pages/Incomplete";
 
 export const TaskGenerationIncomplete = memo(() => {
   const navigate = useNavigate();
