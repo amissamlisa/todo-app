@@ -1,5 +1,5 @@
 import { ImCross } from "react-icons/im";
-import type { ListProps } from "../types/list";
+import type { ListProps } from "../../types/list";
 
 export const List = ({
   mainTitle,

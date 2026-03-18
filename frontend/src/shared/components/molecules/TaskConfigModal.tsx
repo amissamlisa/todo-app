@@ -3,8 +3,8 @@ import { Controller, useForm } from "react-hook-form";
 import { ModalButton } from "../atoms/ModalButton";
 import logoIcon from "../../../assets/cloud_icon.png"
 import { Input } from "./Input";
-import type { TaskConfigModalFormType } from "../types/taskConfigModalForm";
-import type { TaskConfigModalProps } from "../types/taskConfigModal";
+import type { TaskConfigModalFormType } from "../../types/taskConfigModalForm";
+import type { TaskConfigModalProps } from "../../types/taskConfigModal";
 
 export const TaskConfigModal = memo(({
   showFlag,
@@ -184,12 +184,12 @@ export const TaskConfigModal = memo(({
             </div>
             {hasTwoButtons ? (
               <div className="pb-[clamp(8px,1.8vh,32px)] flex justify-around ">
-                <ModalButton onButtonClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">キャンセル</ModalButton>
+                <ModalButton onClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">キャンセル</ModalButton>
                 <div className="mr-[clamp(35px,17.9vw,140px)]"></div>
-                <ModalButton onButtonClick={handleSubmit(() => onClickChange?.())} buttonColor="bg-primary" textColor="text-secondary">登録</ModalButton>
+                <ModalButton onClick={handleSubmit(() => onClickChange?.())} buttonColor="bg-primary" textColor="text-secondary">登録</ModalButton>
               </div>) : (
               <div className="pb-[clamp(8px,1.8vh,32px)]">
-                <ModalButton onButtonClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
+                <ModalButton onClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
               </div>
             )}
           </div>

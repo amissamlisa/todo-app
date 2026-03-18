@@ -3,7 +3,7 @@ import { useState } from "react";
 import { KanbanCard } from "../atoms/KanbanCard";
 import { FaPlus } from "react-icons/fa";
 import { TaskConfigModal } from "./TaskConfigModal";
-import type { KanbanLaneProps } from "../types/kanbanLane";
+import type { KanbanLaneProps } from "../../types/kanbanLane";
 
 export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = true, onDeleteTasks, onEditTasks, onAddTask }: KanbanLaneProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -40,7 +40,7 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
   };
 
   return (
-    <div className="h-[clamp(77px,18.2vh,308px)] w-[clamp(143px,73.3vw,572px)] mb-[clamp(16px,3.7vh,64px)] flex flex-col">
+    <div className="overflow-y-auto h-[clamp(77px,18.2vh,308px)] w-[clamp(143px,73.3vw,572px)] mb-[clamp(16px,3.7vh,64px)] flex flex-col">
       <div
         ref={setNodeRef}
         className={`${bgColor} rounded-lg flex-1 p-2 flex flex-col`}
