@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import LogoutIcon from "../../../assets/logout.png";
+import LogoutIcon from "../../../assets/logout-btn.png";
 import { useAuth } from "../../../features/users/auth/useAuth";
 
 type LogoutButtonProps = {

@@ -1,7 +1,7 @@
 import { memo, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ModalButton } from "../atoms/ModalButton";
-import logoIcon from "../../../assets/cloud_icon.png"
+import logoIcon from "../../../assets/cloud-icon.png"
 import { Input } from "./Input";
 import type { TaskConfigModalFormType } from "../../types/taskConfigModalForm";
 import type { TaskConfigModalProps } from "../../types/taskConfigModal";

@@ -1,7 +1,7 @@
 import { memo, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { HeaderWithLogoutIcon } from "../../../shared/components/molecules/HeaderWithLogoutIcon";
-import rainbowImg from "../../../assets/rainbow_cloud.png";
+import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
 
 export const TaskRegistrationComplete = memo(() => {

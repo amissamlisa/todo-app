@@ -1,6 +1,6 @@
 import { memo, useEffect } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
-import rainbowImg from "../../../assets/rainbow_cloud.png";
+import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
 import { useNavigate, useLocation } from 'react-router-dom';
 

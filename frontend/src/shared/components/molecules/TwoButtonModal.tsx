@@ -1,7 +1,7 @@
 import { memo } from "react";
 import partyPopper from "../../../assets/party-popper.png";
 import { ModalButton } from "../atoms/ModalButton";
-import logoIcon from "../../../assets/cloud_icon.png"
+import logoIcon from "../../../assets/cloud-icon.png"
 import type { TwoButtonModalProps } from "../../types/twoButtonModal";
 
 export const TwoButtonModal = memo(({ title, content, hasPartyPopper, hasTwoButtons, showFlag, setIsOpenModal, onClickChange }: TwoButtonModalProps) => {

@@ -1,5 +1,5 @@
 import { ImCross } from "react-icons/im";
-import UserProfileIcon from "../../../assets/user_icon.png";
+import UserProfileIcon from "../../../assets/user-icon.png";
 import type { UserProfileProps } from "../../types/userProfile";
 
 export const UserProfile = ({
