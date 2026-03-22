@@ -16,10 +16,7 @@ export const LogoutButton = ({ onLogoutClick, className }: LogoutButtonProps) =>
       await onLogoutClick();
       return;
     }
-    const isLoggedOut = await logout();
-    if (!isLoggedOut) {
-      return;
-    }
+    await logout();
     navigate("/", { replace: true });
   };
 
