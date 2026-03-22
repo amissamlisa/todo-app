@@ -40,24 +40,36 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
   };
 
   return (
-    <div className="overflow-y-auto h-[clamp(77px,18.2vh,308px)] w-[clamp(143px,73.3vw,572px)] mb-[clamp(16px,3.7vh,64px)] flex flex-col">
-      <div
-        ref={setNodeRef}
-        className={`${bgColor} rounded-lg flex-1 p-2 flex flex-col`}
-      >
-        <p className="font-bold text-secondary text-center">{title}</p>
-        <div className="bg-secondary rounded-lg m-2">
-          <div
-            className={`text-primary text-center flex items-center justify-center p-3 ${isAddTaskEnabled ? "cursor-pointer" : "cursor-not-allowed bg-gray opacity-50"}`}
-            aria-disabled={!isAddTaskEnabled}
-          >
-            タスクを追加
-            <FaPlus className="ml-2" onClick={onOpenAddModal}/>
-          </div>
+    <div className="flex flex-row mb-[clamp(16px,3.7vh,64px)]">
+      <div className="relative flex flex-col items-center mr-2" style={{ height: "clamp(77px,18.2vh,308px)" }}>
+        <p className="text-secondary text-xs leading-none">高</p>
+        <div className="flex-1 flex flex-col items-center py-0.5">
+          <div className="w-0 h-0 border-l-8 border-r-8 border-b-16 border-l-transparent border-r-transparent" style={{ borderBottomColor: bgColor }}></div>
+          <div className="flex-1 w-1" style={{ backgroundColor: bgColor }}></div>
+          <div className="w-0 h-0 border-l-8 border-r-8 border-t-16 border-l-transparent border-r-transparent" style={{ borderTopColor: bgColor }}></div>
         </div>
-        {items.map(({ goal_task, time, deadline, goal_task_id }, key) => (
-          <KanbanCard goal_task={goal_task} key={goal_task_id} index={key} parent={title} time={time} deadline={deadline} goal_task_id={goal_task_id} onDeleteTask={onDeleteTasks} onTaskEdit={onEditTasks} />
-        ))}
+        <p className="text-secondary text-xs leading-none">低</p>
+      </div>
+
+      <div className="overflow-y-auto h-[clamp(77px,18.2vh,308px)] w-[clamp(143px,73.3vw,572px)] flex flex-col">
+        <div
+          ref={setNodeRef}
+          className="rounded-lg flex-1 p-2 flex flex-col" style={{ backgroundColor: bgColor }}
+        >
+          <p className="font-bold text-secondary text-center">{title}</p>
+          <div className="bg-secondary rounded-lg m-2">
+            <div
+              className={`text-primary text-center flex items-center justify-center p-3 ${isAddTaskEnabled ? "cursor-pointer" : "cursor-not-allowed bg-gray opacity-50"}`}
+              aria-disabled={!isAddTaskEnabled}
+            >
+              タスクを追加
+              <FaPlus className="ml-2" onClick={onOpenAddModal} />
+            </div>
+          </div>
+          {items.map(({ goal_task, time, deadline, goal_task_id }, key) => (
+            <KanbanCard goal_task={goal_task} key={goal_task_id} index={key} parent={title} time={time} deadline={deadline} goal_task_id={goal_task_id} onDeleteTask={onDeleteTasks} onTaskEdit={onEditTasks} />
+          ))}
+        </div>
       </div>
       <TaskConfigModal
         showFlag={isAddModalOpen}
