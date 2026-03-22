@@ -41,7 +41,6 @@ password_reset_repository = PasswordResetRepository()
 refresh_token_repository = RefreshTokenRepository()
 user_repository = UserRepository()
 
-
 @router.post("/password-reset/request", status_code=status.HTTP_201_CREATED)
 def send_reset_password_email(
     password_reset_email_request: PasswordResetEmailRequest,
