@@ -1,6 +1,5 @@
 import { memo, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { Controller, useForm } from "react-hook-form"
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
@@ -10,7 +9,7 @@ import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner"
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
 
-type TaskRegistrationFormType = {
+interface TaskRegistrationFormType {
   goal: string;
   currentStatus: string;
   startDate: string;
@@ -20,13 +19,26 @@ type TaskRegistrationFormType = {
   conditions: string;
 };
 
+interface CompletedGoalTask {
+  goal_task_name: string;
+  deadline: string;
+  estimated_time: number;
+};
+
+interface TaskUpdateLocationState {
+  goalName?: string;
+  completedGoalTasks?: CompletedGoalTask[];
+};
+
 dayjs.locale(ja);
 export const TaskUpdateForm = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuth();
+  const { api } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const goalName = location.state.goalName;
+  const state = (location.state as TaskUpdateLocationState | null) ?? null;
+  const goalName = state?.goalName ?? "";
+  const completedGoalTasks = state?.completedGoalTasks ?? [];
 
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskRegistrationFormType>({
     defaultValues: {
@@ -62,18 +74,12 @@ export const TaskUpdateForm = memo(() => {
           weekends_available_time: Number(data.holidayHours),
           task_creation_rule: data.conditions?.trim() || undefined
         },
-        goal_tasks_list: []
+        completed_goal_tasks_list: completedGoalTasks
       };
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/goal_tasks/generate`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      const response = await api.post(
+        `/goal_tasks/generate`,
+        payload
       );
       console.log("APIレスポンス", response.data);
       navigate("/tasks-update/confirm", {
@@ -81,11 +87,8 @@ export const TaskUpdateForm = memo(() => {
         replace: true
       });
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error(err.response?.data?.detail ?? "目標タスクの生成に失敗しました");
-      } else {
-        console.error("予期しないエラー", err);
-      }
+      console.error("目標タスクの生成に失敗しました", err);
+      navigate("/tasks-generation/incomplete", { replace: true });
     } finally {
       setIsLoading(false);
     }
