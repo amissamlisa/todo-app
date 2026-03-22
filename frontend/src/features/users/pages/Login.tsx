@@ -18,19 +18,16 @@ export const Login = memo(() => {
   });
   const { login, loginErrorMessageFromServer, clearLoginErrorMessage } = useAuth();
   const onPrimaryClick = async (data: LoginFormType) => {
-    console.log(data);
-    const isSucceeded = await login(data.email, data.password);
-    console.log(isSucceeded);
-    if (isSucceeded) {
-      navigate("/top", { replace: true });
-       clearLoginErrorMessage();
-    } 
+    await login(data.email, data.password);
+    if (loginErrorMessageFromServer !== null) {
+      clearLoginErrorMessage();
+    }
   };
 
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
     if (loginErrorMessageFromServer !== null) {
-        clearLoginErrorMessage();
+      clearLoginErrorMessage();
     }
   }
   return (
@@ -86,7 +83,7 @@ export const Login = memo(() => {
         <Link className="text-secondary" to="/password-reset-email-form">パスワードを忘れた方はこちら</Link>
       </div>
 
-        <p className="text-red-500">{errors.email?.message || errors.password?.message }</p>
+      <p className="text-red-500">{errors.email?.message || errors.password?.message}</p>
 
       {loginErrorMessageFromServer && (
         <p className="text-red-500">{loginErrorMessageFromServer}</p>
