@@ -12,13 +12,21 @@ const api = axios.create({
 });
 
 let rehydratePromise: Promise<string | null> | null = null;
-let interceptorCalled = false;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [errorMessageFromServer, setErrorMessageFromServer] = useState<string | null>(null);
   const [isRehydrating, setIsRehydrating] = useState(true);
+
+  useEffect(() => {
+    if (token) {
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    } else {
+      delete api.defaults.headers.common.Authorization;
+    }
+  }, [token]);
+
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const params = new URLSearchParams();
@@ -34,7 +42,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           },
         }
       );
-      setToken(response.data.access_token);
+      const accessToken = response.data.access_token as string;
+      setToken(accessToken);
+      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
       setIsLoggedIn(true);
       return true;
     } catch (err) {
@@ -66,6 +76,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       );
       setToken(null);
       setIsLoggedIn(false);
+      delete api.defaults.headers.common.Authorization;
       return true;
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -162,66 +173,63 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
 
         const accessToken = await rehydratePromise;
-          if (accessToken) {
-            setToken(accessToken);
-            setIsLoggedIn(true);
-          } else {
-            setToken(null);
-            setIsLoggedIn(false);
-          }
+        if (accessToken) {
+          setToken(accessToken);
+          api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+          setIsLoggedIn(true);
+        } else {
+          setToken(null);
+          setIsLoggedIn(false);
+          delete api.defaults.headers.common.Authorization;
+        }
       } finally {
-          setIsRehydrating(false);
+        setIsRehydrating(false);
       }
     };
     rehydrateToken();
   }, []);
 
   useEffect(() => {
-    const setupInterceptor = () => {
-      if (interceptorCalled) {
-        return () => { };
-      }
-      interceptorCalled = true;
+    const interceptor = api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
 
-      const interceptor = api.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          const originalRequest = error.config;
-
-          if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/login')
-            && !originalRequest.url?.includes('/auth/refresh')
-
-          ) {
-            originalRequest._retry = true;
-            try {
-              const res = await api.post(
-                '/auth/refresh',
-                {},
-              );
-
-              const accessToken = res.data.access_token;
-              setToken(accessToken);
-
-              api.defaults.headers.common.Authorization =
-                `Bearer ${accessToken}`;
-
-              return api(originalRequest);
-            } catch (e) {
-              setIsLoggedIn(false);
-              setToken(null);
-              console.log(e);
-              await logout();
-            }
-          }
+        if (!originalRequest) {
           return Promise.reject(error);
         }
-      );
-      return () => {
-        api.interceptors.response.eject(interceptor);
-      };
-    };
+
+        const requestUrl = String(originalRequest.url ?? "");
+        const shouldSkipRefresh =
+          requestUrl.includes('/auth/login') ||
+          requestUrl.includes('/auth/refresh') ||
+          requestUrl.includes('/auth/logout');
+
+        if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
+          originalRequest._retry = true;
+          try {
+            const res = await api.post('/auth/refresh', {});
+            const accessToken = res.data.access_token as string;
+            setToken(accessToken);
+            setIsLoggedIn(true);
+
+            originalRequest.headers = originalRequest.headers ?? {};
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+            return api(originalRequest);
+          } catch (refreshError) {
+            console.log('refresh failed', refreshError);
+            setIsLoggedIn(false);
+            setToken(null);
+            return Promise.reject(error);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
     return () => {
-      setupInterceptor();
+      api.interceptors.response.eject(interceptor);
     };
   }, []);
 
@@ -232,7 +240,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearErrorMessage }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearErrorMessage, api }}>
       {children}
     </AuthContext.Provider>
   );

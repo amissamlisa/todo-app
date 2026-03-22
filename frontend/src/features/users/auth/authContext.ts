@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import type { AxiosInstance } from "axios";
 
 export const AuthContext = createContext<{
   login: (email: string, password: string) => Promise<boolean>;
@@ -11,4 +12,5 @@ export const AuthContext = createContext<{
   canResetPassword: (password: string, token: string) => Promise<boolean>;
   validateAccessToken: () => boolean;
   clearErrorMessage: () => void;
+  api: AxiosInstance;
 } | null>(null);
