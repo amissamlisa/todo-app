@@ -14,5 +14,6 @@ class Settings(BaseModel):
     SENDER_ADDRESS: str = os.environ["SENDER_ADDRESS"]
     SENDER_ADDRESS_PASSWORD: str = os.environ["SENDER_ADDRESS_PASSWORD"]
     ALLOWED_ORIGIN_URL: str = os.environ["ALLOWED_ORIGIN_URL"]
+    COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "false").lower() == "true"
     OPENAI_API_KEY: str = os.environ["OPENAI_API_KEY"]
 settings = Settings()
