@@ -91,8 +91,8 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
 
     try {
       await api.put(`/goal_tasks/order`, payload);
-    } catch (error) {
-      console.error("updateGoalTaskOrder failed", error);
+    } catch (err) {
+      console.error("updateGoalTaskOrder failed", err);
     }
   };
 
@@ -105,17 +105,17 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
 
     try {
       await api.put(`/goal_tasks/status/${goal_task_id}`, payload);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
         console.error("updateGoalTaskStatusAndOrder failed", {
-          status: error.response?.status,
-          method: error.config?.method,
-          url: error.config?.url,
-          response: error.response?.data,
+          status: err.response?.status,
+          method: err.config?.method,
+          url: err.config?.url,
+          response: err.response?.data,
           payload,
         });
       } else {
-        console.error("updateGoalTaskStatusAndOrder failed", error);
+        console.error("updateGoalTaskStatusAndOrder failed", err);
       }
     }
   };
@@ -195,17 +195,17 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
 
       setListByLane(lane, [...currentLaneItems, newTask]);
       return true;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
         console.error("createGoalTask failed", {
-          status: error.response?.status,
-          method: error.config?.method,
-          url: error.config?.url,
-          response: error.response?.data,
+          status: err.response?.status,
+          method: err.config?.method,
+          url: err.config?.url,
+          response: err.response?.data,
           payload,
         });
       } else {
-        console.error("createGoalTask failed", error);
+        console.error("createGoalTask failed", err);
       }
       return false;
     }

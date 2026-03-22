@@ -29,8 +29,8 @@ export const PasswordResetForm = memo(() => {
         try {
           await verifyPasswordResetLink(token);
           setIsValidToken(true);
-        } catch (error: unknown) {
-          const errorCode = (error as Error).message;
+        } catch (err: unknown) {
+          const errorCode = (err as Error).message;
           console.error("エラーコード:", errorCode);
           switch (errorCode) {
             case "INVALID_LINK_ERROR":
