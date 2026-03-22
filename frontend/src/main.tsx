@@ -29,6 +29,7 @@ import { TaskRegistrationIncomplete } from './features/tasks/pages/TaskRegistrat
 import { TaskUpdateForm } from './features/tasks/pages/TaskUpdateForm';
 import { TaskUpdateConfirm } from './features/tasks/pages/TaskUpdateConfirm';
 import { TaskGenerationIncomplete } from './features/tasks/pages/TaskGenerationIncomplete';
+import { ServerConnectionIncomplete } from './shared/components/pages/ServerConnectionIncomplete';
 
 
 const router = createBrowserRouter([
@@ -65,6 +66,9 @@ const router = createBrowserRouter([
   }, {
     path: "/not-found",
     element: <PublicOnlyRoute><NotFoundPage /></PublicOnlyRoute>
+  }, {
+    path: "/server-connection-incomplete",
+    element: <ServerConnectionIncomplete />
   }, {
     path: "/top",
     element: <ProtectedRoute><Top /></ProtectedRoute>
