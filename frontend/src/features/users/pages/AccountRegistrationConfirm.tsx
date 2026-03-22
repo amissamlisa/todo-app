@@ -1,18 +1,17 @@
 import { memo, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { Header } from "../../../shared/components/molecules/Header";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { RegistrationConfirmForm } from "../../../shared/components/molecules/RegistrationConfirmForm";
 import type { RegistrationFormType } from "../types/registrationForm";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const url = API_BASE_URL + "/auth/registration";
+import { useAuth } from "../auth/useAuth";
+import axios from "axios";
 
 export const AccountRegistrationConfirm = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { api } = useAuth();
 
   const data = location.state as RegistrationFormType;
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +30,9 @@ export const AccountRegistrationConfirm = memo(() => {
     { title: "メールアドレス", value: data.email },
     { title: "パスワード", value: data.password }
   ]
-  
+
   const setAccountInfo = async (body: RegistrationFormType) => {
-    const response = await axios.post(url, body);
+    const response = await api.post("/auth/registration", body);
     return response.data;
   };
 
@@ -66,7 +65,7 @@ export const AccountRegistrationConfirm = memo(() => {
   if (isLoading) {
     return <LoadingSpinner message="新規会員登録中..." />;
   }
-  
+
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />

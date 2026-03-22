@@ -10,7 +10,7 @@ export const TaskRegistrationConfirm = memo(
   () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { token } = useAuth();
+    const { api } = useAuth();
     const generatedData = location.state as {
       form?: {
         goal: string;
@@ -41,7 +41,6 @@ export const TaskRegistrationConfirm = memo(
       total_estimated_time += task.estimated_time;
     }
     const onPrimaryClick = async () => {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const toApiDate = (value: string) => value.replace(/\//g, "-");
       const payload = {
         goal: {
@@ -62,15 +61,9 @@ export const TaskRegistrationConfirm = memo(
       };
       try {
         console.log("/goal_tasks/save payload", payload);
-        await axios.post(
-          `${API_BASE_URL}/goal_tasks/save`,
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-
+        await api.post(
+          `/goal_tasks/save`,
+          payload
         );
         navigate("/tasks-registration/complete", {
           replace: true,

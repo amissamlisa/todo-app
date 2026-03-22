@@ -9,7 +9,7 @@ import axios from "axios";
 export const TaskUpdateConfirm = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuth();
+  const { api } = useAuth();
 
   const generatedData = location.state as {
     form?: {
@@ -52,7 +52,6 @@ export const TaskUpdateConfirm = memo(() => {
   }
 
   const onPrimaryClick = async () => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const toApiDate = (value: string) => value.replace(/\//g, "-");
     const payload = {
       goal: {
@@ -73,11 +72,7 @@ export const TaskUpdateConfirm = memo(() => {
     };
 
     try {
-      await axios.put(`${API_BASE_URL}/goal_tasks/update`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.put(`/goal_tasks/update`, payload);
       navigate("/top", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {

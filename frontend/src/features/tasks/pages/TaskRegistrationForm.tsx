@@ -1,6 +1,5 @@
 import { memo, useEffect, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from "axios";
 import { Controller, useForm } from "react-hook-form"
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
@@ -9,6 +8,7 @@ import { useAuth } from "../../users/auth/useAuth";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
+import axios from "axios";
 
 type TaskRegistrationFormType = {
   goal: string;
@@ -24,7 +24,7 @@ dayjs.locale(ja);
 export const TaskRegistrationForm = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token } = useAuth();
+  const { api } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const validateDate = (date: string, format: string) => {
     return dayjs(date, format).format(format) === date;
@@ -66,15 +66,9 @@ export const TaskRegistrationForm = memo(() => {
         goal_tasks_list: []
       };
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-      const response = await axios.post(
-        `${API_BASE_URL}/goal_tasks/generate`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      const response = await api.post(
+        `/goal_tasks/generate`,
+        payload
       );
       console.log("APIレスポンス", response.data);
       navigate("/tasks-registration/confirm", {
