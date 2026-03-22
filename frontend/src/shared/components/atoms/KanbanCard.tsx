@@ -1,13 +1,13 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import axios from "axios";
 import { useAuth } from "../../../features/users/auth/useAuth";
 import { useState } from "react";
 import { TwoButtonModal } from "../molecules/TwoButtonModal";
 import { BsThreeDots } from "react-icons/bs";
 import { OperationModal } from "../molecules/OperationModal";
 import { TaskConfigModal } from "../molecules/TaskConfigModal";
-import type { KanbanCardProps } from "../types/kanbanCard";
+import type { KanbanCardProps } from "../../types/kanbanCard";
+import axios from "axios";
 
 export const KanbanCard = ({
   goal_task_id,
@@ -19,7 +19,7 @@ export const KanbanCard = ({
   onDeleteTask,
   onTaskEdit,
 }: KanbanCardProps) => {
-  const { token } = useAuth();
+  const { api } = useAuth();
   const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -31,6 +31,7 @@ export const KanbanCard = ({
     listeners,
     setNodeRef: setDraggableRef,
     transform,
+    isDragging,
   } = useDraggable({
     id: `goal_task_${goal_task_id}`,
     data: {
@@ -57,20 +58,12 @@ export const KanbanCard = ({
   };
 
   const deleteTaskById = async (goal_task_id: number) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
     try {
-      await axios.delete(
-        `${API_BASE_URL}/goal_tasks/${goal_task_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-
+      await api.delete(
+        `/goal_tasks/${goal_task_id}`
       );
     } catch (err) {
-      if (axios.isAxiosError(err)) {
+       if (axios.isAxiosError(err)) {
         console.error("/goal_tasks/save error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの登録に失敗しました");
       } else {
@@ -80,28 +73,20 @@ export const KanbanCard = ({
   };
 
   const editTaskById = async (goal_task_id: number, goal_task_name: string, estimated_time: string, deadline: string) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
     try {
       const normalizedDeadline = deadline.replace(/\//g, "-");
-      await axios.put(
-        `${API_BASE_URL}/goal_tasks/${goal_task_id}`,
+      await api.put(
+        `/goal_tasks/${goal_task_id}`,
         {
           goal_task_name: goal_task_name,
           estimated_time: Number(estimated_time),
           deadline: normalizedDeadline
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
         }
-
       );
       return true;
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.error("/goal_tasks/save error", err.response?.data);
+        console.error("/goal_tasks/update error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの更新に失敗しました");
       } else {
         console.error("予期しないエラー", err);
@@ -109,10 +94,15 @@ export const KanbanCard = ({
       return false;
     }
   };
-
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const hasExpired = (deadline: string) => {
+    return new Date(deadline) < yesterday;
+  }
   const style = {
     transform: CSS.Translate.toString(transform),
     touchAction: "none" as const,
+    opacity: isDragging ? 0 : 1,
   };
 
   const onConfirmDelete = async () => {
@@ -152,8 +142,8 @@ export const KanbanCard = ({
         style={style}
         {...listeners}
         {...attributes}
-        className=" p-3 m-2 bg-white rounded-lg border-primary text-primary shadow-sm cursor-grab active:cursor-grabbing
-        flex  justify-between"
+        className={` p-3 m-2 bg-white rounded-lg${hasExpired(deadline) ? " border-red-500 text-red-500" : " border-primary text-primary"} shadow-sm cursor-grab active:cursor-grabbing
+        flex  justify-between`}
       >
         <div>
           <p>{deadline} {time}分</p>
