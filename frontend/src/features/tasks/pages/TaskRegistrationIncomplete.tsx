@@ -9,14 +9,13 @@ export const TaskRegistrationIncomplete = memo(() => {
 
   useEffect(() => {
     if (!errMessage) {
-      navigate("/tasks-registration", { replace: true });
+      navigate("/top", { replace: true });
     }
   }, [errMessage, navigate]);
 
   if (!errMessage) {
     return null;
   }
-
   const onButtonClick = () => {
     navigate("/top", { replace: true });
   };
@@ -25,7 +24,7 @@ export const TaskRegistrationIncomplete = memo(() => {
     <Incomplete
       title="タスク登録失敗"
       message={errMessage}
-      buttonText="タスク登録画面へ"
+      buttonText="TOP画面へ"
       hasLogoutButton={true}
       onButtonClick={onButtonClick}
     />

@@ -5,11 +5,11 @@ import { Incomplete } from "../../../shared/components/pages/Incomplete";
 export const TaskGenerationIncomplete = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
-  const errMessage = location.state?.error
+  const errMessage = location.state?.error || "目標タスクの生成に失敗しました";
 
   useEffect(() => {
     if (!errMessage) {
-      navigate("/tasks-registration/confirm", { replace: true });
+      navigate("/top", { replace: true });
     }
   }, [errMessage, navigate]);
 
@@ -25,7 +25,7 @@ export const TaskGenerationIncomplete = memo(() => {
     <Incomplete
       title="目標タスク生成失敗"
       message={errMessage}
-      buttonText="タスク生成画面へ"
+      buttonText="TOP画面へ"
       hasLogoutButton={true}
       onButtonClick={onButtonClick}
     />
