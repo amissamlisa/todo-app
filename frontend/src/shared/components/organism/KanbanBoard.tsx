@@ -1,13 +1,20 @@
-import { DndContext, rectIntersection } from "@dnd-kit/core";
+import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
 import KanbanLane from "../molecules/KanbanLane";
 import type { Cards } from "../../types/cards";
-import axios from "axios";
 import { useAuth } from "../../../features/users/auth/useAuth";
-import type { KanbanBoardProps } from "../types/kanbanBoard";
+import type { KanbanBoardProps } from "../../types/kanbanBoard";
+import axios from "axios";
+
+type ActiveCard = {
+  goal_task_id: number;
+  goal_task: string;
+  time: number;
+  deadline: string;
+};
 
 export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPointsChange, onDoneTasksChange, onTomorrowTasksChange, onDeleteTasks }: KanbanBoardProps) {
-  const { token } = useAuth();
+  const { token, api } = useAuth();
 
   const splitByStatus = (items: Cards[]) => ({
     todo: items.filter((item) => item.goal_task_status === "未着手"),
@@ -21,6 +28,7 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
   const [inProgressItems, setInProgressItems] = useState<Array<Cards>>(
     () => initial.inProgress
   );
+  const [activeCard, setActiveCard] = useState<ActiveCard | null>(null);
 
   useEffect(() => {
     if (!onPointsChange) return;
@@ -70,7 +78,6 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
 
 
   const updateGoalTaskOrder = async (items: Cards[], fromIndex: number, toIndex: number) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const fromTask = items[fromIndex];
     const toTask = items[toIndex];
     if (!fromTask || !toTask || !token) return;
@@ -83,29 +90,13 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
     };
 
     try {
-      await axios.put(`${API_BASE_URL}/goal_tasks/order`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.put(`/goal_tasks/order`, payload);
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("updateGoalTaskOrder failed", {
-          status: error.response?.status,
-          method: error.config?.method,
-          url: error.config?.url,
-          response: error.response?.data,
-          payload,
-        });
-      } else {
-        console.error("updateGoalTaskOrder failed", error);
-      }
+      console.error("updateGoalTaskOrder failed", error);
     }
   };
 
   const updateGoalTaskStatusAndOrder = async (goal_task_id: number, order_num: number, goal_task_status: string) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
     const payload = {
       goal_task_id: goal_task_id,
       order_num: order_num,
@@ -113,11 +104,7 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
     };
 
     try {
-      await axios.put(`${API_BASE_URL}/goal_tasks/status/${goal_task_id}`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.put(`/goal_tasks/status/${goal_task_id}`, payload);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("updateGoalTaskStatusAndOrder failed", {
@@ -176,7 +163,6 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
       return false;
     }
 
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const normalizedDeadline = deadline.replace(/\//g, "-");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedDeadline)) {
       return false;
@@ -190,11 +176,7 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
     };
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/goal_tasks`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.post(`/goal_tasks`, payload);
 
       const createdTask = response.data.goal_task;
       if (!createdTask) {
@@ -234,7 +216,19 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
   return (
     <DndContext
       collisionDetection={rectIntersection}
+      onDragStart={(e) => {
+        const current = e.active.data.current;
+        if (!current) return;
+
+        setActiveCard({
+          goal_task_id: current.goal_task_id,
+          goal_task: current.goal_task,
+          time: current.time,
+          deadline: current.deadline,
+        });
+      }}
       onDragEnd={(e) => {
+        setActiveCard(null);
         const overLane = e.over?.data.current?.lane ?? e.over?.id;
         if (!overLane) return;
         const container = String(overLane).startsWith("lane-")
@@ -246,6 +240,8 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
         if (parent === container) {
           const overIndex = e.over?.data.current?.index;
           if (overIndex === undefined) return;
+          if (overIndex === index) return;
+
           const currentList = getListByLane(parent);
           updateGoalTaskOrder(currentList, index, overIndex);
           const reordered = moveItemWithinLane(currentList, index, overIndex);
@@ -265,14 +261,27 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
         setListByLane(container, updatedTo);
         updateGoalTaskStatusAndOrder(moving.goal_task_id, toList.length + 1, container);
       }}
+      onDragCancel={() => {
+        setActiveCard(null);
+      }}
     >
       <div className="flex flex-col">
         <div className="flex flex-col">
-          <KanbanLane title="未着手" items={todoItems} bgColor="bg-[#FF8E8E]" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("未着手", goal_task_name, estimated_time, deadline)} />
-          <KanbanLane title="作業中" items={inProgressItems} bgColor="bg-[#FFC68E]" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("作業中", goal_task_name, estimated_time, deadline)} />
-          <KanbanLane title="完了" items={doneItems} bgColor="bg-[#8EFF8E]" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("完了", goal_task_name, estimated_time, deadline)} />
+          <KanbanLane title="未着手" items={todoItems} bgColor="#FF8E8E" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("未着手", goal_task_name, estimated_time, deadline)} />
+          <KanbanLane title="作業中" items={inProgressItems} bgColor="#FFC68E" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("作業中", goal_task_name, estimated_time, deadline)} />
+          <KanbanLane title="完了" items={doneItems} bgColor="#8EFF8E" isAddTaskEnabled={isAddTaskEnabled} onDeleteTasks={handleDeleteTask} onEditTasks={handleEditTask} onAddTask={(goal_task_name, estimated_time, deadline) => handleAddTask("完了", goal_task_name, estimated_time, deadline)} />
         </div>
       </div>
+      <DragOverlay>
+        {activeCard ? (
+          <div className="p-3 m-2 bg-white rounded-lg border border-primary text-primary shadow-sm flex justify-between opacity-95 w-[clamp(120px,65vw,540px)]">
+            <div>
+              <p>{activeCard.deadline} {activeCard.time}分</p>
+              <p>{activeCard.goal_task}</p>
+            </div>
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
