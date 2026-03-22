@@ -91,7 +91,7 @@ export const TaskUpdateConfirm = memo(() => {
           },
         });
       } else {
-        console.error("予期しないエラー", err);
+        console.error("Unexpected error", err);
       }
     }
   };

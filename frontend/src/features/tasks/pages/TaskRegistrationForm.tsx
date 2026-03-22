@@ -91,7 +91,7 @@ export const TaskRegistrationForm = memo(() => {
           },
         });
       } else {
-        console.error("予期しないエラー", err);
+        console.error("Unexpected error", err);
       }
     } finally {
       setIsLoading(false);

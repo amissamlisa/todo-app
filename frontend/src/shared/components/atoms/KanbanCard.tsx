@@ -63,11 +63,11 @@ export const KanbanCard = ({
         `/goal_tasks/${goal_task_id}`
       );
     } catch (err) {
-       if (axios.isAxiosError(err)) {
+      if (axios.isAxiosError(err)) {
         console.error("/goal_tasks/save error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの登録に失敗しました");
       } else {
-        console.error("予期しないエラー", err);
+        console.error("Unexpected error", err);
       }
     }
   };
@@ -89,7 +89,7 @@ export const KanbanCard = ({
         console.error("/goal_tasks/update error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの更新に失敗しました");
       } else {
-        console.error("予期しないエラー", err);
+        console.error("Unexpected error", err);
       }
       return false;
     }
