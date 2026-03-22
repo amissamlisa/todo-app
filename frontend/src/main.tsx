@@ -16,18 +16,19 @@ import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmai
 import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
 import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';
 import { PasswordResetIncomplete } from './features/users/pages/PasswordResetIncomplete';
-import { Top } from './features/tasks/Top';
+import { Top } from './features/tasks/pages/Top';
 import { NotFoundPage } from './shared/components/pages/NotFoundPage';
 import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
 import { StrictMode } from 'react';
-import { TaskRegistrationForm } from './features/tasks/TaskRegistrationForm';
-import { TaskRegistrationConfirm } from './features/tasks/TaskRegistrationConfirm';
-import { TaskRegistrationComplete } from './features/tasks/TaskRegistrationComplete';
-import { TaskRegistrationIncomplete } from './features/tasks/TaskRegistrationIncomplete';
-import { TaskUpdateForm } from './features/tasks/TaskUpdateForm';
-import { TaskUpdateConfirm } from './features/tasks/TaskUpdateConfirm';
+import { TaskRegistrationForm } from './features/tasks/pages/TaskRegistrationForm';
+import { TaskRegistrationConfirm } from './features/tasks/pages/TaskRegistrationConfirm';
+import { TaskRegistrationComplete } from './features/tasks/pages/TaskRegistrationComplete';
+import { TaskRegistrationIncomplete } from './features/tasks/pages/TaskRegistrationIncomplete';
+import { TaskUpdateForm } from './features/tasks/pages/TaskUpdateForm';
+import { TaskUpdateConfirm } from './features/tasks/pages/TaskUpdateConfirm';
+import { TaskGenerationIncomplete } from './features/tasks/pages/TaskGenerationIncomplete';
 
 
 const router = createBrowserRouter([
@@ -79,6 +80,9 @@ const router = createBrowserRouter([
   }, {
     path: "/tasks-registration/incomplete",
     element: <ProtectedRoute><TaskRegistrationIncomplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-generation/incomplete",
+    element: <ProtectedRoute><TaskGenerationIncomplete /></ProtectedRoute>
   }, {
     path: "/tasks-update",
     element: <ProtectedRoute><TaskUpdateForm /></ProtectedRoute>
