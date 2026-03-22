@@ -16,21 +16,21 @@ export const Login = memo(() => {
       password: "",
     }
   });
-  const { login, errorMessageFromServer, clearErrorMessage } = useAuth();
+  const { login, loginErrorMessageFromServer, clearLoginErrorMessage } = useAuth();
   const onPrimaryClick = async (data: LoginFormType) => {
     console.log(data);
     const isSucceeded = await login(data.email, data.password);
     console.log(isSucceeded);
     if (isSucceeded) {
       navigate("/top", { replace: true });
-       clearErrorMessage();
+       clearLoginErrorMessage();
     } 
   };
 
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
-    if (errorMessageFromServer !== null) {
-        clearErrorMessage();
+    if (loginErrorMessageFromServer !== null) {
+        clearLoginErrorMessage();
     }
   }
   return (
@@ -88,9 +88,8 @@ export const Login = memo(() => {
 
         <p className="text-red-500">{errors.email?.message || errors.password?.message }</p>
 
-      {/* サーバーエラー */}
-      {errorMessageFromServer && (
-        <p className="text-red-500">{errorMessageFromServer}</p>
+      {loginErrorMessageFromServer && (
+        <p className="text-red-500">{loginErrorMessageFromServer}</p>
       )}
       <div className="mt-[clamp(9px,2.1vh,32px)]">
         <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録" buttonBgColor="bg-secondary" buttonTextColor="text-primary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} ></TwoButton>
