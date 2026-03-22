@@ -43,6 +43,12 @@ export const AccountRegistrationConfirm = memo(() => {
       navigate("/user-registration/complete", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          navigate("/server-connection-incomplete", {
+            replace: true,
+          });
+          return;
+        }
         navigate("/user-registration/incomplete", {
           state: {
             error: err.response?.data?.detail ?? "アカウント登録に失敗しました",

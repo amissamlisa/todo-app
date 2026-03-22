@@ -77,7 +77,19 @@ export const TaskRegistrationForm = memo(() => {
       });
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          navigate("/server-connection-incomplete", {
+            replace: true,
+          });
+          return;
+        }
         console.error(err.response?.data?.detail ?? "目標タスクの生成に失敗しました");
+        navigate("/tasks-generation/incomplete", {
+          replace: true,
+          state: {
+            error: err.response?.data?.detail ?? "目標タスクの生成に失敗しました",
+          },
+        });
       } else {
         console.error("予期しないエラー", err);
       }

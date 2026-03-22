@@ -75,9 +75,20 @@ export const TaskRegistrationConfirm = memo(
         });
       } catch (err) {
         if (axios.isAxiosError(err)) {
+          if (!err.response) {
+            navigate("/server-connection-incomplete", {
+              replace: true,
+            });
+            return;
+          }
           console.error("/goal_tasks/save error", err.response?.data);
           console.error(err.response?.data?.detail ?? "目標タスクの登録に失敗しました");
-          navigate("/tasks-registration/incomplete", { replace: true, });
+          navigate("/tasks-registration/incomplete", {
+            replace: true,
+            state: {
+              error: err.response?.data?.detail ?? "目標タスクの登録に失敗しました",
+            },
+          });
         } else {
           console.error("予期しないエラー", err);
         }

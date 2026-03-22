@@ -8,6 +8,7 @@ import { useAuth } from "../../users/auth/useAuth";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
+import axios from "axios";
 
 interface TaskRegistrationFormType {
   goal: string;
@@ -87,8 +88,19 @@ export const TaskUpdateForm = memo(() => {
         replace: true
       });
     } catch (err) {
-      console.error("目標タスクの生成に失敗しました", err);
-      navigate("/tasks-generation/incomplete", { replace: true });
+      if (axios.isAxiosError(err) && !err.response) {
+        navigate("/server-connection-incomplete", {
+          replace: true,
+        });
+      } else {
+        console.error("目標タスクの生成に失敗しました", err);
+        navigate("/tasks-generation/incomplete", {
+          replace: true,
+          state: {
+            error: "目標タスクの生成に失敗しました",
+          },
+        });
+      }
     } finally {
       setIsLoading(false);
     }

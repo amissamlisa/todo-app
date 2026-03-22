@@ -76,8 +76,20 @@ export const TaskUpdateConfirm = memo(() => {
       navigate("/top", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          navigate("/server-connection-incomplete", {
+            replace: true,
+          });
+          return;
+        }
         console.error("/goal_tasks/update error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの更新に失敗しました");
+        navigate("/tasks-generation/incomplete", {
+          replace: true,
+          state: {
+            error: err.response?.data?.detail ?? "目標タスクの更新に失敗しました",
+          },
+        });
       } else {
         console.error("予期しないエラー", err);
       }
