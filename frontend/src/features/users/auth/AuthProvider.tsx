@@ -16,7 +16,7 @@ let rehydratePromise: Promise<string | null> | null = null;
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const [errorMessageFromServer, setErrorMessageFromServer] = useState<string | null>(null);
+  const [loginErrorMessageFromServer, setLoginErrorMessageFromServer] = useState<string | null>(null);
   const [isRehydrating, setIsRehydrating] = useState(true);
 
   useEffect(() => {
@@ -50,13 +50,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.error_code === "INVALID_PASSWORD_OR_EMAIL") {
-          setErrorMessageFromServer("メールアドレスまたはパスワードが正しくありません");
+          setLoginErrorMessageFromServer("メールアドレスまたはパスワードが正しくありません");
         } else {
-          setErrorMessageFromServer("ログインに失敗しました");
+          setLoginErrorMessageFromServer("ログインに失敗しました");
         }
       }
       else {
-        console.error("予期しないエラー", err);
+        console.error("Unexpected error", err);
       }
       setToken(null);
       setIsLoggedIn(false);
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }
 
-  const logout = async (): Promise<boolean> => {
+  const logout = async (): Promise<void> => {
     try {
       await api.delete(
         '/auth/logout',
@@ -74,18 +74,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           },
         }
       );
+    } catch (err) {
+      console.log("logout error", err);
+    } finally {
       setToken(null);
       setIsLoggedIn(false);
       delete api.defaults.headers.common.Authorization;
-      return true;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        return false;
-      } else {
-        console.error("予期しないエラー", err);
-        return false;
-      }
-
     }
   };
 
@@ -94,8 +88,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return isValid;
   }
 
-  const clearErrorMessage = (): void => {
-    setErrorMessageFromServer(null);
+  const clearLoginErrorMessage = (): void => {
+    setLoginErrorMessageFromServer(null);
   }
 
   const sendResetEmailAndComplete = async (email: string): Promise<void> => {
@@ -106,27 +100,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           email: email,
         }
       );
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        const errorCode = e.response?.data?.error_code;
-        const errorMessage = e.response?.data?.error_message;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const errorCode = err.response?.data?.error_code;
+        const errorMessage = err.response?.data?.error_message;
         console.error(errorCode + " " + errorMessage);
       } else {
-        console.error("予期しないエラー", e);
+        console.error("Unexpected error", err);
       }
     }
   }
   const verifyPasswordResetLink = async (token: string): Promise<void> => {
     try {
       await api.get("/auth/password-reset/verification", { params: { token } })
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        const errorCode = e.response?.data?.error_code;
-        const errorMessage = e.response?.data?.error_message;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const errorCode = err.response?.data?.error_code;
+        const errorMessage = err.response?.data?.error_message;
         console.error(errorMessage);
         throw new Error(errorCode || "UNKNOWN_ERROR");
       } else {
-        console.error("予期しないエラー", e);
+        console.error("Unexpected error", err);
         throw new Error("UNKNOWN_ERROR");
       }
     }
@@ -144,11 +138,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoggedIn(false);
       setToken(null);
       return true
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        console.error(e.response?.data?.message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error(err.response?.data?.message);
       } else {
-        console.error("予期しないエラー", e);
+        console.error("Unexpected error", err);
       }
       return false;
     }
@@ -162,10 +156,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             try {
               const res = await api.post('/auth/refresh');
               return res.data.access_token as string;
-            } catch (error) {
-              if (axios.isAxiosError(error)) {
-                console.error('[rehydrateToken] Response:', error.response?.data);
-                console.error('[rehydrateToken] Status:', error.response?.status);
+            } catch (err) {
+              if (axios.isAxiosError(err)) {
+                console.error('[rehydrateToken] Response:', err.response?.data);
+                console.error('[rehydrateToken] Status:', err.response?.status);
               }
               return null;
             }
@@ -221,6 +215,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             console.log('refresh failed', refreshError);
             setIsLoggedIn(false);
             setToken(null);
+            logout();
             return Promise.reject(error);
           }
         }
@@ -240,7 +235,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, errorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearErrorMessage, api }}>
+    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, loginErrorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearLoginErrorMessage, api }}>
       {children}
     </AuthContext.Provider>
   );
