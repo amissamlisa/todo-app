@@ -1,5 +1,5 @@
-import { memo, useEffect } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from "react-hook-form"
 import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
@@ -9,7 +9,6 @@ import { type RegistrationFormType } from "../types/registrationForm";
 
 export const AccountRegistrationForm = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<RegistrationFormType>({
     defaultValues: {
@@ -19,15 +18,6 @@ export const AccountRegistrationForm = memo(() => {
       confirmation_password: ""
     }
   });
-  useEffect(() => {
-      if (location.key === 'default') {
-        navigate("/", { replace: true });
-      }
-    }, [location.key, navigate]);
-  
-    if (location.key === 'default') {
-      return null;
-    }
   const onPrimaryClick = (data: RegistrationFormType) => {
     console.log(data);
     navigate("/user-registration/confirm", { state: data, replace: true });

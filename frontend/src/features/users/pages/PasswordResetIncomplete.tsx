@@ -1,20 +1,9 @@
-import { memo, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { memo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Incomplete } from "../../../shared/components/pages/Incomplete";
 
 export const PasswordResetIncomplete = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
-
-  if (location.key === 'default') {
-    return null;
-  }
 
   const onButtonClick = () => {
     navigate("/", { replace: true });

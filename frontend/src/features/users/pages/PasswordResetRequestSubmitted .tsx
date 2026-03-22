@@ -1,23 +1,12 @@
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
 import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 export const PasswordResetMessageSent = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
-
-  if (location.key === 'default') {
-    return null;
-  }
 
   const onButtonClick = () => {
     navigate("/", { replace: true });

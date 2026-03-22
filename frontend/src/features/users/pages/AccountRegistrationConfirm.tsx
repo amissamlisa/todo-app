@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Header } from "../../../shared/components/molecules/Header";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
@@ -15,15 +15,6 @@ export const AccountRegistrationConfirm = memo(() => {
 
   const data = location.state as RegistrationFormType;
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    if (!data) {
-      navigate("/", { replace: true });
-    }
-  }, [data, navigate]);
-
-  if (!data) {
-    return null;
-  }
 
   const userData = [
     { title: "ユーザー名", value: data.username },
@@ -65,25 +56,26 @@ export const AccountRegistrationConfirm = memo(() => {
   const onSecondaryClick = () => {
     navigate("/user-registration", { replace: true });
   }
-  if (location.key === 'default') {
-    return null;
-  }
   if (isLoading) {
     return <LoadingSpinner message="新規会員登録中..." />;
   }
-
-  return (
-    <div className="overflow-y-auto h-screen ">
-      <Header />
-      <div className="bg-secondary flex flex-col items-center">
-        <h1 className="text-primary mt-[clamp(15px,4vh,60px)] mb-[clamp(20px,4.8vh,80px)] text-2xl">新規会員登録確認</h1>
-        <div className="mt-[clamp(15px,4vh,60px) mb-[clamp(10px,2.6vh,40px)]">
-          <RegistrationConfirmForm height="h-[clamp(110px,26vh,440px)]" titleColor="text-primary" subTitleColor="text-secondary" backgroundColor="bg-primary" data={userData}>会員情報</RegistrationConfirmForm>
-        </div>
-        <div className="mt-[clamp(76.5px,18.1vh,306px)] mb-24.5">
-          <TwoButton buttonTitle1="登録" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={onPrimaryClick} onSecondaryClick={onSecondaryClick} />
+  if (!data) {
+    navigate("/", { replace: true });
+    return null;
+  } else {
+    return (
+      <div className="overflow-y-auto h-screen ">
+        <Header />
+        <div className="bg-secondary flex flex-col items-center">
+          <h1 className="text-primary mt-[clamp(15px,4vh,60px)] mb-[clamp(20px,4.8vh,80px)] text-2xl">新規会員登録確認</h1>
+          <div className="mt-[clamp(15px,4vh,60px) mb-[clamp(10px,2.6vh,40px)]">
+            <RegistrationConfirmForm height="h-[clamp(110px,26vh,440px)]" titleColor="text-primary" subTitleColor="text-secondary" backgroundColor="bg-primary" data={userData}>会員情報</RegistrationConfirmForm>
+          </div>
+          <div className="mt-[clamp(76.5px,18.1vh,306px)] mb-24.5">
+            <TwoButton buttonTitle1="登録" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={onPrimaryClick} onSecondaryClick={onSecondaryClick} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 });

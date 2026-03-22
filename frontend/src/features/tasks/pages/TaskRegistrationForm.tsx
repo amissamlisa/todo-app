@@ -1,5 +1,5 @@
-import { memo, useEffect, useState } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from "react-hook-form"
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
@@ -23,7 +23,6 @@ type TaskRegistrationFormType = {
 dayjs.locale(ja);
 export const TaskRegistrationForm = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { api } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const validateDate = (date: string, format: string) => {
@@ -40,15 +39,7 @@ export const TaskRegistrationForm = memo(() => {
       conditions: ""
     }
   });
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
 
-  if (location.key === 'default') {
-    return null;
-  }
   const onPrimaryClick = async (data: TaskRegistrationFormType) => {
     try {
       setIsLoading(true);

@@ -1,5 +1,5 @@
-import { memo, useState, useEffect } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { memo, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Controller, useForm } from "react-hook-form"
 import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
@@ -12,15 +12,8 @@ export type PasswordResetEmailType =
   }
 export const PasswordResetEmailForm = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { sendResetEmailAndComplete } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
 
   const { control, handleSubmit, formState: { errors } } = useForm<PasswordResetEmailType>({
     defaultValues: {
@@ -40,10 +33,6 @@ export const PasswordResetEmailForm = memo(() => {
 
   const onSecondaryClick = () => {
     navigate("/", { replace: true });
-  }
-
-  if (location.key === 'default') {
-    return null;
   }
 
   if (isLoading) {

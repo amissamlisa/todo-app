@@ -1,19 +1,12 @@
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
 import { Button } from "../../../shared/components/atoms/Button";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import logoIcon from "../../../assets/cloud-icon.png"
 
 // ログアウトのページへの遷移がうまくいかず、ログイン画面に遷移してしまう時間もかんがみていったんログアウト画面は使用しないようにする。
 export const Logout = memo(() => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
 
   const onButtonClick = () => {
     navigate("/", { replace: true });
