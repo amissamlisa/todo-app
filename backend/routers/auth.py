@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 
-
 from backend.exceptions.app_exception import AppException
 from backend.utils.email_helpers import send_email
 from backend.utils.auth_helpers import (
@@ -171,7 +170,7 @@ def login_for_access_token(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=settings.COOKIE_SECURE,
         samesite="lax",
         path="/",
     )
@@ -230,7 +229,7 @@ def refresh(
         key="refresh_token",
         value=new_refresh_token,
         httponly=True,
-        secure=True,
+        secure=settings.COOKIE_SECURE,
         samesite="lax",
         path="/",
     )
