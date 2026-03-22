@@ -31,7 +31,7 @@ class GoalsTasksOut(BaseModel):
 
 class GoalRequestWithTasks(BaseModel):
     goal: GoalsRequest
-    goal_tasks_list: Optional[List[GoalsTasksOut]] = None
+    completed_goal_tasks_list: Optional[List[GoalsTasksOut]] = None
 
 
 class SaveRequest(BaseModel):

@@ -92,7 +92,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         )
         goal = payload.goal
 
-        goal_tasks = payload.goal_tasks_list or []
+        completed_goal_tasks = payload.completed_goal_tasks_list or []
         response = client.responses.create(
             model="gpt-5-mini",
             instructions="""あなたは目標達成のためのタスク設計コーチです。
@@ -123,16 +123,16 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
               "estimated_time": 60
             }},
             {{
-              "goal_task_name": "基本情報技術者試験の1問1答をする",
+              "goal_task_name": "キタミ式イラストIT塾 基本情報技術者を読む",
               "deadline": "2025-09-11",
               "estimated_time": 25
             }},{{
-              "goal_task_name": "基本情報技術者試験の1問1答をする",
+              "goal_task_name": "過去問道場のサイトを利用して基本情報技術者試験の1問1答をする",
               "deadline": "2025-09-11",
               "estimated_time": 35
             }},
             {{
-              "goal_task_name": "基本情報技術者試験の過去問を解く",
+              "goal_task_name": "基本情報技術者試験の過去問を1年分解く",
               "deadline": "2025-09-12",
               "estimated_time": 90
             }}
@@ -140,15 +140,18 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         }}
             注意事項
             - 優先度は内部的に考慮するが、出力フィールドには含めない
+            - タスクの内容は何をどこまでやるか実行可能なレベルで具体的に示す。
+            - タスクに必要な資料や本は正しいものを挙げるが、タスク名は100字以内に収める
             - タスクは優先度が高い順に締め切りを早く設定して
             - 長時間の作業は分割して複数タスクにする
             - タスクの締め切りは開始日と期限日の間に設定し、期限日から逆算して設定する
-            - 1日に複数タスクを含めてもよいが、それらのタスクを合計して平日は平日可用時間と休日は休日の可用時間内に収める
+            - 1日に複数種類のタスクを含めてもよいが、それらのタスクを合計して平日は平日可用時間と休日は休日の可用時間内に収める
             - 現実的な時間配分を守る
             - 生成条件が与えられない場合は無視してよい
             - 注意: daily_schedule は無視してください
-            -{json.dumps(goal_tasks, ensure_ascii=False)}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
-            この{json.dumps(goal_tasks, ensure_ascii=False)}は存在しない可能性もある。その場合は考慮しなくていい。
+            -{json.dumps(completed_goal_tasks, ensure_ascii=False, default=str)}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
+            完了済みタスクと同じ内容のタスクはなるべく生成しないでほしいが、必要に応じて再度該当のタスクを実施する必要がある場合は、完了済みタスクと同じ内容のタスクを生成しても構わないです。
+            この{json.dumps(completed_goal_tasks, ensure_ascii=False, default=str)}は存在しない可能性もある。その場合は考慮しなくていい。
             """,
         )
         response_text = response.output_text
