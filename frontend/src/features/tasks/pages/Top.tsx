@@ -7,17 +7,18 @@ import KanbanBoard from "../../../shared/components/organism/KanbanBoard";
 import type { Cards } from "../../../shared/types/cards";
 import { useAuth } from "../../users/auth/useAuth";
 import { LogoutButton } from "../../../shared/components/atoms/LogoutButton";
-import UserProfileIcon from "../../../assets/user_icon.png";
+import UserProfileIcon from "../../../assets/user-icon.png";
 import { UserProfile } from "../../../shared/components/molecules/UserProfile";
 import { List } from "../../../shared/components/molecules/List";
 import CloudIcon from "../../../assets/cloud.png";
 import DropletIcon from "../../../assets/droplet.png";
-import GlowingCloudIcon from "../../../assets/glowing_cloud.png";
+import GlowingCloudIcon from "../../../assets/glowing-cloud.png";
 import MistIcon from "../../../assets/mist.png";
 import Point from "../../../assets/point.png";
-import WasteBasket from "../../../assets/waste_basket.png";
+import WasteBasket from "../../../assets/waste-basket.png";
 import type { TopGoalTask } from "../../tasks/types/topGaolTask";
 import type { TopGoal } from "../../tasks/types/topGoal";
+import axios from "axios";
 
 const RANK_ORDER: Record<string, number> = {
   "雫": 0,
@@ -58,6 +59,12 @@ export const Top = memo(() => {
   const rankImage = rankImageMap[topData?.user_rank ?? "雫"] ?? DropletIcon;
   const { token, api } = useAuth();
 
+  const navigateToServerConnectionIncomplete = useCallback(() => {
+    navigate("/server-connection-incomplete", {
+      replace: true,
+    });
+  }, [navigate]);
+
   const onDeleteGoalsAndGoalTasks = async (goal_id: number) => {
     if (!token || goal_id <= 0) return false;
     try {
@@ -76,8 +83,12 @@ export const Top = memo(() => {
       setTomorrowTasks([]);
       setHasOpened(false);
       return true;
-    } catch (error) {
-      console.error("Failed to delete goal and goal tasks", error);
+    } catch (err) {
+      if (axios.isAxiosError(err) && !err.response) {
+        navigateToServerConnectionIncomplete();
+        return false;
+      }
+      console.error("Failed to delete goal and goal tasks", err);
       return false;
     }
   };
@@ -100,7 +111,9 @@ export const Top = memo(() => {
   };
   const onKanbanPointsChange = useCallback(
     async (points: number) => {
-      if (!token) return;
+      if (!token || !topData) return;
+      const nextPoints = Math.max(points, topData.user_points);
+      if (nextPoints === topData.user_points) return;
       const rankByPoints = (value: number) => {
         if (value <= 999) return "雫";
         if (value <= 2999) return "霧";
@@ -108,11 +121,16 @@ export const Top = memo(() => {
         return "光雲";
       };
       const payload = {
-        points: points,
+        points: nextPoints,
       };
       try {
         await api.put(`/top/points`, payload);
-        const nextRank = rankByPoints(points);
+        const nextRank = rankByPoints(nextPoints);
+
+        if (nextRank !== topData.user_rank) {
+          await api.put(`/top/rank`, { user_rank: nextRank });
+        }
+
         setTopData((previous) => {
           if (!previous) return previous;
 
@@ -123,15 +141,19 @@ export const Top = memo(() => {
 
           return {
             ...previous,
-            user_points: points,
+            user_points: nextPoints,
             user_rank: nextRank,
           };
         });
-      } catch (error) {
-        console.error("update points failed", error);
+      } catch (err) {
+        if (axios.isAxiosError(err) && !err.response) {
+          navigateToServerConnectionIncomplete();
+          return;
+        }
+        console.error("update points failed", err);
       }
     },
-    [token, api, setRankUpTo, setIsRankUpModalOpen]
+    [token, topData, api, navigateToServerConnectionIncomplete, setRankUpTo, setIsRankUpModalOpen]
   );
 
   const [, setHasOpened] = useState(false);
@@ -272,34 +294,17 @@ export const Top = memo(() => {
         } else {
           setCanGetTask(false);
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        if (axios.isAxiosError(err) && !err.response) {
+          navigateToServerConnectionIncomplete();
+          return;
+        }
+        console.error(err);
       }
     };
 
     fetchTop();
-  }, [token, api]);
-
-  useEffect(() => {
-    if (!token) return;
-
-    const updateRank = async (rank: string) => {
-      const payload = {
-        user_rank: rank,
-      };
-      try {
-        const response = await api.put(`/top/rank`, payload);
-        setTopData((previous) =>
-          previous ? { ...previous, user_rank: rank } : previous
-        );
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    updateRank(topData?.user_rank ?? "雫");
-  }, [token, topData?.user_rank, api]);
+  }, [token, api, navigateToServerConnectionIncomplete]);
 
   const modalButtonTitle = canGetTask
     ? "目標タスクを更新しますか？"
