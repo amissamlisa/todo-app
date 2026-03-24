@@ -11,10 +11,9 @@ const api = axios.create({
   withCredentials: true
 });
 
-let rehydratePromise: Promise<string | null> | null = null;
+let authRestorePromise: Promise<string | null> | null = null;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [loginErrorMessageFromServer, setLoginErrorMessageFromServer] = useState<string | null>(null);
   const [isRehydrating, setIsRehydrating] = useState(true);
@@ -22,12 +21,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     if (token) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
-    } else {
+    }
+    else {
       delete api.defaults.headers.common.Authorization;
     }
   }, [token]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
       const params = new URLSearchParams();
       params.append("username", email);
@@ -44,10 +44,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       );
       const accessToken = response.data.access_token as string;
       setToken(accessToken);
-      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      setIsLoggedIn(true);
-      return true;
-    } catch (err) {
+    }
+    catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.error_code === "INVALID_PASSWORD_OR_EMAIL") {
           setLoginErrorMessageFromServer("メールアドレスまたはパスワードが正しくありません");
@@ -59,8 +57,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error("Unexpected error", err);
       }
       setToken(null);
-      setIsLoggedIn(false);
-      return false;
     }
   }
 
@@ -74,19 +70,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           },
         }
       );
-    } catch (err) {
+    }
+    catch (err) {
       console.log("logout error", err);
-    } finally {
+    }
+    finally {
       setToken(null);
-      setIsLoggedIn(false);
-      delete api.defaults.headers.common.Authorization;
     }
   };
-
-  const validateAccessToken = (): boolean => {
-    const isValid = isLoggedIn && token !== null;
-    return isValid;
-  }
 
   const clearLoginErrorMessage = (): void => {
     setLoginErrorMessageFromServer(null);
@@ -135,7 +126,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           token
         }
       );
-      setIsLoggedIn(false);
       setToken(null);
       return true
     } catch (err: unknown) {
@@ -149,38 +139,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   useEffect(() => {
-    const rehydrateToken = async () => {
+    const restoreAccessToken = async () => {
       try {
-        if (!rehydratePromise) {
-          rehydratePromise = (async () => {
+        if (!authRestorePromise) {
+          authRestorePromise = (async () => {
             try {
               const res = await api.post('/auth/refresh');
               return res.data.access_token as string;
             } catch (err) {
               if (axios.isAxiosError(err)) {
-                console.error('[rehydrateToken] Response:', err.response?.data);
-                console.error('[rehydrateToken] Status:', err.response?.status);
+                console.error('[restoreAccessToken] Response:', err.response?.data);
+                console.error('[restoreAccessToken] Status:', err.response?.status);
               }
               return null;
             }
           })();
         }
 
-        const accessToken = await rehydratePromise;
-        if (accessToken) {
-          setToken(accessToken);
-          api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-          setIsLoggedIn(true);
+        const restoredAccessToken = await authRestorePromise;
+        if (restoredAccessToken) {
+          setToken(restoredAccessToken);
+          api.defaults.headers.common.Authorization = `Bearer ${restoredAccessToken}`;
         } else {
           setToken(null);
-          setIsLoggedIn(false);
-          delete api.defaults.headers.common.Authorization;
         }
       } finally {
         setIsRehydrating(false);
       }
     };
-    rehydrateToken();
+    restoreAccessToken();
   }, []);
 
   useEffect(() => {
@@ -188,7 +175,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-
         if (!originalRequest) {
           return Promise.reject(error);
         }
@@ -205,21 +191,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const res = await api.post('/auth/refresh', {});
             const accessToken = res.data.access_token as string;
             setToken(accessToken);
-            setIsLoggedIn(true);
 
             originalRequest.headers = originalRequest.headers ?? {};
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
             return api(originalRequest);
-          } catch (refreshError) {
-            console.log('refresh failed', refreshError);
-            setIsLoggedIn(false);
+          } catch (err) {
+            console.log('refresh failed', err);
             setToken(null);
             logout();
             return Promise.reject(error);
           }
         }
         return Promise.reject(error);
+        
       }
     );
 
@@ -228,15 +212,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
-
-
   if (isRehydrating) {
     return null;
   }
-
-  return (
-    <AuthContext.Provider value={{ login, logout, isLoggedIn, token, loginErrorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, validateAccessToken, clearLoginErrorMessage, api }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  else {
+    return (
+      <AuthContext.Provider value={{ login, logout, token, loginErrorMessageFromServer, sendResetEmailAndComplete, canResetPassword, verifyPasswordResetLink, clearLoginErrorMessage, api, isRehydrating }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 };
