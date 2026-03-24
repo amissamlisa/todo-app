@@ -1,17 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
+import type { RouteProps } from "../types/router";
 
-type ProtectedRouteProps = {
-  children: React.ReactNode;
-};
-
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { validateAccessToken } = useAuth();
-  const isAuthenticated = validateAccessToken();
-
-  if (!isAuthenticated) {
+export const ProtectedRoute = ({ children }: RouteProps) => {
+  const { token, isRehydrating } = useAuth();
+  if (isRehydrating) return null;
+  if (!token) {
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };

@@ -1,19 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./useAuth";
+import type { RouteProps } from "../types/router";
 
-
-type PublicOnlyRouteProps = {
-  children: React.ReactNode;
-};
-
-export const PublicOnlyRoute = ({ children }: PublicOnlyRouteProps) => {
-  const { validateAccessToken } = useAuth();
-  const isAuthenticated = validateAccessToken();
-
-  if (isAuthenticated) {
-
+export const PublicOnlyRoute = ({ children }: RouteProps) => {
+  const { token,isRehydrating } = useAuth();
+  if (isRehydrating) return null;
+  if (token) {
     return <Navigate to="/top" replace />;
   }
-
   return <>{children}</>;
 };
