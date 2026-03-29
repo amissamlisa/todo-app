@@ -1,4 +1,4 @@
-export interface Cards {
+export type Cards = {
   goal_task_id: number;
   order_num: number;
   goal_task_status: string;
@@ -6,4 +6,4 @@ export interface Cards {
   time: number;
   deadline: string;
   onDeleteTask?: (goal_task_id: number) => void;
-}
+};

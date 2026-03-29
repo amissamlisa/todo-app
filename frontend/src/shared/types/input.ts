@@ -3,7 +3,7 @@ type FormTextColor = "text-primary" | "text-secondary";
 type FormBorderColor = "border-primary" | "border-secondary";
 type InputType = "text" | "password";
 
-export interface InputProps {
+export type InputProps = {
   value?: string;
   onChangeText?: (value: string) => void;
   onBlur?: () => void;
@@ -15,4 +15,4 @@ export interface InputProps {
   placeholder?: string;
   readOnly?: boolean;
   disabled?: boolean;
-}
+};

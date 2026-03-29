@@ -1,14 +1,9 @@
 import { memo } from "react";
 import { ImCross } from "react-icons/im";
-import type { OperationModalProps } from "../types/operationModal";
+import type { OperationModalProps } from "../../types/operationModal";
 
-export const OperationModal = memo(({ operation, titles, showFlag, setIsOpenModal, handleEdit, handleDelete }: OperationModalProps) => {
-  const closeModal = () => {
-    setIsOpenModal(false);
-  };
-
+export const OperationModal = memo(({ operation, titles, isOpen, onClose, handleEdit, handleDelete }: OperationModalProps) => {
   const menuItems = operation.length > 0 ? operation : titles;
-
   const onSelectOperation = (item: string) => {
     if (item.includes("削除")) {
       handleDelete();
@@ -21,10 +16,10 @@ export const OperationModal = memo(({ operation, titles, showFlag, setIsOpenModa
 
   return (
     <>
-      {showFlag ? (
+      {isOpen ? (
         <div
           className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
-          onClick={closeModal}
+          onClick={onClose}
         >
           <div
             className="w-[clamp(156.5px,80vw,626px)] bg-white rounded-[3px] overflow-hidden"
@@ -34,7 +29,7 @@ export const OperationModal = memo(({ operation, titles, showFlag, setIsOpenModa
               <p className="text-lg text-primary">操作を選択</p>
               <ImCross
                 className="absolute right-4 cursor-pointer text-primary"
-                onClick={closeModal}
+                onClick={onClose}
               />
             </div>
             <div className="px-3 py-2 flex flex-col gap-2">

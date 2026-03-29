@@ -11,7 +11,7 @@ import { AccountRegistrationForm } from './features/users/pages/AccountRegistrat
 import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
 import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
-import { PasswordResetMessageSent } from './features/users/pages/PasswordResetRequestSubmitted ';
+import { PasswordResetRequestSubmitted } from './features/users/pages/PasswordResetRequestSubmitted ';
 import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmailForm';
 import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
 import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';
@@ -53,7 +53,7 @@ const router = createBrowserRouter([
     element: <PublicOnlyRoute><PasswordResetEmailForm /></PublicOnlyRoute>
   }, {
     path: "/password-reset-message-sent",
-    element: <PublicOnlyRoute><PasswordResetMessageSent /></PublicOnlyRoute>
+    element: <PublicOnlyRoute><PasswordResetRequestSubmitted /></PublicOnlyRoute>
   }, {
     path: "/password-reset",
     element: <PublicOnlyRoute><PasswordResetForm /></PublicOnlyRoute>

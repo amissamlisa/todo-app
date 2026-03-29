@@ -20,12 +20,13 @@ export const KanbanCard = ({
   onTaskEdit,
 }: KanbanCardProps) => {
   const { api } = useAuth();
-  const [isOperationModalOpen, setIsOperationModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
+  const [activeModal, setActiveModal] = useState<
+    "operation" | "delete" | "edit" | null
+  >(null);
   const [editedTaskName, setEditedTaskName] = useState(goal_task);
   const [editedEstimatedTime, setEditedEstimatedTime] = useState(time.toString());
-  const [editedDeadline, setEditedDeadline] = useState(deadline);
+  const [editedDeadline, setEditedDeadline] = useState(formatDateForDisplay(deadline));
   const {
     attributes,
     listeners,
@@ -106,7 +107,7 @@ export const KanbanCard = ({
   };
 
   const onConfirmDelete = async () => {
-    setIsDeleteModalOpen(false);
+    setActiveModal("delete");
     onDeleteTask?.(goal_task_id);
     await deleteTaskById(goal_task_id);
   };
@@ -114,25 +115,23 @@ export const KanbanCard = ({
   const onConfirmEdit = async () => {
     const isUpdated = await editTaskById(goal_task_id, editedTaskName, editedEstimatedTime, editedDeadline);
     if (!isUpdated) return;
-    setIsEditModalOpen(false);
+    setActiveModal("edit");
     onTaskEdit?.(goal_task_id, editedTaskName, editedEstimatedTime, editedDeadline.replace(/\//g, "-"));
   };
 
   const onOpenOperationModal = () => {
-    setIsOperationModalOpen(true);
+    setActiveModal("operation");
   };
 
   const onOpenDeleteModal = () => {
-    setIsOperationModalOpen(false);
-    setIsDeleteModalOpen(true);
+    setActiveModal("delete");
   };
 
   const onEditTask = () => {
-    setIsOperationModalOpen(false);
     setEditedTaskName(goal_task);
     setEditedEstimatedTime(time.toString());
-    setEditedDeadline(deadline);
-    setIsEditModalOpen(true);
+    setEditedDeadline(formatDateForDisplay(deadline));
+    setActiveModal("edit");
   };
 
   return (
@@ -146,7 +145,7 @@ export const KanbanCard = ({
         flex  justify-between`}
       >
         <div>
-          <p>{deadline} {time}分</p>
+          <p>{formatDateForDisplay(deadline)} {time}分</p>
           <p>{goal_task}</p>
         </div>
         <div>
@@ -171,8 +170,8 @@ export const KanbanCard = ({
       <OperationModal
         operation={["タスクを削除", "タスクを編集"]}
         titles={["タスクを削除", "タスクを編集"]}
-        showFlag={isOperationModalOpen}
-        setIsOpenModal={setIsOperationModalOpen}
+        isOpen={activeModal === "operation"}
+        onClose={() => setActiveModal(null)}
         handleEdit={onEditTask}
         handleDelete={onOpenDeleteModal}
       />
@@ -181,16 +180,16 @@ export const KanbanCard = ({
         content="タスクを削除しますか？"
         hasPartyPopper={false}
         hasTwoButtons={true}
-        showFlag={isDeleteModalOpen}
-        setIsOpenModal={setIsDeleteModalOpen}
+        isOpen={activeModal === "delete"}
+        onClose={() => setActiveModal(null)}
         onClickChange={onConfirmDelete}
       />
       <TaskConfigModal
-        showFlag={isEditModalOpen}
+        isOpen={activeModal === "edit"}
         taskName={editedTaskName}
         estimatedTime={editedEstimatedTime}
         deadline={editedDeadline}
-        setIsOpenModal={setIsEditModalOpen}
+        onClose={() => setActiveModal(null)}
         onChangeTaskName={setEditedTaskName}
         onChangeEstimatedTime={setEditedEstimatedTime}
         onChangeDeadline={setEditedDeadline}

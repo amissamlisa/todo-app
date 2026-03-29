@@ -1,10 +1,10 @@
 import { type ReactNode } from "react";
 
-export interface IncompleteProps {
+export type IncompleteProps = {
   title: string;
   message: ReactNode;
   buttonText?: string;
   hasLogoutButton: boolean;
-  onButtonClick?: () => void;
+  onClick?: () => void;
   hasButton?: boolean;
 };

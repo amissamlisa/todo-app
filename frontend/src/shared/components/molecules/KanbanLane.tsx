@@ -72,13 +72,13 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
         </div>
       </div>
       <TaskConfigModal
-        showFlag={isAddModalOpen}
+        isOpen={isAddModalOpen}
         title="タスクを追加"
         taskName={newTaskName}
         estimatedTime={newEstimatedTime}
         deadline={newDeadline}
         errorMessage={addErrorMessage}
-        setIsOpenModal={setIsAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onChangeTaskName={(value) => {
           setNewTaskName(value);
           setAddErrorMessage("");

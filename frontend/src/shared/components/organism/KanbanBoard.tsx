@@ -13,8 +13,9 @@ type ActiveCard = {
   deadline: string;
 };
 
-export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPointsChange, onDoneTasksChange, onTomorrowTasksChange, onDeleteTasks }: KanbanBoardProps) {
+export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPointsChange, onDoneTasksChange, onTodayTasksChange, onDeleteTasks }: KanbanBoardProps) {
   const { token, api } = useAuth();
+  const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
 
   const splitByStatus = (items: Cards[]) => ({
     todo: items.filter((item) => item.goal_task_status === "未着手"),
@@ -41,9 +42,9 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
   }, [todoItems, inProgressItems, doneItems, onDoneTasksChange]);
 
   useEffect(() => {
-    if (!onTomorrowTasksChange) return;
-    onTomorrowTasksChange(todoItems, inProgressItems);
-  }, [todoItems, inProgressItems, onTomorrowTasksChange]);
+    if (!onTodayTasksChange) return;
+    onTodayTasksChange(todoItems, inProgressItems);
+  }, [todoItems, inProgressItems, onTodayTasksChange]);
 
 
   const getListByLane = (lane: string) => {
@@ -276,7 +277,7 @@ export default function KanbanBoard({ TodoItems, isAddTaskEnabled = true, onPoin
         {activeCard ? (
           <div className="p-3 m-2 bg-white rounded-lg border border-primary text-primary shadow-sm flex justify-between opacity-95 w-[clamp(120px,65vw,540px)]">
             <div>
-              <p>{activeCard.deadline} {activeCard.time}分</p>
+              <p>{formatDateForDisplay(activeCard.deadline)} {activeCard.time}分</p>
               <p>{activeCard.goal_task}</p>
             </div>
           </div>

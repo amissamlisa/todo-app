@@ -6,7 +6,7 @@ import { Header } from "../molecules/Header";
 import type { IncompleteProps } from "../../types/incomplete";
 
 export const Incomplete = memo(
-  ({ title, message, buttonText, hasLogoutButton, onButtonClick, hasButton = true }: IncompleteProps) => {
+  ({ title, message, buttonText, hasLogoutButton, onClick, hasButton = true }: IncompleteProps) => {
     return (
       <div className="overflow-y-auto h-screen ">
         {hasLogoutButton ?
@@ -21,7 +21,7 @@ export const Incomplete = memo(
           <img className="w-[clamp(115px,59.2vw,462px)]" src={rainCloudImg} />
           {hasButton ? (
             <div>
-              <Button onClick={onButtonClick ?? (() => undefined)} buttonColor="bg-primary" textColor="text-secondary">
+              <Button onClick={onClick ?? (() => undefined)} buttonColor="bg-primary" textColor="text-secondary">
                 {buttonText}
               </Button>
             </div>

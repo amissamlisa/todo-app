@@ -7,14 +7,14 @@ import type { TaskConfigModalFormType } from "../../types/taskConfigModalForm";
 import type { TaskConfigModalProps } from "../../types/taskConfigModal";
 
 export const TaskConfigModal = memo(({
-  showFlag,
+  isOpen,
   taskName,
   estimatedTime,
   deadline,
   errorMessage,
   title = "タスク設定",
   hasTwoButtons = true,
-  setIsOpenModal,
+  onClose,
   onChangeTaskName,
   onChangeEstimatedTime,
   onChangeDeadline,
@@ -48,11 +48,9 @@ export const TaskConfigModal = memo(({
       estimatedTime,
       deadline,
     });
-  }, [taskName, estimatedTime, deadline, showFlag, reset]);
+  }, [taskName, estimatedTime, deadline, isOpen, reset]);
 
-  const closeModal = () => {
-    setIsOpenModal(false);
-  };
+
 
   const displayErrorMessage =
     errors.taskName?.message ||
@@ -62,7 +60,7 @@ export const TaskConfigModal = memo(({
 
   return (
     <>
-      {showFlag ? (
+      {isOpen ? (
         <div className="fixed top-0 left-0 w-full h-full bg-black/70 bg-opacity-50 flex items-center justify-center z-50">
           <div className="flex flex-col items-center justify-between w-[clamp(156.5px,80vw,626px)] bg-white rounded-[3px]">
             <div className="text-center w-full">
@@ -184,12 +182,12 @@ export const TaskConfigModal = memo(({
             </div>
             {hasTwoButtons ? (
               <div className="pb-[clamp(8px,1.8vh,32px)] flex justify-around ">
-                <ModalButton onClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">キャンセル</ModalButton>
+                <ModalButton onClick={onClose} buttonColor="bg-primary" textColor="text-secondary">キャンセル</ModalButton>
                 <div className="mr-[clamp(35px,17.9vw,140px)]"></div>
                 <ModalButton onClick={handleSubmit(() => onClickChange?.())} buttonColor="bg-primary" textColor="text-secondary">登録</ModalButton>
               </div>) : (
               <div className="pb-[clamp(8px,1.8vh,32px)]">
-                <ModalButton onClick={closeModal} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
+                <ModalButton onClick={onClose} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
               </div>
             )}
           </div>

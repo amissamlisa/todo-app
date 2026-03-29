@@ -1,8 +1,8 @@
-export interface OperationModalProps {
+export type OperationModalProps = {
   operation: string[];
   titles: string[];
-  showFlag: boolean;
-  setIsOpenModal: (isOpen: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
   handleEdit: () => void;
   handleDelete: () => void;
-}
+};

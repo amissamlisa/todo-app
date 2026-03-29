@@ -1,9 +1,9 @@
-export interface TwoButtonModalProps {
+export type TwoButtonModalProps = {
   title: string;
   content: string;
-  showFlag: boolean;
+  isOpen: boolean;
   hasPartyPopper?: boolean;
   hasTwoButtons?: boolean;
-  setIsOpenModal: (isOpen: boolean) => void;
+  onClose: () => void;
   onClickChange?: () => void;
-}
+};
