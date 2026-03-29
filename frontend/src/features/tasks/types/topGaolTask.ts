@@ -1,4 +1,4 @@
-export interface TopGoalTask {
+export type TopGoalTask = {
   goal_task_id: number;
   goal_id: number;
   order_num: number;

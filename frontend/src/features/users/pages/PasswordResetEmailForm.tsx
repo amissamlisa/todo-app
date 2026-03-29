@@ -1,44 +1,22 @@
-import { memo, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { memo } from "react";
 import { Controller, useForm } from "react-hook-form"
 import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
-import { useAuth } from "../auth/useAuth";
-export type PasswordResetEmailType =
-  {
-    email: string,
-  }
+import { usePasswordResetEmailForm } from "../hooks/usePasswordResetEmailForm";
+import type { PasswordResetEmailType } from "../types/passwordResetEmail";
 export const PasswordResetEmailForm = memo(() => {
-  const navigate = useNavigate();
-  const { sendResetEmailAndComplete } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, handlePasswordResetEmail, handleNavigateToLogin } = usePasswordResetEmailForm();
 
-  const { control, handleSubmit, formState: { errors } } = useForm<PasswordResetEmailType>({
+  const { control: passwordResetEmailFormControl, handleSubmit: handlePasswordResetEmailSubmit, formState: { errors: passwordResetEmailFormErrors } } = useForm<PasswordResetEmailType>({
     defaultValues: {
       email: "",
     }
   });
-  const onPrimaryClick = async (data: PasswordResetEmailType) => {
-    console.log(data);
-    setIsLoading(true);
-    try {
-      await sendResetEmailAndComplete(data.email)
-      navigate("/password-reset-message-sent", { replace: true },);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onSecondaryClick = () => {
-    navigate("/", { replace: true });
-  }
-
   if (isLoading) {
     return <LoadingSpinner message="パスワード再設定リンク送信中..." />;
   }
-
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
@@ -47,7 +25,7 @@ export const PasswordResetEmailForm = memo(() => {
         <h2 className="text-primary w-[clamp(93px,68vw,400px)] mb-[clamp(11.5px,2.7vh,46px)]">登録いただいたメールアドレスを入力してください。パスワード再設定用のメールを送信します。</h2>
         <div className="mb-[clamp(26px,6.1vh,104px)]">
           <Controller
-            control={control}
+            control={passwordResetEmailFormControl}
             rules={{
               required: "メールアドレスを入力してください",
               validate: (value) =>
@@ -72,10 +50,10 @@ export const PasswordResetEmailForm = memo(() => {
               </Input>
             )}
           />
-          {errors.email && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.email.message}</p>}
+          {passwordResetEmailFormErrors.email && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{passwordResetEmailFormErrors.email.message}</p>}
         </div>
         <div className="mb-24.5">
-          <TwoButton buttonTitle1="パスワード再設定リンク送信" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} />
+          <TwoButton buttonTitle1="パスワード再設定リンク送信" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handlePasswordResetEmailSubmit(handlePasswordResetEmail)} onSecondaryClick={handleNavigateToLogin} />
         </div>
       </div>
     </div>

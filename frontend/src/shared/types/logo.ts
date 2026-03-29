@@ -1,4 +1,4 @@
-export interface LogoProps {
+export type LogoProps = {
   fontSize:  string,
   imageSize: string,
 };

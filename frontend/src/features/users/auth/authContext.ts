@@ -6,7 +6,7 @@ export const AuthContext = createContext<{
   logout: () => Promise<void>;
   token: string | null;
   loginErrorMessageFromServer: string | null;
-  sendResetEmailAndComplete: (email: string) => Promise<void>;
+  sendPasswordResetEmail: (email: string) => Promise<void>;
   verifyPasswordResetLink: (token: string) => Promise<void>;
   isRehydrating: boolean;
   canResetPassword: (password: string, token: string) => Promise<boolean>;

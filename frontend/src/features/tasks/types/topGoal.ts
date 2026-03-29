@@ -1,4 +1,4 @@
-export interface TopGoal {
+export type TopGoal = {
   goal_id: number;
   user_id: number;
   goal_name: string;

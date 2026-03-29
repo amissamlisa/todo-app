@@ -1,50 +1,15 @@
-import { memo, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { memo } from "react";
 import { HeaderWithLogoutIcon } from "../../../shared/components/molecules/HeaderWithLogoutIcon";
 import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
+import { useTaskRegistrationComplete } from "../hooks/useTaskRegistrationComplete";
 
 export const TaskRegistrationComplete = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const state = location.state as {
-    goal: {
-      goal_name: string;
-      status_against_goal: string;
-      start_day: string;
-      target_day: string;
-      weekday_available_time: number;
-      weekends_available_time: number;
-      task_creation_rule?: string;
-    };
-    goal_tasks: {
-      goal_task_name: string;
-      deadline: string;
-      estimated_time: number;
-    }[];
-    goal_total_estimated_time?: number;
-  } | null;
+  const { invalidState, handleMoveTop } = useTaskRegistrationComplete();
 
-  useEffect(() => {
-    if (location.key === "default" || !state?.goal || !state?.goal_tasks) {
-      navigate("/tasks-registration", { replace: true });
-    }
-  }, [location.key, navigate, state?.goal, state?.goal_tasks]);
-
-  if (location.key === "default" || !state?.goal || !state?.goal_tasks) {
+  if (invalidState) {
     return null;
   }
-
-  const onButtonClick = () => {
-    navigate("/top", {
-      replace: true,
-      state: {
-        goal: state.goal,
-        goal_tasks: state.goal_tasks,
-        goal_total_estimated_time: state.goal_total_estimated_time,
-      },
-    });
-  };
 
   return (
     <div className="overflow-y-auto h-screen ">
@@ -56,7 +21,7 @@ export const TaskRegistrationComplete = memo(() => {
         <h2 className="text-primary">目標タスク登録が完了しました</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">
+          <Button onClick={handleMoveTop} buttonColor="bg-primary" textColor="text-secondary">
             TOP画面へ
           </Button>
         </div>

@@ -1,97 +1,36 @@
-import { memo, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { memo } from "react";
 import { Controller, useForm } from "react-hook-form"
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { HeaderWithLogoutIcon } from "../../../shared/components/molecules/HeaderWithLogoutIcon";
-import { useAuth } from "../../users/auth/useAuth";
+import type { TaskRegistrationFormType } from "../types/taskRegistrationForm";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
-import axios from "axios";
-
-type TaskRegistrationFormType = {
-  goal: string;
-  currentStatus: string;
-  startDate: string;
-  endDate: string;
-  weekdayHours: string;
-  holidayHours: string;
-  conditions: string;
-};
+import { useTaskRegistrationForm } from "../hooks/useTaskRegistrationForm";
 
 dayjs.locale(ja);
 export const TaskRegistrationForm = memo(() => {
-  const navigate = useNavigate();
-  const { api } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    isLoading,
+    handleSubmitRegistration,
+    handleNavigateToTop,
+  } = useTaskRegistrationForm();
   const validateDate = (date: string, format: string) => {
     return dayjs(date, format).format(format) === date;
   }
-  const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskRegistrationFormType>({
+  const { control : registrationFormControl, handleSubmit: handleSubmitWithValidation, formState: { errors: registrationErrors }, getValues: getRegistrationValues } = useForm<TaskRegistrationFormType>({
     defaultValues: {
       goal: "",
       currentStatus: "",
       startDate: "",
       endDate: "",
-      weekdayHours: "",
-      holidayHours: "",
+      weekdayAvailableHours: "",
+      holidayAvailableHours: "",
       conditions: ""
     }
   });
 
-  const onPrimaryClick = async (data: TaskRegistrationFormType) => {
-    try {
-      setIsLoading(true);
-      const toApiDate = (value: string) => value.replace(/\//g, "-");
-      const payload = {
-        goal: {
-          goal_name: data.goal,
-          status_against_goal: data.currentStatus,
-          start_day: toApiDate(data.startDate),
-          target_day: toApiDate(data.endDate),
-          weekday_available_time: Number(data.weekdayHours),
-          weekends_available_time: Number(data.holidayHours),
-          task_creation_rule: data.conditions?.trim() || undefined
-        },
-        goal_tasks_list: []
-      };
-
-      const response = await api.post(
-        `/goal_tasks/generate`,
-        payload
-      );
-      console.log("APIレスポンス", response.data);
-      navigate("/tasks-registration/confirm", {
-        state: { form: data, generated: response.data },
-        replace: true
-      });
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        if (!err.response) {
-          navigate("/server-connection-incomplete", {
-            replace: true,
-          });
-          return;
-        }
-        console.error(err.response?.data?.detail ?? "目標タスクの生成に失敗しました");
-        navigate("/tasks-generation/incomplete", {
-          replace: true,
-          state: {
-            error: err.response?.data?.detail ?? "目標タスクの生成に失敗しました",
-          },
-        });
-      } else {
-        console.error("Unexpected error", err);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onSecondaryClick = () => {
-    navigate("/top", { replace: true });
-  }
   if (isLoading) {
     return <LoadingSpinner message="目標タスクを生成中..." />;
   }
@@ -102,7 +41,7 @@ export const TaskRegistrationForm = memo(() => {
       <div className="bg-secondary min-h-screen mt-[clamp(4px,0.9vh,16px)] flex flex-col items-center pb-10">
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "達成目標を入力してください",
               validate: (value) =>
@@ -131,7 +70,7 @@ export const TaskRegistrationForm = memo(() => {
         </div>
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "目標に対する現状を入力してください",
               validate: (value) =>
@@ -161,7 +100,7 @@ export const TaskRegistrationForm = memo(() => {
 
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "開始日を入力してください",
               validate: (value) => {
@@ -176,7 +115,7 @@ export const TaskRegistrationForm = memo(() => {
                 }
                 else if (new Date(value) < new Date()) {
                   return "開始日は本日以降の日付を入力してください";
-                } else if (getValues("endDate") && new Date(value) > new Date(getValues("endDate"))) {
+                } else if (getRegistrationValues("endDate") && new Date(value) > new Date(getRegistrationValues("endDate"))) {
                   return "開始日は終了日以前の日付を入力してください";
                 }
               },
@@ -201,7 +140,7 @@ export const TaskRegistrationForm = memo(() => {
 
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "終了日を入力してください",
               validate: (value) => {
@@ -215,7 +154,7 @@ export const TaskRegistrationForm = memo(() => {
                   return "終了日を日付形式で入力してください";
                 } else if (new Date(value) < new Date()) {
                   return "終了日は本日以降の日付を入力してください";
-                } else if (getValues("startDate") && new Date(value) < new Date(getValues("startDate"))) {
+                } else if (getRegistrationValues("startDate") && new Date(value) < new Date(getRegistrationValues("startDate"))) {
                   return "終了日は開始日以降の日付を入力してください";
                 }
                 return true;
@@ -241,7 +180,7 @@ export const TaskRegistrationForm = memo(() => {
 
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "平日1日の活動可能時間を入力してください",
               pattern: { value: /^[1-9]\d*$/, message: "平日1日の活動可能時間は1以上の整数で入力してください" },
@@ -251,7 +190,7 @@ export const TaskRegistrationForm = memo(() => {
                 }
               },
             }}
-            name="weekdayHours"
+            name="weekdayAvailableHours"
             render={({ field }) => (
               <Input
                 value={field.value}
@@ -271,7 +210,7 @@ export const TaskRegistrationForm = memo(() => {
 
         <div className="mb-[clamp(4.5px,1vh,18px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "休日・祝日の1日の活動可能時間を入力してください",
               pattern: { value: /^[1-9]\d*$/, message: "休日・祝日の1日の活動可能時間を1以上の整数で入力してください" },
@@ -281,7 +220,7 @@ export const TaskRegistrationForm = memo(() => {
                 }
               },
             }}
-            name="holidayHours"
+            name="holidayAvailableHours"
             render={({ field }) => (
               <Input
                 value={field.value}
@@ -299,9 +238,9 @@ export const TaskRegistrationForm = memo(() => {
           />
         </div>
 
-        <div className={Object.keys(errors).length > 0 ? "mb-[clamp(4.5px,1vh,18px)]" : "mb-[clamp(12.5px,2.8vh,50px)]"}>
+        <div className={Object.keys(registrationErrors).length > 0 ? "mb-[clamp(4.5px,1vh,18px)]" : "mb-[clamp(12.5px,2.8vh,50px)]"}>
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               maxLength: {
                 value: 800,
@@ -324,22 +263,22 @@ export const TaskRegistrationForm = memo(() => {
               </Input>
             )}
           />
-          {Object.keys(errors).length > 0 && (
+          {Object.keys(registrationErrors).length > 0 && (
             <div className="w-[clamp(93px,68vw,400px)]">
               <p className="text-red-600">
-                {errors.goal?.message ||
-                  errors.currentStatus?.message ||
-                  errors.startDate?.message ||
-                  errors.endDate?.message ||
-                  errors.weekdayHours?.message ||
-                  errors.holidayHours?.message ||
-                  errors.conditions?.message}
+                {registrationErrors.goal?.message ||
+                  registrationErrors.currentStatus?.message ||
+                  registrationErrors.startDate?.message ||
+                  registrationErrors.endDate?.message ||
+                  registrationErrors.weekdayAvailableHours?.message ||
+                  registrationErrors.holidayAvailableHours?.message ||
+                  registrationErrors.conditions?.message}
               </p>
             </div>
           )}
         </div>
         <div className="pb-[clamp(21px,4.9vh,84px)]">
-          <TwoButton buttonTitle1="目標タスク生成" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} />
+          <TwoButton buttonTitle1="目標タスク生成" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmitWithValidation(handleSubmitRegistration)} onSecondaryClick={handleNavigateToTop} />
         </div>
       </div>
     </div>

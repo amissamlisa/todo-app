@@ -1,13 +1,9 @@
 import { memo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Incomplete } from "../../../shared/components/pages/Incomplete";
+import { usePasswordResetIncomplete } from "../hooks/usePasswordResetIncomplete";
 
 export const PasswordResetIncomplete = memo(() => {
-  const navigate = useNavigate();
-
-  const onButtonClick = () => {
-    navigate("/", { replace: true });
-  }
+  const { handleNavigateToLogin } = usePasswordResetIncomplete();
   return (
     <Incomplete
       title="パスワード再設定失敗"
@@ -19,7 +15,7 @@ export const PasswordResetIncomplete = memo(() => {
       }
       buttonText="ログイン画面へ"
       hasLogoutButton={false}
-      onButtonClick={onButtonClick}
+      onClick={handleNavigateToLogin}
     />
   )
 })

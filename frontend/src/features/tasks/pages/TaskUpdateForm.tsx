@@ -1,47 +1,25 @@
-import { memo, useState } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo } from "react";
 import { Controller, useForm } from "react-hook-form"
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { HeaderWithLogoutIcon } from "../../../shared/components/molecules/HeaderWithLogoutIcon";
-import { useAuth } from "../../users/auth/useAuth";
 import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner";
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
-import axios from "axios";
-
-interface TaskRegistrationFormType {
-  goal: string;
-  currentStatus: string;
-  startDate: string;
-  endDate: string;
-  weekdayHours: string;
-  holidayHours: string;
-  conditions: string;
-};
-
-interface CompletedGoalTask {
-  goal_task_name: string;
-  deadline: string;
-  estimated_time: number;
-};
-
-interface TaskUpdateLocationState {
-  goalName?: string;
-  completedGoalTasks?: CompletedGoalTask[];
-};
+import { useTaskUpdateForm } from "../hooks/useTaskUpdateForm";
+import type { TaskUpdateFormType } from "../types/taskUpdateForm";
 
 dayjs.locale(ja);
 export const TaskUpdateForm = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { api } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const state = (location.state as TaskUpdateLocationState | null) ?? null;
-  const goalName = state?.goalName ?? "";
-  const completedGoalTasks = state?.completedGoalTasks ?? [];
+  const {
+    isLoading,
+    goalName,
+    handleUpdateGoalTasks,
+    handleNavigateTop,
+    handleNavigateToTopWhenGoalMissing,
+  } = useTaskUpdateForm();
 
-  const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskRegistrationFormType>({
+  const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskUpdateFormType>({
     defaultValues: {
       goal: goalName,
       currentStatus: "",
@@ -53,59 +31,11 @@ export const TaskUpdateForm = memo(() => {
     }
   });
 
-  const onPrimaryClick = async (data: TaskRegistrationFormType) => {
-    try {
-      setIsLoading(true);
-      const toApiDate = (value: string) => value.replace(/\//g, "-");
-      const payload = {
-        goal: {
-          goal_name: goalName,
-          status_against_goal: data.currentStatus,
-          start_day: toApiDate(data.startDate),
-          target_day: toApiDate(data.endDate),
-          weekday_available_time: Number(data.weekdayHours),
-          weekends_available_time: Number(data.holidayHours),
-          task_creation_rule: data.conditions?.trim() || undefined
-        },
-        completed_goal_tasks_list: completedGoalTasks
-      };
-
-      const response = await api.post(
-        `/goal_tasks/generate`,
-        payload
-      );
-      console.log("APIレスポンス", response.data);
-      navigate("/tasks-update/confirm", {
-        state: { form: data, generated: response.data },
-        replace: true
-      });
-    } catch (err) {
-      if (axios.isAxiosError(err) && !err.response) {
-        navigate("/server-connection-incomplete", {
-          replace: true,
-        });
-      } else {
-        console.error("目標タスクの生成に失敗しました", err);
-        navigate("/tasks-generation/incomplete", {
-          replace: true,
-          state: {
-            error: "目標タスクの生成に失敗しました",
-          },
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onSecondaryClick = () => {
-    navigate("/top", { replace: true });
-  }
   if (isLoading) {
     return <LoadingSpinner message="目標タスクを生成中..." />;
   }
   if (!goalName) {
-    navigate("/top", { replace: true });
+    handleNavigateToTopWhenGoalMissing();
     return null;
   } else {
     return (
@@ -348,7 +278,7 @@ export const TaskUpdateForm = memo(() => {
             )}
           </div>
           <div className="pb-[clamp(21px,4.9vh,84px)]">
-            <TwoButton buttonTitle1="確認画面へ" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} />
+            <TwoButton buttonTitle1="確認画面へ" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmit(handleUpdateGoalTasks)} onSecondaryClick={handleNavigateTop} />
           </div>
         </div>
       </div>

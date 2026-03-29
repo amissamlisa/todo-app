@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 
-export interface RegistrationConfirmFormProps {
+export type RegistrationConfirmFormProps = {
   children: ReactNode;
   titleColor: string;
   subTitleColor: string;
@@ -12,4 +12,4 @@ export interface RegistrationConfirmFormProps {
     title?: string;
     value: string;
   }[]
-}
+};

@@ -1,35 +1,25 @@
 import { memo } from "react";
 import { Controller, useForm } from "react-hook-form"
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Logo } from "../../../shared/components/atoms/Logo";
 import { Input } from "../../../shared/components/molecules/Input";
 import { PasswordInput } from "../../../shared/components/molecules/PasswordInput";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { type LoginFormType } from "../types/loginForm";
-import { useAuth } from "../auth/useAuth";
+import { useLoginPage } from "../hooks/useLoginPage";
 
 export const Login = memo(() => {
-  const navigate = useNavigate();
-  const { control, handleSubmit, formState: { errors } } = useForm<LoginFormType>({
+  const {
+    loginErrorMessageFromServer,
+    handleLogin,
+    handleNavigateToRegistration,
+  } = useLoginPage();
+  const { control: loginFormControl, handleSubmit: handleLoginSubmit, formState: { errors: loginFormErrors } } = useForm<LoginFormType>({
     defaultValues: {
       email: "",
       password: "",
     }
   });
-  const { login, loginErrorMessageFromServer, clearLoginErrorMessage } = useAuth();
-  const onPrimaryClick = async (data: LoginFormType) => {
-    await login(data.email, data.password);
-    if (loginErrorMessageFromServer !== null) {
-      clearLoginErrorMessage();
-    }
-  };
-
-  const onSecondaryClick = () => {
-    navigate("/user-registration", { replace: true });
-    if (loginErrorMessageFromServer !== null) {
-      clearLoginErrorMessage();
-    }
-  }
   return (
     <div className="bg-primary h-screen flex flex-col items-center overflow-y-auto">
       <div className="mt-[clamp(60px,13.1vh,200px)]">
@@ -37,7 +27,7 @@ export const Login = memo(() => {
       </div>
       <div className="mt-[clamp(50px,5.3vh,100px)]">
         <Controller
-          control={control}
+          control={loginFormControl}
           rules={{
             required: "メールアドレスを入力してください",
           }}
@@ -59,7 +49,7 @@ export const Login = memo(() => {
       </div>
       <div className="mt-[clamp(9px,1.6vh,30px)]">
         <Controller
-          control={control}
+          control={loginFormControl}
           rules={{
             required: "パスワードを入力してください",
           }}
@@ -82,14 +72,12 @@ export const Login = memo(() => {
       <div className="text-right w-[clamp(93px,68vw,400px)]">
         <Link className="text-secondary" to="/password-reset-email-form">パスワードを忘れた方はこちら</Link>
       </div>
-
-      <p className="text-red-500">{errors.email?.message || errors.password?.message}</p>
-
+      <p className="text-red-500">{loginFormErrors.email?.message || loginFormErrors.password?.message}</p>
       {loginErrorMessageFromServer && (
         <p className="text-red-500">{loginErrorMessageFromServer}</p>
       )}
       <div className="mt-[clamp(9px,2.1vh,32px)]">
-        <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録" buttonBgColor="bg-secondary" buttonTextColor="text-primary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} ></TwoButton>
+        <TwoButton buttonTitle1="ログイン" buttonTitle2="新規登録" buttonBgColor="bg-secondary" buttonTextColor="text-primary" onPrimaryClick={handleLoginSubmit(handleLogin)} onSecondaryClick={handleNavigateToRegistration} ></TwoButton>
       </div>
     </div>
   )

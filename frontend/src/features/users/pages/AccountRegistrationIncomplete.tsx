@@ -1,34 +1,17 @@
-import { memo, useEffect } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo } from "react";
 import { Incomplete } from "../../../shared/components/pages/Incomplete";
-
+import { useAccountRegistrationIncomplete } from "../hooks/useAccountRegistrationIncomplete";
 
 export const AccountRegistrationIncomplete = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const errMessage = location.state?.error || "アカウント登録に失敗しました";
-
-  useEffect(() => {
-    if (!errMessage) {
-      navigate("/", { replace: true });
-    }
-  }, [errMessage, navigate]);
-
-  if (!errMessage) {
-    return null;
-  }
-
-  const onButtonClick = () => {
-    navigate("/", { replace: true });
-  }
+  const { registrationErrorMessage, handleNavigateToLogin } = useAccountRegistrationIncomplete();
 
   return (
     <Incomplete
       title="アカウント登録失敗"
-      message={errMessage}
+      message={registrationErrorMessage}
       buttonText="ログイン画面へ"
       hasLogoutButton={false}
-      onButtonClick={onButtonClick}
+      onClick={handleNavigateToLogin}
     />
   )
 })

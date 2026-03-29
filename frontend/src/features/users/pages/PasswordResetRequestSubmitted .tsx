@@ -2,15 +2,11 @@ import { memo } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
 import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
-import { useNavigate } from 'react-router-dom';
+import { usePasswordResetRequestSubmitted } from "../hooks/usePasswordResetRequestSubmitted";
 
 
-export const PasswordResetMessageSent = memo(() => {
-  const navigate = useNavigate();
-
-  const onButtonClick = () => {
-    navigate("/", { replace: true });
-  }
+export const PasswordResetRequestSubmitted = memo(() => {
+  const { handleNavigateToLogin } = usePasswordResetRequestSubmitted();
 
   return (
     <div className="overflow-y-auto h-screen ">
@@ -21,7 +17,7 @@ export const PasswordResetMessageSent = memo(() => {
           その場合メールに記載されているリンクから再設定をおこなってください。</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div>
-          <Button onClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={handleNavigateToLogin} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>

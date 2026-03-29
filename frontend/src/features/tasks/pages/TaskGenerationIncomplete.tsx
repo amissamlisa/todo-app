@@ -1,33 +1,17 @@
-import { memo, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { memo } from "react";
 import { Incomplete } from "../../../shared/components/pages/Incomplete";
+import { useTaskGenerationIncomplete } from "../hooks/useTaskGenerationIncomplete";
 
 export const TaskGenerationIncomplete = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const errMessage = location.state?.error || "目標タスクの生成に失敗しました";
-
-  useEffect(() => {
-    if (!errMessage) {
-      navigate("/top", { replace: true });
-    }
-  }, [errMessage, navigate]);
-
-  if (!errMessage) {
-    return null;
-  }
-
-  const onButtonClick = () => {
-    navigate("/top", { replace: true });
-  };
+  const { errorMessage, handleNavigateTop } = useTaskGenerationIncomplete();
 
   return (
     <Incomplete
       title="目標タスク生成失敗"
-      message={errMessage}
+      message={errorMessage}
       buttonText="TOP画面へ"
       hasLogoutButton={true}
-      onButtonClick={onButtonClick}
+      onClick={handleNavigateTop}
     />
   );
 });

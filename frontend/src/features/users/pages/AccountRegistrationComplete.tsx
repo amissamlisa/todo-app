@@ -2,13 +2,10 @@ import { memo } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
 import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
-import { useNavigate } from 'react-router-dom';
+import { useAccountRegistrationComplete } from "../hooks/useAccountRegistrationComplete";
 
 export const AccountRegistrationComplete = memo(() => {
-  const navigate = useNavigate();
-  const onClick = () => {
-    navigate("/", { replace: true });
-  }
+  const { handleNavigateToLogin } = useAccountRegistrationComplete();
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
@@ -17,7 +14,7 @@ export const AccountRegistrationComplete = memo(() => {
         <h2 className="text-primary">アカウント登録完了しました</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div>
-          <Button onClick={onClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={handleNavigateToLogin} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>
