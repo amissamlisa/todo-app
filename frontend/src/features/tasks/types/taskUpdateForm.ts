@@ -9,9 +9,9 @@ export type TaskUpdateFormType = {
 };
 
 export type CompletedGoalTask = {
-  goal_task_name: string;
+  goalTaskName: string;
   deadline: string;
-  estimated_time: number;
+  estimatedTime: number;
 };
 
 export type TaskUpdateLocationState = {

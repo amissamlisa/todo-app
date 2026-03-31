@@ -14,7 +14,7 @@ export const AccountRegistrationForm = memo(() => {
       username: "",
       email: "",
       password: "",
-      confirmation_password: ""
+      confirmationPassword: ""
     }
   });
   return (
@@ -126,7 +126,7 @@ export const AccountRegistrationForm = memo(() => {
                 }
               },
             }}
-            name="confirmation_password"
+            name="confirmationPassword"
             render={({ field }) => (
               <PasswordInput
                 value={field.value}
@@ -141,7 +141,7 @@ export const AccountRegistrationForm = memo(() => {
               </PasswordInput>
             )}
           />
-          {registrationErrors.confirmation_password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.confirmation_password.message}</p>}
+          {registrationErrors.confirmationPassword && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.confirmationPassword.message}</p>}
         </div>
 
         <div className="mb-24.5">

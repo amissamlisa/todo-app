@@ -23,36 +23,36 @@ export const useTaskUpdateConfirm = () => {
   const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
   const items = useMemo(
     () =>
-      (generatedData?.generated?.goal_tasks ?? []).map((task) => ({
-        value: `${formatDateForDisplay(task.deadline)} ${task.estimated_time}分 ${task.goal_task_name}`,
+      (generatedData?.generated?.goalTasks ?? []).map((task) => ({
+        value: `${formatDateForDisplay(task.deadline)} ${task.estimatedTime}分 ${task.goalTaskName}`,
       })),
-    [generatedData?.generated?.goal_tasks]
+    [generatedData?.generated?.goalTasks]
   );
 
   const goalName = generatedData?.form?.goal ?? "";
   const totalEstimatedTime = useMemo(
     () =>
-      (generatedData?.generated?.goal_tasks ?? []).reduce(
-        (sum, task) => sum + task.estimated_time,
+      (generatedData?.generated?.goalTasks ?? []).reduce(
+        (sum, task) => sum + task.estimatedTime,
         0
       ),
-    [generatedData?.generated?.goal_tasks]
+    [generatedData?.generated?.goalTasks]
   );
 
   const handleUpdateGoalTasks = async () => {
     const toApiDate = (value: string) => value.replace(/\//g, "-");
     const payload = {
       goal: {
-        goal_name: generatedData?.form?.goal ?? "",
-        status_against_goal: generatedData?.form?.currentStatus ?? "",
-        start_day: generatedData?.form?.startDate ? toApiDate(generatedData.form.startDate) : "",
-        target_day: generatedData?.form?.endDate ? toApiDate(generatedData.form.endDate) : "",
-        weekday_available_time: Number(generatedData?.form?.weekdayHours ?? 0),
-        weekends_available_time: Number(generatedData?.form?.holidayHours ?? 0),
-        task_creation_rule: generatedData?.form?.conditions?.trim() || undefined,
+        goalName: generatedData?.form?.goal ?? "",
+        statusAgainstGoal: generatedData?.form?.currentStatus ?? "",
+        startDay: generatedData?.form?.startDate ? toApiDate(generatedData.form.startDate) : "",
+        targetDay: generatedData?.form?.endDate ? toApiDate(generatedData.form.endDate) : "",
+        weekdayAvailableTime: Number(generatedData?.form?.weekdayHours ?? 0),
+        weekendsAvailableTime: Number(generatedData?.form?.holidayHours ?? 0),
+        taskCreationRule: generatedData?.form?.conditions?.trim() || undefined,
       },
-      goal_tasks: generatedData?.generated?.goal_tasks ?? [],
-      goal_total_estimated_time: totalEstimatedTime,
+      goalTasks: generatedData?.generated?.goalTasks ?? [],
+      goalTotalEstimatedTime: totalEstimatedTime,
     };
 
     try {

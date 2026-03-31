@@ -20,7 +20,7 @@ export const NotFoundPage = memo(() => {
       }
       buttonText="ログイン画面へ"
       hasLogoutButton={false}
-      onButtonClick={onButtonClick}
+      onClick={onButtonClick}
     />
   )
 }

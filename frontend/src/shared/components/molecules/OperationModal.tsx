@@ -2,15 +2,15 @@ import { memo } from "react";
 import { ImCross } from "react-icons/im";
 import type { OperationModalProps } from "../../types/operationModal";
 
-export const OperationModal = memo(({ operation, titles, isOpen, onClose, handleEdit, handleDelete }: OperationModalProps) => {
+export const OperationModal = memo(({ operation, titles, isOpen, onClose, onEdit, onDelete }: OperationModalProps) => {
   const menuItems = operation.length > 0 ? operation : titles;
   const onSelectOperation = (item: string) => {
     if (item.includes("削除")) {
-      handleDelete();
+      onDelete();
       return;
     }
     if (item.includes("編集")) {
-      handleEdit();
+      onEdit();
     }
   };
 

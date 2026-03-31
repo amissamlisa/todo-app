@@ -1,9 +1,9 @@
 export type TopGoalTask = {
-  goal_task_id: number;
-  goal_id: number;
-  order_num: number;
-  goal_task_name: string;
-  goal_task_status: string;
+  goalTaskId: number;
+  goalId: number;
+  orderNum: number;
+  goalTaskName: string;
+  goalTaskStatus: string;
   deadline: string;
-  estimated_time: number;
+  estimatedTime: number;
 };

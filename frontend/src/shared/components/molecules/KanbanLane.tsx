@@ -1,16 +1,27 @@
 import { useDroppable } from "@dnd-kit/core";
-import { useState } from "react";
 import { KanbanCard } from "../atoms/KanbanCard";
 import { FaPlus } from "react-icons/fa";
 import { TaskConfigModal } from "./TaskConfigModal";
 import type { KanbanLaneProps } from "../../types/kanbanLane";
+import { useKanbanLane } from "../../hooks/useKanbanLane";
 
-export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = true, onDeleteTasks, onEditTasks, onAddTask }: KanbanLaneProps) {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newTaskName, setNewTaskName] = useState("");
-  const [newEstimatedTime, setNewEstimatedTime] = useState("");
-  const [newDeadline, setNewDeadline] = useState("");
-  const [addErrorMessage, setAddErrorMessage] = useState("");
+export default function KanbanLane({ title, items, bgColor, canAddTask = true, onDeleteTasks, onEditTasks, onAddTask }: KanbanLaneProps) {
+  const {
+    isAddModalOpen,
+    setIsAddModalOpen,
+    newTaskName,
+    newEstimatedTime,
+    newDeadline,
+    addErrorMessage,
+    handleOpenAddModal,
+    handleConfirmAdd,
+    handleChangeTaskName,
+    handleChangeEstimatedTime,
+    handleChangeDeadline,
+  } = useKanbanLane({
+    canAddTask,
+    onAddTask,
+  });
 
   const { setNodeRef } = useDroppable({
     id: `lane-${title}`,
@@ -18,26 +29,6 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
       lane: title,
     },
   });
-
-  const onOpenAddModal = () => {
-    if (!isAddTaskEnabled) return;
-    setNewTaskName("");
-    setNewEstimatedTime("");
-    setNewDeadline("");
-    setAddErrorMessage("");
-    setIsAddModalOpen(true);
-  };
-
-  const onConfirmAdd = async () => {
-    const isAdded = await onAddTask?.(newTaskName, newEstimatedTime, newDeadline);
-    if (!isAdded) {
-      setAddErrorMessage("タスク追加に失敗しました");
-      return;
-    }
-
-    setAddErrorMessage("");
-    setIsAddModalOpen(false);
-  };
 
   return (
     <div className="flex flex-row mb-[clamp(16px,3.7vh,64px)]">
@@ -59,15 +50,15 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
           <p className="font-bold text-secondary text-center">{title}</p>
           <div className="bg-secondary rounded-lg m-2">
             <div
-              className={`text-primary text-center flex items-center justify-center p-3 ${isAddTaskEnabled ? "cursor-pointer" : "cursor-not-allowed bg-gray opacity-50"}`}
-              aria-disabled={!isAddTaskEnabled}
+              className={`text-primary text-center flex items-center justify-center p-3 ${canAddTask ? "cursor-pointer" : "cursor-not-allowed bg-gray opacity-50"}`}
+              aria-disabled={!canAddTask}
             >
               タスクを追加
-              <FaPlus className="ml-2" onClick={onOpenAddModal} />
+              <FaPlus className="ml-2" onClick={handleOpenAddModal} />
             </div>
           </div>
-          {items.map(({ goal_task, time, deadline, goal_task_id }, key) => (
-            <KanbanCard goal_task={goal_task} key={goal_task_id} index={key} parent={title} time={time} deadline={deadline} goal_task_id={goal_task_id} onDeleteTask={onDeleteTasks} onTaskEdit={onEditTasks} />
+          {items.map(({ goalTask, time, deadline, goalTaskId }, key) => (
+            <KanbanCard goalTask={goalTask} key={goalTaskId} index={key} parent={title} time={time} deadline={deadline} goalTaskId={goalTaskId} onDeleteTask={onDeleteTasks} onTaskEdit={onEditTasks} />
           ))}
         </div>
       </div>
@@ -79,19 +70,10 @@ export default function KanbanLane({ title, items, bgColor, isAddTaskEnabled = t
         deadline={newDeadline}
         errorMessage={addErrorMessage}
         onClose={() => setIsAddModalOpen(false)}
-        onChangeTaskName={(value) => {
-          setNewTaskName(value);
-          setAddErrorMessage("");
-        }}
-        onChangeEstimatedTime={(value) => {
-          setNewEstimatedTime(value);
-          setAddErrorMessage("");
-        }}
-        onChangeDeadline={(value) => {
-          setNewDeadline(value);
-          setAddErrorMessage("");
-        }}
-        onClickChange={onConfirmAdd}
+        onChangeTaskName={handleChangeTaskName}
+        onChangeEstimatedTime={handleChangeEstimatedTime}
+        onChangeDeadline={handleChangeDeadline}
+        onClickChange={handleConfirmAdd}
       />
     </div>
   );

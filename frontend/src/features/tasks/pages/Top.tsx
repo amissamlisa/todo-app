@@ -100,8 +100,8 @@ export const Top = memo(() => {
           {goal ? (
             <div className="flex">
               <div>
-                <h2 className="text-primary">期限: {goal?.target_day ? formatDateForDisplay(goal.target_day) : ""}</h2>
-                <h2 className="text-primary">達成目標: {goal?.goal_name}</h2>
+                <h2 className="text-primary">期限: {goal?.targetDay ? formatDateForDisplay(goal.targetDay) : ""}</h2>
+                <h2 className="text-primary">達成目標: {goal?.goalName}</h2>
               </div>
               <img
                 src={WasteBasket}
@@ -121,8 +121,8 @@ export const Top = memo(() => {
               <p className="text-primary self-start">今日までのタスク</p>
             </div>
             {todayTasks.map((task) => (
-              <p key={task.goal_task_id} className="text-primary mt-1 wrap-break-word text-center">
-                {task.goal_task}
+              <p key={task.goalTaskId} className="text-primary mt-1 wrap-break-word text-center">
+                {task.goalTask}
               </p>
             ))}
           </div>
@@ -131,7 +131,7 @@ export const Top = memo(() => {
           <KanbanBoard
             key={kanbanKey}
             TodoItems={todoItems}
-            isAddTaskEnabled={Boolean(goal)}
+            canAddTask={Boolean(goal)}
             onPointsChange={handlePointsChange}
             onDoneTasksChange={handleDoneTasksChange}
             onTodayTasksChange={handleTodayTasksChange}

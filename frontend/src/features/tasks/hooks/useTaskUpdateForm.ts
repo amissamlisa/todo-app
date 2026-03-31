@@ -21,15 +21,19 @@ export const useTaskUpdateForm = () => {
       const toApiDate = (value: string) => value.replace(/\//g, "-");
       const payload = {
         goal: {
-          goal_name: goalName,
-          status_against_goal: data.currentStatus,
-          start_day: toApiDate(data.startDate),
-          target_day: toApiDate(data.endDate),
-          weekday_available_time: Number(data.weekdayHours),
-          weekends_available_time: Number(data.holidayHours),
-          task_creation_rule: data.conditions?.trim() || undefined,
+          goalName: goalName,
+          statusAgainstGoal: data.currentStatus,
+          startDay: toApiDate(data.startDate),
+          targetDay: toApiDate(data.endDate),
+          weekdayAvailableTime: Number(data.weekdayHours),
+          weekendsAvailableTime: Number(data.holidayHours),
+          taskCreationRule: data.conditions?.trim() || undefined,
         },
-        completed_goal_tasks_list: completedGoalTasks,
+        completedGoalTasksList: completedGoalTasks.map((task) => ({
+          goalTaskName: task.goalTaskName,
+          deadline: task.deadline,
+          estimatedTime: task.estimatedTime,
+        })),
       };
 
       const generated = await generateGoalTasks(api, payload);

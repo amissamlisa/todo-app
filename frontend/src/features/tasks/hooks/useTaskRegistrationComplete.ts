@@ -6,7 +6,7 @@ export const useTaskRegistrationComplete = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state as TaskRegistrationCompleteState | null) ?? null;
-  const invalidState = location.key === "default" || !state?.goal || !state?.goal_tasks;
+  const invalidState = location.key === "default" || !state?.goal || !state?.goalTasks;
   useEffect(() => {
     if (invalidState) {
       navigate("/tasks-registration", { replace: true });
@@ -18,8 +18,8 @@ export const useTaskRegistrationComplete = () => {
       replace: true,
       state: {
         goal: state?.goal,
-        goal_tasks: state?.goal_tasks,
-        goal_total_estimated_time: state?.goal_total_estimated_time,
+        goalTasks: state?.goalTasks,
+        goalTotalEstimatedTime: state?.goalTotalEstimatedTime,
       },
     });
   };

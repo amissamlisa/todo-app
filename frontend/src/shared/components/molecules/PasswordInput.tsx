@@ -10,10 +10,10 @@ export const PasswordInput = memo(({
   children, 
   value, 
   onChangeText, onBlur, name }: InputProps) => {
-  const [eye, setEye] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [formType, setFormType] = useState("password");
   const handleEyeClick = (eye: boolean) => {
-    setEye(!eye);
+    setIsPasswordVisible(!eye);
     setFormType(eye ? "password" : "text");
   };
   return (
@@ -23,8 +23,8 @@ export const PasswordInput = memo(({
         onChange={(e) => onChangeText?.(e.target.value)}
         onBlur={onBlur} className={`${borderColor} focus:outline-none 
         rounded-[5px] w-full p-2  border-4 border-solid block bg-secondary`} type={`${formType}`} name={`${name}`} />
-        {eye === true && <IoIosEye onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
-        {eye === false && <IoIosEyeOff onClick={() => handleEyeClick(eye)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
+        {isPasswordVisible === true && <IoIosEye onClick={() => handleEyeClick(isPasswordVisible)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
+        {isPasswordVisible === false && <IoIosEyeOff onClick={() => handleEyeClick(isPasswordVisible)} className="text-primary absolute right-3 bottom-2/12" size={24} />}
     </div>
   )
 })

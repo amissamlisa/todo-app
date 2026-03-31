@@ -4,6 +4,7 @@ import axios from "axios";
 import type { Cards } from "../../../shared/types/cards";
 import { useAuth } from "../../users/auth/useAuth";
 import type { TopData } from "../types/topData";
+import type { ModalType } from "../types/topPage";
 import { rankImageMap } from "../../../shared/types/rankImageMap";
 import { deleteGoal as deleteGoalRequest, fetchTopData, updateTopPoints, updateTopRank } from "../api/topApi";
 
@@ -13,8 +14,6 @@ const RANK_ORDER: Record<string, number> = {
   "雲": 2,
   "光雲": 3,
 };
-
-type ModalType = "default" | "complete" | "rankUp" | "deleteGoal" | null;
 
 export const useTopPage = () => {
   const navigate = useNavigate();
@@ -73,7 +72,7 @@ export const useTopPage = () => {
   );
 
   const handleDeleteGoalConfirm = useCallback(async () => {
-    const goalId = goal?.goal_id;
+    const goalId = goal?.goalId;
     if (!goalId) {
       setActiveModal(null);
       return;
@@ -85,7 +84,7 @@ export const useTopPage = () => {
   }, [goal, deleteGoal]);
 
   const handleOpenDeleteGoalModal = useCallback(() => {
-    if (!goal?.goal_id) return;
+    if (!goal?.goalId) return;
     setActiveModal("deleteGoal");
   }, [goal]);
 
@@ -165,10 +164,10 @@ export const useTopPage = () => {
 
     setTodayTasks((previous) => {
       const previousKey = previous
-        .map((task) => `${task.goal_task_id}:${task.deadline}:${task.goal_task_status}`)
+        .map((task) => `${task.goalTaskId}:${task.deadline}:${task.goalTaskStatus}`)
         .join("|");
       const nextKey = nextTodayTasks
-        .map((task) => `${task.goal_task_id}:${task.deadline}:${task.goal_task_status}`)
+        .map((task) => `${task.goalTaskId}:${task.deadline}:${task.goalTaskStatus}`)
         .join("|");
 
       return previousKey === nextKey ? previous : nextTodayTasks;
@@ -225,17 +224,17 @@ export const useTopPage = () => {
   const handleTaskPageNavigation = useCallback(() => {
     if (path === "/tasks-update") {
       const completedGoalTasks = goalTasks
-        .filter((task) => task.goal_task_status === "完了")
+        .filter((task) => task.goalTaskStatus === "完了")
         .map((task) => ({
-          goal_task_name: task.goal_task_name,
+          goalTaskName: task.goalTaskName,
           deadline: task.deadline,
-          estimated_time: task.estimated_time,
+          estimatedTime: task.estimatedTime,
         }));
 
       navigate(path, {
         replace: true,
         state: {
-          goalName: goal?.goal_name ?? "",
+          goalName: goal?.goalName ?? "",
           completedGoalTasks,
         },
       });
@@ -249,11 +248,11 @@ export const useTopPage = () => {
   const todoItems: Cards[] = useMemo(
     () =>
       goalTasks.map((task, index) => ({
-        goal_task_id: task.goal_task_id ?? index + 1,
-        order_num: task.order_num ?? index + 1,
-        goal_task_status: task.goal_task_status,
-        goal_task: task.goal_task_name,
-        time: task.estimated_time,
+        goalTaskId: task.goalTaskId ?? index + 1,
+        orderNum: task.orderNum ?? index + 1,
+        goalTaskStatus: task.goalTaskStatus,
+        goalTask: task.goalTaskName,
+        time: task.estimatedTime,
         deadline: task.deadline,
       })),
     [goalTasks]
@@ -262,7 +261,7 @@ export const useTopPage = () => {
   const kanbanKey = useMemo(
     () =>
       goalTasks
-        .map((task) => `${task.goal_task_id}:${task.order_num}:${task.goal_task_status}`)
+        .map((task) => `${task.goalTaskId}:${task.orderNum}:${task.goalTaskStatus}`)
         .join("|"),
     [goalTasks]
   );

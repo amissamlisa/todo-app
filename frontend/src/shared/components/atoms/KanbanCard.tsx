@@ -1,17 +1,15 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { useAuth } from "../../../features/users/auth/useAuth";
-import { useState } from "react";
 import { TwoButtonModal } from "../molecules/TwoButtonModal";
 import { BsThreeDots } from "react-icons/bs";
 import { OperationModal } from "../molecules/OperationModal";
 import { TaskConfigModal } from "../molecules/TaskConfigModal";
 import type { KanbanCardProps } from "../../types/kanbanCard";
-import axios from "axios";
+import { useKanbanCard } from "../../hooks/useKanbanCard";
 
 export const KanbanCard = ({
-  goal_task_id,
-  goal_task,
+  goalTaskId,
+  goalTask,
   time,
   deadline,
   index,
@@ -19,14 +17,32 @@ export const KanbanCard = ({
   onDeleteTask,
   onTaskEdit,
 }: KanbanCardProps) => {
-  const { api } = useAuth();
-  const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
-  const [activeModal, setActiveModal] = useState<
-    "operation" | "delete" | "edit" | null
-  >(null);
-  const [editedTaskName, setEditedTaskName] = useState(goal_task);
-  const [editedEstimatedTime, setEditedEstimatedTime] = useState(time.toString());
-  const [editedDeadline, setEditedDeadline] = useState(formatDateForDisplay(deadline));
+  const {
+    activeModal,
+    setActiveModal,
+    draftTaskName,
+    setDraftTaskName,
+    draftEstimatedTime,
+    setDraftEstimatedTime,
+    draftDeadline,
+    setDraftDeadline,
+    formatDateForDisplay,
+    hasExpired,
+    confirmDeleteTask,
+    confirmEditTask,
+    openMenuModal,
+    openDeleteModal,
+    openEditModal,
+  } = useKanbanCard({
+    goalTaskId,
+    goalTask,
+    time,
+    deadline,
+    index,
+    parent,
+    onDeleteTask,
+    onTaskEdit,
+  });
   const {
     attributes,
     listeners,
@@ -34,10 +50,10 @@ export const KanbanCard = ({
     transform,
     isDragging,
   } = useDraggable({
-    id: `goal_task_${goal_task_id}`,
+    id: `goal_task_${goalTaskId}`,
     data: {
-      goal_task_id,
-      goal_task,
+      goalTaskId,
+      goalTask,
       time,
       index,
       parent,
@@ -46,7 +62,7 @@ export const KanbanCard = ({
   });
 
   const { setNodeRef: setDroppableRef } = useDroppable({
-    id: `goal_task_${goal_task_id}`,
+    id: `goal_task_${goalTaskId}`,
     data: {
       lane: parent,
       index,
@@ -57,81 +73,10 @@ export const KanbanCard = ({
     setDraggableRef(node);
     setDroppableRef(node);
   };
-
-  const deleteTaskById = async (goal_task_id: number) => {
-    try {
-      await api.delete(
-        `/goal_tasks/${goal_task_id}`
-      );
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error("/goal_tasks/save error", err.response?.data);
-        console.error(err.response?.data?.detail ?? "目標タスクの登録に失敗しました");
-      } else {
-        console.error("Unexpected error", err);
-      }
-    }
-  };
-
-  const editTaskById = async (goal_task_id: number, goal_task_name: string, estimated_time: string, deadline: string) => {
-    try {
-      const normalizedDeadline = deadline.replace(/\//g, "-");
-      await api.put(
-        `/goal_tasks/${goal_task_id}`,
-        {
-          goal_task_name: goal_task_name,
-          estimated_time: Number(estimated_time),
-          deadline: normalizedDeadline
-        }
-      );
-      return true;
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error("/goal_tasks/update error", err.response?.data);
-        console.error(err.response?.data?.detail ?? "目標タスクの更新に失敗しました");
-      } else {
-        console.error("Unexpected error", err);
-      }
-      return false;
-    }
-  };
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const hasExpired = (deadline: string) => {
-    return new Date(deadline) < yesterday;
-  }
   const style = {
     transform: CSS.Translate.toString(transform),
     touchAction: "none" as const,
     opacity: isDragging ? 0 : 1,
-  };
-
-  const onConfirmDelete = async () => {
-    setActiveModal("delete");
-    onDeleteTask?.(goal_task_id);
-    await deleteTaskById(goal_task_id);
-  };
-
-  const onConfirmEdit = async () => {
-    const isUpdated = await editTaskById(goal_task_id, editedTaskName, editedEstimatedTime, editedDeadline);
-    if (!isUpdated) return;
-    setActiveModal("edit");
-    onTaskEdit?.(goal_task_id, editedTaskName, editedEstimatedTime, editedDeadline.replace(/\//g, "-"));
-  };
-
-  const onOpenOperationModal = () => {
-    setActiveModal("operation");
-  };
-
-  const onOpenDeleteModal = () => {
-    setActiveModal("delete");
-  };
-
-  const onEditTask = () => {
-    setEditedTaskName(goal_task);
-    setEditedEstimatedTime(time.toString());
-    setEditedDeadline(formatDateForDisplay(deadline));
-    setActiveModal("edit");
   };
 
   return (
@@ -146,7 +91,7 @@ export const KanbanCard = ({
       >
         <div>
           <p>{formatDateForDisplay(deadline)} {time}分</p>
-          <p>{goal_task}</p>
+          <p>{goalTask}</p>
         </div>
         <div>
           <BsThreeDots
@@ -162,7 +107,7 @@ export const KanbanCard = ({
             }}
             onClick={(e) => {
               e.stopPropagation();
-              onOpenOperationModal();
+              openMenuModal();
             }}
           />
         </div>
@@ -172,8 +117,8 @@ export const KanbanCard = ({
         titles={["タスクを削除", "タスクを編集"]}
         isOpen={activeModal === "operation"}
         onClose={() => setActiveModal(null)}
-        handleEdit={onEditTask}
-        handleDelete={onOpenDeleteModal}
+        onEdit={openEditModal}
+        onDelete={openDeleteModal}
       />
       <TwoButtonModal
         title="タスク削除"
@@ -182,18 +127,18 @@ export const KanbanCard = ({
         hasTwoButtons={true}
         isOpen={activeModal === "delete"}
         onClose={() => setActiveModal(null)}
-        onClickChange={onConfirmDelete}
+        onClickChange={confirmDeleteTask}
       />
       <TaskConfigModal
         isOpen={activeModal === "edit"}
-        taskName={editedTaskName}
-        estimatedTime={editedEstimatedTime}
-        deadline={editedDeadline}
+        taskName={draftTaskName}
+        estimatedTime={draftEstimatedTime}
+        deadline={draftDeadline}
         onClose={() => setActiveModal(null)}
-        onChangeTaskName={setEditedTaskName}
-        onChangeEstimatedTime={setEditedEstimatedTime}
-        onChangeDeadline={setEditedDeadline}
-        onClickChange={onConfirmEdit}
+        onChangeTaskName={setDraftTaskName}
+        onChangeEstimatedTime={setDraftEstimatedTime}
+        onChangeDeadline={setDraftDeadline}
+        onClickChange={confirmEditTask}
       />
     </>
   );

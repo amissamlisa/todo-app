@@ -3,6 +3,6 @@ export type OperationModalProps = {
   titles: string[];
   isOpen: boolean;
   onClose: () => void;
-  handleEdit: () => void;
-  handleDelete: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 };

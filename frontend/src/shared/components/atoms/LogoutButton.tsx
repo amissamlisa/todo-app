@@ -1,24 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import LogoutIcon from "../../../assets/logout-btn.png";
-import { useAuth } from "../../../features/users/auth/useAuth";
+import { useLogoutButton } from "../../hooks/useLogoutButton";
+import type { LogoutButtonProps } from "../../types/logoutButton";
 
-type LogoutButtonProps = {
-  onLogoutClick?: () => void | Promise<void>;
-  className?: string;
-};
-
-export const LogoutButton = ({ onLogoutClick, className }: LogoutButtonProps) => {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-
-  const handleLogoutClick = async () => {
-    if (onLogoutClick) {
-      await onLogoutClick();
-      return;
-    }
-    await logout();
-    navigate("/", { replace: true });
-  };
+export const LogoutButton = ({ onClick, className }: LogoutButtonProps) => {
+  const { handleLogoutClick } = useLogoutButton({ onClick });
 
   return (
     <img

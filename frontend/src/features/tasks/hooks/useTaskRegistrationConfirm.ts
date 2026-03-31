@@ -14,40 +14,40 @@ export const useTaskRegistrationConfirm = () => {
 
   const items = useMemo(
     () =>
-      (generatedData?.generated?.goal_tasks ?? []).map((task) => ({
-        value: `${task.deadline} ${task.estimated_time}分 ${task.goal_task_name}`,
+      (generatedData?.generated?.goalTasks ?? []).map((task) => ({
+        value: `${task.deadline} ${task.estimatedTime}分 ${task.goalTaskName}`,
       })),
-    [generatedData?.generated?.goal_tasks]
+    [generatedData?.generated?.goalTasks]
   );
 
   const goalName = generatedData?.form?.goal ?? "";
   const totalEstimatedTime = useMemo(
     () =>
-      (generatedData?.generated?.goal_tasks ?? []).reduce(
-        (sum, task) => sum + task.estimated_time,
+      (generatedData?.generated?.goalTasks ?? []).reduce(
+        (sum, task) => sum + task.estimatedTime,
         0
       ),
-    [generatedData?.generated?.goal_tasks]
+    [generatedData?.generated?.goalTasks]
   );
 
   const handleSaveGoalTasks = async () => {
     const toApiDate = (value: string) => value.replace(/\//g, "-");
     const payload = {
       goal: {
-        goal_name: generatedData?.form?.goal ?? "",
-        status_against_goal: generatedData?.form?.currentStatus ?? "",
-        start_day: generatedData?.form?.startDate
+        goalName: generatedData?.form?.goal ?? "",
+        statusAgainstGoal: generatedData?.form?.currentStatus ?? "",
+        startDay: generatedData?.form?.startDate
           ? toApiDate(generatedData.form.startDate)
           : "",
-        target_day: generatedData?.form?.endDate
+        targetDay: generatedData?.form?.endDate
           ? toApiDate(generatedData.form.endDate)
           : "",
-        weekday_available_time: Number(generatedData?.form?.weekdayAvailableHours ?? 0),
-        weekends_available_time: Number(generatedData?.form?.holidayAvailableHours ?? 0),
-        task_creation_rule: generatedData?.form?.conditions?.trim() || undefined,
+        weekdayAvailableTime: Number(generatedData?.form?.weekdayAvailableHours ?? 0),
+        weekendsAvailableTime: Number(generatedData?.form?.holidayAvailableHours ?? 0),
+        taskCreationRule: generatedData?.form?.conditions?.trim() || undefined,
       },
-      goal_tasks: generatedData?.generated?.goal_tasks ?? [],
-      goal_total_estimated_time: totalEstimatedTime,
+      goalTasks: generatedData?.generated?.goalTasks ?? [],
+      goalTotalEstimatedTime: totalEstimatedTime,
     };
 
     try {
@@ -56,8 +56,8 @@ export const useTaskRegistrationConfirm = () => {
         replace: true,
         state: {
           goal: payload.goal,
-          goal_tasks: payload.goal_tasks,
-          goal_total_estimated_time: totalEstimatedTime,
+          goalTasks: payload.goalTasks,
+          goalTotalEstimatedTime: totalEstimatedTime,
         },
       });
     } catch (err) {

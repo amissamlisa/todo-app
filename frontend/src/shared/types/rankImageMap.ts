@@ -1,4 +1,4 @@
-import CloudIcon from "../../assets/cloud-icon.png";
+import CloudIcon from "../../assets/cloud.png";
 import DropletIcon from "../../assets/droplet.png";
 import GlowingCloudIcon from "../../assets/glowing-cloud.png";
 import MistIcon from "../../assets/mist.png";

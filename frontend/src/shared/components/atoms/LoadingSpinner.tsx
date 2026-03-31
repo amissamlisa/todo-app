@@ -1,8 +1,5 @@
 import { memo } from "react";
-
-type LoadingSpinnerProps = {
-  message?: string;
-};
+import type { LoadingSpinnerProps } from "../../types/loadingSpinner";
 
 export const LoadingSpinner = memo(({ message = "読み込み中..." }: LoadingSpinnerProps) => {
   return (

@@ -16,15 +16,14 @@ export const useTaskRegistrationForm = () => {
       const normalizeDateForApi = (value: string) => value.replace(/\//g, "-");
       const payload = {
         goal: {
-          goal_name: data.goal,
-          status_against_goal: data.currentStatus,
-          start_day: normalizeDateForApi(data.startDate),
-          target_day: normalizeDateForApi(data.endDate),
-          weekday_available_time: Number(data.weekdayAvailableHours),
-          weekends_available_time: Number(data.holidayAvailableHours),
-          task_creation_rule: data.conditions?.trim() || undefined,
+          goalName: data.goal,
+          statusAgainstGoal: data.currentStatus,
+          startDay: normalizeDateForApi(data.startDate),
+          targetDay: normalizeDateForApi(data.endDate),
+          weekdayAvailableTime: Number(data.weekdayAvailableHours),
+          weekendsAvailableTime: Number(data.holidayAvailableHours),
+          taskCreationRule: data.conditions?.trim() || undefined,
         },
-        goal_tasks_list: [],
       };
 
       const generated = await generateGoalTasks(api, payload);

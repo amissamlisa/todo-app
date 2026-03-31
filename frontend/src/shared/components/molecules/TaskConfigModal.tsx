@@ -34,7 +34,7 @@ export const TaskConfigModal = memo(({
     );
   };
 
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<TaskConfigModalFormType>({
+  const { control : controlTaskConfig , handleSubmit : handleSubmitTaskConfig, reset, formState: { errors : errorsTaskConfig } } = useForm<TaskConfigModalFormType>({
     defaultValues: {
       taskName,
       estimatedTime,
@@ -50,12 +50,10 @@ export const TaskConfigModal = memo(({
     });
   }, [taskName, estimatedTime, deadline, isOpen, reset]);
 
-
-
   const displayErrorMessage =
-    errors.taskName?.message ||
-    errors.estimatedTime?.message ||
-    errors.deadline?.message ||
+    errorsTaskConfig.taskName?.message ||
+    errorsTaskConfig.estimatedTime?.message ||
+    errorsTaskConfig.deadline?.message ||
     errorMessage;
 
   return (
@@ -71,7 +69,7 @@ export const TaskConfigModal = memo(({
             </div>
             <div className="w-full flex flex-col items-center gap-[clamp(4.5px,1vh,18px)] px-3 py-3">
               <Controller
-                control={control}
+                control={controlTaskConfig}
                 name="taskName"
                 rules={{
                   required: "タスク名を入力してください",
@@ -99,7 +97,7 @@ export const TaskConfigModal = memo(({
                 )}
               />
               <Controller
-                control={control}
+                control={controlTaskConfig}
                 name="estimatedTime"
                 rules={{
                   required: "推定時間を入力してください",
@@ -133,7 +131,7 @@ export const TaskConfigModal = memo(({
                 )}
               />
               <Controller
-                control={control}
+                control={controlTaskConfig}
                 name="deadline"
                 rules={{
                   required: "期限を入力してください",
@@ -149,7 +147,7 @@ export const TaskConfigModal = memo(({
                     const parsedDate = new Date(value.replace(/\//g, "-"));
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    if (parsedDate <= today) {
+                    if (parsedDate < today) {
                       return "期限は明日以降の日付を入力してください";
                     }
 
@@ -184,7 +182,7 @@ export const TaskConfigModal = memo(({
               <div className="pb-[clamp(8px,1.8vh,32px)] flex justify-around ">
                 <ModalButton onClick={onClose} buttonColor="bg-primary" textColor="text-secondary">キャンセル</ModalButton>
                 <div className="mr-[clamp(35px,17.9vw,140px)]"></div>
-                <ModalButton onClick={handleSubmit(() => onClickChange?.())} buttonColor="bg-primary" textColor="text-secondary">登録</ModalButton>
+                <ModalButton onClick={handleSubmitTaskConfig(() => onClickChange?.())} buttonColor="bg-primary" textColor="text-secondary">登録</ModalButton>
               </div>) : (
               <div className="pb-[clamp(8px,1.8vh,32px)]">
                 <ModalButton onClick={onClose} buttonColor="bg-primary" textColor="text-secondary">閉じる</ModalButton>
