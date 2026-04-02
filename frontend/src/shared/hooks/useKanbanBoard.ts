@@ -1,5 +1,5 @@
 import { type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../features/users/auth/useAuth";
 import {
@@ -31,10 +31,16 @@ export const useKanbanBoard = ({
     () => initial.inProgress
   );
   const [activeCard, setActiveCard] = useState<ActiveCard | null>(null);
+  const previousDoneCountRef = useRef(initial.done.length);
 
   useEffect(() => {
     if (!onPointsChange) return;
-    onPointsChange(doneItems.length);
+    const gainedPoints = doneItems.length - previousDoneCountRef.current;
+    previousDoneCountRef.current = doneItems.length;
+
+    if (gainedPoints > 0) {
+      onPointsChange(gainedPoints);
+    }
   }, [doneItems, onPointsChange]);
 
   useEffect(() => {

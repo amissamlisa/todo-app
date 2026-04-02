@@ -89,10 +89,11 @@ export const useTopPage = () => {
   }, [goal]);
 
   const handlePointsChange = useCallback(
-    async (points: number) => {
+    async (gainedPoints: number) => {
       if (!token || !topData) return;
-      const nextPoints = Math.max(points, topData.userPoints);
-      if (nextPoints === topData.userPoints) return;
+      if (gainedPoints <= 0) return;
+
+      const nextPoints = topData.userPoints + gainedPoints;
 
       const rankByPoints = (value: number) => {
         if (value <= 999) return "雫";
