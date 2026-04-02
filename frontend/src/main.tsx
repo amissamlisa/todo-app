@@ -1,4 +1,4 @@
-// import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import {
@@ -21,7 +21,6 @@ import { NotFoundPage } from './shared/components/pages/NotFoundPage';
 import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
-import { StrictMode } from 'react';
 import { TaskRegistrationForm } from './features/tasks/pages/TaskRegistrationForm';
 import { TaskRegistrationConfirm } from './features/tasks/pages/TaskRegistrationConfirm';
 import { TaskRegistrationComplete } from './features/tasks/pages/TaskRegistrationComplete';
