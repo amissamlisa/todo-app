@@ -35,7 +35,7 @@ export const useKanbanCard = ({
       onDeleteTask?.(goalTaskId);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.error("/goal_tasks/save error", err.response?.data);
+        console.error("/goal-tasks/{goalTaskId} delete error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの登録に失敗しました");
       } else {
         console.error("Unexpected error", err);
@@ -55,7 +55,7 @@ export const useKanbanCard = ({
       onTaskEdit?.(goalTaskId, draftTaskName, draftEstimatedTime, normalizedDeadline);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.error("/goal_tasks/update error", err.response?.data);
+        console.error("/goal-tasks/{goalTaskId} update error", err.response?.data);
         console.error(err.response?.data?.detail ?? "目標タスクの更新に失敗しました");
       } else {
         console.error("Unexpected error", err);

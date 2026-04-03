@@ -16,7 +16,7 @@ from ..schemas.schemas import (
     GoalTaskOrderUpdateRequest,
     GoalTaskStatusAndOrderUpdateRequest,
 )
-from ..models.models import GoalsTasks, GoalsTasksStatusEnum, Goals, GoalsStatusEnum
+from ..models.models import GoalsTasks
 from openai import OpenAI
 import json
 from ..repository.repository import (
@@ -28,10 +28,13 @@ from ..repository.repository import (
 from ..config import settings
 
 
-router = APIRouter(prefix="/goal_tasks", tags=["goal_tasks"])
+router = APIRouter(prefix="/goal-tasks", tags=["goal-tasks"])
 
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
+
+goal_task_repository = GoalTaskRepository()
+goal_repository = GoalRepository()
 
 
 @router.get("/{goal_id}", status_code=status.HTTP_200_OK)
@@ -39,11 +42,9 @@ def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal_tasks = (
-            db.query(GoalsTasks)
-            .filter(GoalsTasks.goal_id == goal_id)
-            .order_by(GoalsTasks.order_num.asc(), GoalsTasks.goal_task_id.asc())
-            .all()
+
+        goal_tasks = goal_task_repository.fetch_goal_tasks_by_goal_id_from_db(
+            db, goal_id
         )
 
         if not goal_tasks:
@@ -61,11 +62,10 @@ def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
 @router.delete("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: int):
     try:
-        goal_task_repository = GoalTaskRepository()
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal_task = (
-            db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
+        goal_task = goal_task_repository.get_goal_task_by_goal_task_id_from_db(
+            db, goal_task_id
         )
 
         if goal_task is None:
@@ -191,45 +191,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         )
 
 
-@router.post("/save", status_code=status.HTTP_201_CREATED)
-def save_goals_and_goal_tasks_and(
-    user: user_dependency, payload: SaveRequest, db: Session = Depends(get_db)
-):
-    try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal_repository = GoalRepository()
-        goal = payload.goal
-        total_estimated_time = payload.goal_total_estimated_time
-        goal_task_list = payload.goal_tasks
-        goal_data = goal.model_dump()
-
-        goal_data["status"] = GoalsStatusEnum.Unachieved.value
-
-        goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
-        goal_obj.total_estimated_time = total_estimated_time
-        goal_repository.register_goal(db, goal_obj, commit=True)
-
-        goal_task_repository = GoalTaskRepository()
-        goal_task_items = []
-        for goal_task in goal_task_list:
-            goal_task_items.append(
-                GoalsTasks(**goal_task.model_dump(), goal_id=goal_obj.goal_id)
-            )
-        goal_task_repository.register_goal_task(db, goal_task_items, commit=True)
-        return {
-            "detail": "達成目標と目標達成タスクが保存されました",
-            "goal_id": goal_obj.goal_id,
-        }
-    except HTTPException:
-        raise
-    except (ValueError, IntegrityError, StatementError, DataError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
-
-
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_goal_task(
     user: user_dependency,
     db: db_dependency,
@@ -239,15 +201,12 @@ def create_goal_task(
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
 
-        goal_repository = GoalRepository()
-        goal_task_repository = GoalTaskRepository()
-
-        goals = goal_repository.find_goal_by_user_id(db, user.get("user_id"))
+        goals = goal_repository.search_goal_by_user_id(db, user.get("user_id"))
         goal = goals[0] if goals else None
         if goal is None:
             raise HTTPException(status_code=404, detail="未達成の目標が見つかりません")
 
-        existing_tasks = goal_task_repository.find_goal_task_by_goal_id(
+        existing_tasks = goal_task_repository.fetch_goal_tasks_by_goal_id_from_db(
             db, goal.goal_id
         )
         order_num = (
@@ -292,47 +251,6 @@ def create_goal_task(
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
 
 
-@router.put("/update", status_code=status.HTTP_201_CREATED)
-def update_goals_and_goal_tasks(
-    user: user_dependency, payload: SaveRequest, db: Session = Depends(get_db)
-):
-    try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-        goal_repository = GoalRepository()
-        goal = payload.goal
-        total_estimated_time = payload.goal_total_estimated_time
-        goal_task_list = payload.goal_tasks
-        goal_data = goal.model_dump()
-
-        goal_data["status"] = GoalsStatusEnum.Unachieved.value
-
-        goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
-        goal_obj.total_estimated_time = total_estimated_time
-        updated_goal = goal_repository.update_goal_from_db(db, goal_obj, commit=True)
-
-        goal_task_repository = GoalTaskRepository()
-
-        new_goal_task_items = []
-        for goal_task in goal_task_list:
-            new_goal_task_items.append(
-                GoalsTasks(**goal_task.model_dump(), goal_id=updated_goal.goal_id)
-            )
-        goal_task_repository.replace_goal_tasks_from_db(
-            db, updated_goal.goal_id, new_goal_task_items, commit=True
-        )
-        return {
-            "detail": "達成目標と目標達成タスクが更新されました",
-            "goal_id": goal_obj.goal_id,
-        }
-    except HTTPException:
-        raise
-    except (ValueError, IntegrityError, StatementError, DataError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
-
-
 @router.put("/order", status_code=status.HTTP_204_NO_CONTENT)
 def update_goal_task_order(
     user: user_dependency,
@@ -343,8 +261,6 @@ def update_goal_task_order(
         if user is None:
             raise HTTPException(status_code=401, detail="認証に失敗しました")
 
-        # リポジトリ呼び出し
-        goal_task_repository = GoalTaskRepository()
         from_updated_task, to_updated_task = (
             goal_task_repository.update_goal_task_order_from_db(
                 db,
@@ -377,8 +293,6 @@ def update_goal_task_status_and_order(
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
 
-        # リポジトリ呼び出し
-        goal_task_repository = GoalTaskRepository()
         updated_task = goal_task_repository.update_goal_task_status_and_order_from_db(
             db, goal_task_id, payload.new_status, payload.order_num, commit=True
         )
@@ -406,7 +320,6 @@ def update_goal_task(
         if user is None:
             raise HTTPException(status_code=404, detail="認証に失敗しました")
 
-        # リポジトリ呼び出し
         goal_task_repository = GoalTaskRepository()
         updated_task = goal_task_repository.update_goal_task_from_db(
             db,
@@ -427,35 +340,3 @@ def update_goal_task(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが更新できません")
-
-
-@router.delete("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_goal_task(
-    user: user_dependency,
-    db: db_dependency,
-    goal_task_id: int,
-):
-    try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
-        goal_task_repository = GoalTaskRepository()
-        goal = goal_task_repository.find_goal_task_by_goal_task_id(db, goal_task_id)
-        if goal is None:
-            raise HTTPException(
-                status_code=404, detail="目標達成タスクが見つかりません"
-            )
-        deleted_task = goal_task_repository.delete_goal_task_from_db(
-            db, goal, commit=True
-        )
-
-        if deleted_task is None:
-            raise HTTPException(
-                status_code=404, detail="目標達成タスクが見つかりません"
-            )
-    except HTTPException:
-        raise
-    except (ValueError, GoalTaskNotFound, StatusUnchangedError, DataError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"{str(e)}: データが削除できません")

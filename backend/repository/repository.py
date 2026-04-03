@@ -47,7 +47,7 @@ class GoalRepository:
     def __init__(self):
         pass
 
-    def find_goal_by_user_id(self, db, user_id: int):
+    def search_goal_by_user_id(self, db, user_id: int):
         goals = (
             db.query(Goals)
             .filter(
@@ -58,7 +58,7 @@ class GoalRepository:
         )
         return goals
 
-    def get_goal_by_id_from_db(self, db: Session, goal_id: int):
+    def fetch_goal_by_id_from_db(self, db: Session, goal_id: int):
         return db.query(Goals).filter(Goals.goal_id == goal_id).first()
 
     def register_goal(self, db, goal: Goals, commit=True):
@@ -159,18 +159,22 @@ class GoalTaskRepository:
     def __init__(self):
         pass
 
-    def find_goal_task_by_goal_id(self, db, goal_id: int):
+    def get_goal_task_by_goal_task_id_from_db(self, db: Session, goal_task_id: int):
+        return (
+            db.query(GoalsTasks).filter(GoalsTasks.goal_task_id == goal_task_id).first()
+        )
+
+    def get_goal_task_by_goal_id(self, db, goal_id: int):
         goal_tasks = (
             db.query(GoalsTasks)
             .filter(
                 GoalsTasks.goal_id == goal_id,
             )
-            .order_by(GoalsTasks.order_num.asc(), GoalsTasks.goal_task_id.asc())
-            .all()
+            .first()
         )
         return goal_tasks
 
-    def get_goal_tasks_by_goal_id_from_db(self, db: Session, goal_id: int):
+    def fetch_goal_tasks_by_goal_id_from_db(self, db: Session, goal_id: int):
         return (
             db.query(GoalsTasks)
             .filter(GoalsTasks.goal_id == goal_id)
@@ -396,8 +400,10 @@ class UserRepository:
         except Exception as e:
             db.rollback()
             raise e
-    
-    def update_user_rank_from_db(self, db: Session, user_id, new_user_rank, commit=True):
+
+    def update_user_rank_from_db(
+        self, db: Session, user_id, new_user_rank, commit=True
+    ):
         try:
             user = db.query(Users).filter(Users.user_id == user_id).first()
             user.user_rank = new_user_rank

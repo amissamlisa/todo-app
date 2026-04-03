@@ -47,9 +47,9 @@ export const deleteGoal = async (api: AxiosInstance, goalId: number): Promise<vo
 };
 
 export const updateTopPoints = async (api: AxiosInstance, points: number): Promise<void> => {
-  await api.put("/top/points", { points });
+  await api.put("/users/points", { points });
 };
 
 export const updateTopRank = async (api: AxiosInstance, userRank: string): Promise<void> => {
-  await api.put("/top/rank", { user_rank: userRank });
+  await api.put("/users/rank", { user_rank: userRank });
 };
