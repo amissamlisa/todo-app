@@ -1,5 +1,8 @@
 from backend.test.integration.test_base import TestBase
+from backend.models.models import Goals
+from backend.routers import goal as goal_router
 from uuid import uuid4
+from unittest.mock import patch
 
 
 class TestGoalAPI(TestBase):
@@ -93,6 +96,28 @@ class TestGoalAPI(TestBase):
     def test_save_goal_with_unauthenticated_user(self):
         response = self.client.post("/goal/", json=self._goal_save_payload())
         self.assertEqual(response.status_code, 401)
+
+    def test_save_goal_rolls_back_when_goal_task_registration_fails(self):
+        with patch.object(
+            goal_router.goal_task_repository,
+            "register_goal_task",
+            side_effect=ValueError("task registration failed"),
+        ):
+            response = self._create_goal(
+                self._goal_save_payload(
+                    goal_tasks=[
+                        {
+                            "goal_task_name": "単語学習",
+                            "deadline": "2030-10-18",
+                            "estimated_time": 60,
+                        }
+                    ]
+                )
+            )
+
+        self.assertEqual(response.status_code, 400)
+        registered_goals = self.db.query(Goals).all()
+        self.assertEqual(registered_goals, [])
 
     def test_read_goal_success(self):
         create_response = self._create_goal()

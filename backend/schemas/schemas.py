@@ -124,7 +124,7 @@ class PasswordResetEmailRequest(BaseModel):
 
 class PasswordResetRequest(BaseModel):
     password: str = Field(min_length=10)
-    token: str | None
+    token: str
 
 
 class Token(BaseModel):

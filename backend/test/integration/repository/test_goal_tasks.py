@@ -173,6 +173,23 @@ class TestGoalTaskRepository(TestBase):
         )
         self.assertEqual([task.order_num for task in fetched], [1, 2, 3])
 
+    def test_replace_goal_tasks_from_db_works_when_existing_is_empty(self):
+        new_tasks = [
+            self._task(name="new1", order_num=None),
+            self._task(name="new2", order_num=None),
+        ]
+
+        replaced = self.goal_task_repository.replace_goal_tasks_from_db(
+            self.db, self.goal.goal_id, new_tasks, commit=True
+        )
+
+        fetched = self.goal_task_repository.fetch_goal_tasks_by_goal_id_from_db(
+            self.db, self.goal.goal_id
+        )
+        self.assertEqual(len(replaced), 2)
+        self.assertEqual([task.goal_task_name for task in fetched], ["new1", "new2"])
+        self.assertEqual([task.order_num for task in fetched], [1, 2])
+
     def test_update_goal_task_status_and_order_from_db(self):
         task = self.goal_task_repository.register_goal_task(
             self.db,

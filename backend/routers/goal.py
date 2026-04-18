@@ -40,14 +40,16 @@ def save_goals_and_goal_tasks_and(
 
         goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
         goal_obj.total_estimated_time = total_estimated_time
-        goal_repository.register_goal(db, goal_obj, commit=True)
+        goal_repository.register_goal(db, goal_obj, commit=False)
         goal_task_items = []
         for goal_task in goal_task_list:
             task_data = goal_task.model_dump(exclude_none=True)
             if "goal_task_status" in task_data:
                 task_data["goal_task_status"] = task_data["goal_task_status"].value
             goal_task_items.append(GoalsTasks(**task_data, goal_id=goal_obj.goal_id))
-        goal_task_repository.register_goal_task(db, goal_task_items, commit=True)
+        goal_task_repository.register_goal_task(db, goal_task_items, commit=False)
+        db.commit()
+        db.refresh(goal_obj)
         return {
             "detail": "達成目標と目標達成タスクが保存されました",
             "goal_id": goal_obj.goal_id,

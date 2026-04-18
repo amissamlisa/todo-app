@@ -158,6 +158,19 @@ class TestGoalTasksAPI(TestBase):
             response.json()["goal_task"]["goal_task_name"], "文法問題を解く"
         )
 
+    def test_create_goal_task_assigns_global_sequential_order_num(self):
+        in_progress_payload = self._goal_task_create_payload(
+            goal_task_name="リスニング演習",
+            goal_task_status="作業中",
+        )
+
+        response = self.client.post(
+            "/goal-tasks/", json=in_progress_payload, headers=self.headers
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["goal_task"]["order_num"], 2)
+
     def test_update_goal_task_order_success(self):
         create_payload = self._goal_task_create_payload()
         self.client.post("/goal-tasks/", json=create_payload, headers=self.headers)

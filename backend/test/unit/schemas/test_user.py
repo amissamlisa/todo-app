@@ -124,9 +124,9 @@ class TestPasswordResetSchemas(TestCase):
         req = PasswordResetRequest(password="NewValidPass123!", token="token-value")
         self.assertEqual(req.token, "token-value")
 
-    def test_password_reset_request_accepts_none_token(self):
-        req = PasswordResetRequest(password="NewValidPass123!", token=None)
-        self.assertIsNone(req.token)
+    def test_password_reset_request_with_none_token_raises_validation_error(self):
+        with self.assertRaises(ValidationError):
+            PasswordResetRequest(password="NewValidPass123!", token=None)
 
     def test_password_reset_request_with_short_password_raises_validation_error(self):
         with self.assertRaises(ValidationError):

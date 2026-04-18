@@ -141,7 +141,6 @@ def create_password_reset_token(user_id: int, db: Session = Depends(get_db)):
 def find_valid_password_token(password_reset_token: str, db: Session):
 
     password_reset_repository = PasswordResetRepository()
-    matched_token = None
     if not password_reset_token:
         raise invalid_password_reset_link_exception
     password_reset_token_prefix = password_reset_token[:6]
@@ -155,12 +154,9 @@ def find_valid_password_token(password_reset_token: str, db: Session):
         raise invalid_password_reset_link_exception
     for token_record in password_reset_token_records:
         if bcrypt_context.verify(password_reset_token, token_record.hashed_token):
-            matched_token = token_record
-            if not matched_token:
-                raise invalid_password_reset_link_exception
-            elif matched_token.expires_at < datetime.now(timezone.utc):
+            if token_record.expires_at < datetime.now(timezone.utc):
                 raise expired_password_reset_link_exception
-            return matched_token
+            return token_record
     raise invalid_password_reset_link_exception
 
 

@@ -15,7 +15,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.put("/points", status_code=status.HTTP_201_CREATED)
+@router.put("/points", status_code=status.HTTP_204_NO_CONTENT)
 def update_points(
     user: user_dependency, db: db_dependency, payload: UserPointsUpdateRequest
 ):
@@ -31,7 +31,7 @@ def update_points(
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
 
-@router.put("/rank", status_code=status.HTTP_201_CREATED)
+@router.put("/rank", status_code=status.HTTP_204_NO_CONTENT)
 def update_rank(
     user: user_dependency, db: db_dependency, payload: UserRankUpdateRequest
 ):

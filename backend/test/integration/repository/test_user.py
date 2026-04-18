@@ -92,6 +92,16 @@ class TestUserRepository(TestBase):
 
         self.assertEqual(updated_user.user_points, 200)
 
+    def test_update_user_points_returns_none_when_user_not_found(self):
+        updated_user = self.user_repository.update_user_points_from_db(
+            self.db,
+            99999,
+            200,
+            commit=True,
+        )
+
+        self.assertIsNone(updated_user)
+
     def test_update_user_rank(self):
         user = self._register_user(user_rank="雫")
 
@@ -103,6 +113,16 @@ class TestUserRepository(TestBase):
         )
 
         self.assertEqual(updated_user.user_rank, "霧")
+
+    def test_update_user_rank_returns_none_when_user_not_found(self):
+        updated_user = self.user_repository.update_user_rank_from_db(
+            self.db,
+            99999,
+            "霧",
+            commit=True,
+        )
+
+        self.assertIsNone(updated_user)
 
     def test_update_user(self):
         user_data = self._user(user_points=100, user_rank="雲")

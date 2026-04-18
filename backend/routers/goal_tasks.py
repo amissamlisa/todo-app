@@ -197,16 +197,8 @@ def create_goal_task(
         existing_tasks = goal_task_repository.fetch_goal_tasks_by_goal_id_from_db(
             db, goal.goal_id
         )
-        order_num = (
-            len(
-                [
-                    task
-                    for task in existing_tasks
-                    if task.goal_task_status == payload.goal_task_status.value
-                ]
-            )
-            + 1
-        )
+        max_order_num = max((task.order_num for task in existing_tasks), default=0)
+        order_num = max_order_num + 1
 
         goal_task = GoalsTasks(
             goal_id=goal.goal_id,
@@ -299,7 +291,6 @@ def update_goal_task(
     payload: GoalTaskUpdateRequest,
 ):
     try:
-        goal_task_repository = GoalTaskRepository()
         updated_task = goal_task_repository.update_goal_task_from_db(
             db,
             goal_task_id,

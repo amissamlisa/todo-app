@@ -214,9 +214,6 @@ class GoalTaskRepository:
             existing_goal_tasks = (
                 db.query(GoalsTasks).filter(GoalsTasks.goal_id == goal_id).all()
             )
-            if existing_goal_tasks is None:
-                raise GoalTaskNotFound()
-
             for task in existing_goal_tasks:
                 db.delete(task)
 
@@ -393,6 +390,8 @@ class UserRepository:
     def update_user_points_from_db(self, db: Session, user_id, new_points, commit=True):
         try:
             user = db.query(Users).filter(Users.user_id == user_id).first()
+            if user is None:
+                return None
             user.user_points = new_points
             if commit:
                 db.commit()
@@ -406,6 +405,8 @@ class UserRepository:
     ):
         try:
             user = db.query(Users).filter(Users.user_id == user_id).first()
+            if user is None:
+                return None
             user.user_rank = new_user_rank
             if commit:
                 db.commit()
