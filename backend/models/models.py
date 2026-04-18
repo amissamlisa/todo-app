@@ -5,7 +5,6 @@ from sqlalchemy import (
     DateTime,
     CheckConstraint,
     Integer,
-    text,
 )
 import enum
 from sqlalchemy.sql import func

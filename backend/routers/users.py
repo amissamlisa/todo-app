@@ -14,14 +14,12 @@ db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 router = APIRouter(prefix="/users", tags=["users"])
 
+
 @router.put("/points", status_code=status.HTTP_201_CREATED)
 def update_points(
     user: user_dependency, db: db_dependency, payload: UserPointsUpdateRequest
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=401, detail="認証に失敗しました")
-
         user_record = user_repository.update_user_points_from_db(
             db, user.get("user_id"), payload.points
         )
@@ -32,14 +30,12 @@ def update_points(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが取得できません")
 
+
 @router.put("/rank", status_code=status.HTTP_201_CREATED)
 def update_rank(
     user: user_dependency, db: db_dependency, payload: UserRankUpdateRequest
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=401, detail="認証に失敗しました")
-
         user_record = user_repository.update_user_rank_from_db(
             db, user.get("user_id"), payload.user_rank
         )

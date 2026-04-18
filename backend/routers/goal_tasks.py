@@ -12,7 +12,6 @@ from ..schemas.schemas import (
     GoalTaskUpdateRequest,
     GoalsTasksOut,
     GoalRequestWithTasks,
-    SaveRequest,
     GoalTaskOrderUpdateRequest,
     GoalTaskStatusAndOrderUpdateRequest,
 )
@@ -40,9 +39,6 @@ goal_repository = GoalRepository()
 @router.get("/{goal_id}", status_code=status.HTTP_200_OK)
 def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         goal_tasks = goal_task_repository.fetch_goal_tasks_by_goal_id_from_db(
             db, goal_id
         )
@@ -62,8 +58,6 @@ def read_all_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
 @router.delete("/{goal_task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: int):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal_task = goal_task_repository.get_goal_task_by_goal_task_id_from_db(
             db, goal_task_id
         )
@@ -83,9 +77,6 @@ def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: in
 @router.post("/generate", status_code=status.HTTP_201_CREATED)
 def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="userが見つかりません")
-
         client = OpenAI(
             # This is the default and can be omitted
             api_key=settings.OPENAI_API_KEY,
@@ -198,9 +189,6 @@ def create_goal_task(
     payload: GoalTaskCreateRequest,
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         goals = goal_repository.search_goal_by_user_id(db, user.get("user_id"))
         goal = goals[0] if goals else None
         if goal is None:
@@ -258,9 +246,6 @@ def update_goal_task_order(
     payload: GoalTaskOrderUpdateRequest,
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=401, detail="認証に失敗しました")
-
         from_updated_task, to_updated_task = (
             goal_task_repository.update_goal_task_order_from_db(
                 db,
@@ -290,9 +275,6 @@ def update_goal_task_status_and_order(
     payload: GoalTaskStatusAndOrderUpdateRequest,
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         updated_task = goal_task_repository.update_goal_task_status_and_order_from_db(
             db, goal_task_id, payload.new_status, payload.order_num, commit=True
         )
@@ -317,9 +299,6 @@ def update_goal_task(
     payload: GoalTaskUpdateRequest,
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         goal_task_repository = GoalTaskRepository()
         updated_task = goal_task_repository.update_goal_task_from_db(
             db,

@@ -5,7 +5,6 @@ from backend.repository.repository import (
     GoalTaskRepository,
     UserRepository,
 )
-from backend.schemas.schemas import UserPointsUpdateRequest, UserRankUpdateRequest
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -27,9 +26,6 @@ goal_task_repository = GoalTaskRepository()
 @router.get("/", status_code=status.HTTP_200_OK)
 def read_top_screen_info(user: user_dependency, db: db_dependency):
     try:
-        if user is None:
-            raise HTTPException(status_code=401, detail="認証に失敗しました")
-
         user_record = user_repository.find_user_by_user_id(db, user.get("user_id"))
         if user_record is None:
             raise HTTPException(status_code=404, detail="ユーザーが見つかりません")

@@ -32,9 +32,6 @@ def save_goals_and_goal_tasks_and(
     user: user_dependency, payload: SaveRequest, db: Session = Depends(get_db)
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         goal = payload.goal
         total_estimated_time = payload.goal_total_estimated_time
         goal_task_list = payload.goal_tasks
@@ -72,8 +69,6 @@ def save_goals_and_goal_tasks_and(
 @router.get("/{goal_id}", status_code=status.HTTP_200_OK)
 def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal = (
             db.query(Goals)
             .filter(
@@ -96,8 +91,6 @@ def read_goal(user: user_dependency, db: db_dependency, goal_id: int):
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal_and_goal_tasks(user: user_dependency, db: db_dependency, goal_id: int):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal = goal_repository.fetch_goal_by_id_from_db(db, goal_id)
         if goal is None:
             raise HTTPException(status_code=404, detail="目標が見つかりません")
@@ -119,9 +112,6 @@ def update_goal_status(
     user: user_dependency, db: db_dependency, goal_id: int, new_status: GoalsStatusEnum
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
-
         updated_goal = goal_repository.update_goal_status_from_db(
             db, goal_id, new_status, commit=True
         )
@@ -140,8 +130,6 @@ def update_goals_and_goal_tasks(
     user: user_dependency, payload: SaveRequest, db: Session = Depends(get_db)
 ):
     try:
-        if user is None:
-            raise HTTPException(status_code=404, detail="認証に失敗しました")
         goal = payload.goal
         total_estimated_time = payload.goal_total_estimated_time
         goal_task_list = payload.goal_tasks
