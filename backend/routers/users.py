@@ -9,12 +9,10 @@ from backend.utils.auth_helpers import get_current_user
 from backend.repository.repository import UserRepository
 from fastapi import HTTPException
 
-
 user_repository = UserRepository()
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 router = APIRouter(prefix="/users", tags=["users"])
-
 
 @router.put("/points", status_code=status.HTTP_201_CREATED)
 def update_points(

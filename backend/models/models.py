@@ -61,8 +61,8 @@ class Goals(Base):
             "length(goal_name) > 0", name="check_goal_name_greater_than_zero"
         ),
         CheckConstraint("start_day <= target_day", name="check_start_before_target"),
-        CheckConstraint("start_day > CURRENT_DATE", name="check_start_before_now"),
-        CheckConstraint("target_day > CURRENT_DATE", name="check_target_before_now"),
+        CheckConstraint("start_day >= CURRENT_DATE", name="check_start_before_now"),
+        CheckConstraint("target_day >= CURRENT_DATE", name="check_target_before_now"),
         CheckConstraint(
             "length(status_against_goal) > 0",
             name="check_status_against_goal_greater_than_zero",
@@ -91,7 +91,7 @@ class Goals(Base):
 
     @validates("goal_name", "status_against_goal")
     def validate_goal_name(self, key, value: str) -> str:
-        if value is None:
+        if value is None or value.strip() == "":
             raise ValueError("値がNoneです")
         cleaned = value.strip().replace("\u3000", "")
         return cleaned
@@ -143,7 +143,7 @@ class GoalsTasks(Base):
 
     @validates("goal_task_name")
     def validate_goal_name(self, key, value: str) -> str:
-        if value is None:
+        if value is None or value.strip() == "":
             raise ValueError("値がNoneです")
         cleaned = value.strip().replace("\u3000", "")
         return cleaned
@@ -185,7 +185,7 @@ class Users(Base):
 
     @validates("username")
     def validate_goal_name(self, key, value: str) -> str:
-        if value is None:
+        if value is None or value.strip() == "":
             raise ValueError("値がNoneです")
         cleaned = value.strip().replace("\u3000", "")
         return cleaned
@@ -195,6 +195,18 @@ class Users(Base):
         decimal_value = Decimal(str(value))
         if decimal_value.as_tuple().exponent <= -1:
             raise ValueError("小数点の値は無効です")
+        return value
+
+    @validates("user_rank")
+    def validate_status(self, key, value: str) -> str:
+        valid_values = [
+            RankEnum.Droplet.value,
+            RankEnum.Cloud.value,
+            RankEnum.Mist.value,
+            RankEnum.GlowingCloud.value,
+        ]
+        if value not in valid_values:
+            raise ValueError("無効なユーザーランクです")
         return value
 
 

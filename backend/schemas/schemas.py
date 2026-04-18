@@ -7,8 +7,8 @@ from backend.models.models import GoalsStatusEnum, GoalsTasksStatusEnum
 
 
 class GoalsRequest(BaseModel):
-    goal_name: str = Field(max_length=100)
-    status_against_goal: str = Field(max_length=200)
+    goal_name: str = Field(min_length=1, max_length=100)
+    status_against_goal: str = Field(min_length=1, max_length=200)
     start_day: datetime.date
     target_day: datetime.date
     status: str = GoalsStatusEnum.Unachieved.value
@@ -18,20 +18,35 @@ class GoalsRequest(BaseModel):
 
     @model_validator(mode="after")
     def check_dates(self):
-        if self.start_day > self.target_day:
-            raise ValueError("target_dayはstart_dayよりも後でなければならない")
+        today = datetime.date.today()
+        if self.start_day < today:
+            raise ValueError("start_dayは今日以降の日付である必要があります")
+        if self.target_day < today:
+            raise ValueError("target_dayは今日以降の日付である必要があります")
         return self
 
 
+
 class GoalsTasksOut(BaseModel):
-    goal_task_name: str = Field(max_length=100)
+    goal_task_name: str = Field(min_length=1, max_length=100)
     deadline: datetime.date
     estimated_time: int = Field(ge=1, le=720)
+    goal_task_status: Optional[GoalsTasksStatusEnum] = None
 
 
 class GoalRequestWithTasks(BaseModel):
     goal: GoalsRequest
     completed_goal_tasks_list: Optional[List[GoalsTasksOut]] = None
+
+    @model_validator(mode="after")
+    def validate_completed_tasks(self):
+        if self.completed_goal_tasks_list:
+            for task in self.completed_goal_tasks_list:
+                if task.goal_task_status != GoalsTasksStatusEnum.Completed:
+                    raise ValueError(
+                        "completed_goal_tasks_list には完了タスクのみ入れてください"
+                    )
+        return self
 
 
 class SaveRequest(BaseModel):
@@ -41,14 +56,14 @@ class SaveRequest(BaseModel):
 
 
 class GoalTaskOrderUpdateRequest(BaseModel):
-    from_goal_task_id: int
-    to_goal_task_id: int
+    from_goal_task_id: int = Field(ge=1)
+    to_goal_task_id: int = Field(ge=1)
     from_goal_task_order: int = Field(ge=1)
     to_goal_task_order: int = Field(ge=1)
 
 
 class GoalTaskUpdateRequest(BaseModel):
-    goal_task_name: str
+    goal_task_name: str = Field(min_length=1, max_length=100)
     deadline: datetime.date
     estimated_time: int = Field(ge=1, le=720)
 
@@ -79,7 +94,9 @@ class UserRequest(BaseModel):
         pattern = r"^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[A-Za-z0-9\W_]{10,}$"
 
         if re.match(pattern, pw) is None:
-            raise ValueError("大・小英数字・記号がそれぞれ1文字ずつ含まれていません")
+            raise ValueError(
+                "大・小英字・数字・記号がそれぞれ1文字ずつ含まれていません"
+            )
 
         if pw != cpw:
             raise ValueError("パスワードと確認パスワードが一致しません")
@@ -89,8 +106,10 @@ class UserRequest(BaseModel):
 class UserPointsUpdateRequest(BaseModel):
     points: int = Field(ge=0)
 
+
 class UserRankUpdateRequest(BaseModel):
     user_rank: str
+
 
 class PasswordResetEmailRequest(BaseModel):
     email: EmailStr

@@ -7,6 +7,7 @@ from starlette.testclient import TestClient
 
 from backend.database import get_db
 from backend.main import app
+from backend.models.models import Base
 from urllib.parse import quote_plus
 # .envファイルから環境変数を読み込む
 load_dotenv()
@@ -40,6 +41,9 @@ engine = create_engine(
     pool_pre_ping=True,  # Check connections before using
     echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true"  # Debug logging
 )
+
+# テスト用テーブルを作成
+Base.metadata.create_all(bind=engine)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

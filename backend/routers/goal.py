@@ -47,9 +47,10 @@ def save_goals_and_goal_tasks_and(
 
         goal_task_items = []
         for goal_task in goal_task_list:
-            goal_task_items.append(
-                GoalsTasks(**goal_task.model_dump(), goal_id=goal_obj.goal_id)
-            )
+            task_data = goal_task.model_dump()
+            if task_data.get("goal_task_status") is not None:
+                task_data["goal_task_status"] = task_data["goal_task_status"].value
+            goal_task_items.append(GoalsTasks(**task_data, goal_id=goal_obj.goal_id))
         goal_task_repository.register_goal_task(db, goal_task_items, commit=True)
         return {
             "detail": "達成目標と目標達成タスクが保存されました",
@@ -149,8 +150,11 @@ def update_goals_and_goal_tasks(
 
         new_goal_task_items = []
         for goal_task in goal_task_list:
+            task_data = goal_task.model_dump()
+            if task_data.get("goal_task_status") is not None:
+                task_data["goal_task_status"] = task_data["goal_task_status"].value
             new_goal_task_items.append(
-                GoalsTasks(**goal_task.model_dump(), goal_id=updated_goal.goal_id)
+                GoalsTasks(**task_data, goal_id=updated_goal.goal_id)
             )
         goal_task_repository.replace_goal_tasks_from_db(
             db, updated_goal.goal_id, new_goal_task_items, commit=True

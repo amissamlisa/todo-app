@@ -144,7 +144,7 @@ def logout(
     return {"message": "Logged out successfully"}
 
 
-@router.post("/login", response_model=Token, status_code=status.HTTP_201_CREATED)
+@router.post("/login", response_model=Token, status_code=status.HTTP_200_OK)
 def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
