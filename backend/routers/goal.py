@@ -151,7 +151,7 @@ def update_goals_and_goal_tasks(
 
         goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
         goal_obj.total_estimated_time = total_estimated_time
-        updated_goal = goal_repository.update_goal_from_db(db, goal_obj, commit=False)
+        updated_goal = goal_repository.update_goal_from_db(db, goal_obj, commit=True)
 
         new_goal_task_items = []
         for goal_task in goal_task_list:
@@ -162,10 +162,8 @@ def update_goals_and_goal_tasks(
                 GoalsTasks(**task_data, goal_id=updated_goal.goal_id)
             )
         goal_task_repository.replace_goal_tasks_from_db(
-            db, updated_goal.goal_id, new_goal_task_items, commit=False
+            db, updated_goal.goal_id, new_goal_task_items, commit=True
         )
-        db.commit()
-        db.refresh(updated_goal)
         return {
             "detail": "達成目標と目標達成タスクが更新されました",
             "goal_id": goal_obj.goal_id,
