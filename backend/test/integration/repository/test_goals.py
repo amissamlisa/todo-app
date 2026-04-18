@@ -209,6 +209,24 @@ class GoalsModelConstraintTest(TestBase):
         with self.assertRaises(IntegrityError):
             self.goal_repository.register_goal(self.db, goal_data, commit=True)
 
+    def test_create_goal_with_start_day_today(self):
+        today = datetime.date.today()
+        goal_data = self._goal(
+            start_day=today,
+            target_day=today + datetime.timedelta(days=1),
+        )
+        with self.assertRaises(IntegrityError):
+            self.goal_repository.register_goal(self.db, goal_data, commit=True)
+
+    def test_create_goal_with_target_day_today(self):
+        today = datetime.date.today()
+        goal_data = self._goal(
+            start_day=today + datetime.timedelta(days=1),
+            target_day=today,
+        )
+        with self.assertRaises(IntegrityError):
+            self.goal_repository.register_goal(self.db, goal_data, commit=True)
+
     def test_create_goal_with_datetime_start_day(self):
         goal_data = self._goal(
             start_day=datetime.datetime(2030, 10, 15, 10, 0),

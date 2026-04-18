@@ -38,7 +38,7 @@ export const useKanbanBoard = ({
     const gainedPoints = doneItems.length - previousDoneCountRef.current;
     previousDoneCountRef.current = doneItems.length;
 
-    if (gainedPoints > 0) {
+    if (gainedPoints !== 0) {
       onPointsChange(gainedPoints);
     }
   }, [doneItems, onPointsChange]);

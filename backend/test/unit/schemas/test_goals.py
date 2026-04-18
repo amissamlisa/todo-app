@@ -67,11 +67,32 @@ class TestGoalsRequest(TestCase):
     def test_goals_request_with_start_day_before_today_raises_validation_error(
         self,
     ):
+        today = datetime.date.today()
         with self.assertRaises(ValidationError):
             GoalsRequest(
                 **self._valid_payload(
-                    start_day=datetime.date(2026, 4, 1),
+                    start_day=today - datetime.timedelta(days=1),
                     target_day=datetime.date(2030, 10, 22),
+                )
+            )
+
+    def test_goals_request_with_start_day_today_raises_validation_error(self):
+        today = datetime.date.today()
+        with self.assertRaises(ValidationError):
+            GoalsRequest(
+                **self._valid_payload(
+                    start_day=today,
+                    target_day=today + datetime.timedelta(days=1),
+                )
+            )
+
+    def test_goals_request_with_target_day_today_raises_validation_error(self):
+        today = datetime.date.today()
+        with self.assertRaises(ValidationError):
+            GoalsRequest(
+                **self._valid_payload(
+                    start_day=today + datetime.timedelta(days=1),
+                    target_day=today,
                 )
             )
 

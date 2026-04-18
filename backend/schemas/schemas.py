@@ -19,12 +19,13 @@ class GoalsRequest(BaseModel):
     @model_validator(mode="after")
     def check_dates(self):
         today = datetime.date.today()
-        if self.start_day < today:
-            raise ValueError("start_dayは今日以降の日付である必要があります")
-        if self.target_day < today:
-            raise ValueError("target_dayは今日以降の日付である必要があります")
+        if self.start_day > self.target_day:
+            raise ValueError("start_dayはtarget_day以前の日付である必要があります")
+        if self.start_day <= today:
+            raise ValueError("start_dayは明日以降の日付である必要があります")
+        if self.target_day <= today:
+            raise ValueError("target_dayは明日以降の日付である必要があります")
         return self
-
 
 
 class GoalsTasksOut(BaseModel):
@@ -32,6 +33,12 @@ class GoalsTasksOut(BaseModel):
     deadline: datetime.date
     estimated_time: int = Field(ge=1, le=720)
     goal_task_status: Optional[GoalsTasksStatusEnum] = None
+
+    @model_validator(mode="after")
+    def validate_deadline(self):
+        if self.deadline <= datetime.date.today():
+            raise ValueError("deadlineは明日以降の日付である必要があります")
+        return self
 
 
 class GoalRequestWithTasks(BaseModel):

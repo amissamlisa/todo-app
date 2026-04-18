@@ -16,6 +16,7 @@ from ..repository.repository import (
     StatusUnchangedError,
     GoalNotFound,
     GoalTaskRepository,
+    UnachievedGoalAlreadyExists,
 )
 
 router = APIRouter(prefix="/goal", tags=["goal"])
@@ -37,18 +38,16 @@ def save_goals_and_goal_tasks_and(
         goal = payload.goal
         total_estimated_time = payload.goal_total_estimated_time
         goal_task_list = payload.goal_tasks
-        goal_data = goal.model_dump()
-
+        goal_data = goal.model_dump(exclude={"status"})
         goal_data["status"] = GoalsStatusEnum.Unachieved.value
 
         goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
         goal_obj.total_estimated_time = total_estimated_time
         goal_repository.register_goal(db, goal_obj, commit=True)
-
         goal_task_items = []
         for goal_task in goal_task_list:
-            task_data = goal_task.model_dump()
-            if task_data.get("goal_task_status") is not None:
+            task_data = goal_task.model_dump(exclude_none=True)
+            if "goal_task_status" in task_data:
                 task_data["goal_task_status"] = task_data["goal_task_status"].value
             goal_task_items.append(GoalsTasks(**task_data, goal_id=goal_obj.goal_id))
         goal_task_repository.register_goal_task(db, goal_task_items, commit=True)
@@ -57,10 +56,16 @@ def save_goals_and_goal_tasks_and(
             "goal_id": goal_obj.goal_id,
         }
     except HTTPException:
+        db.rollback()
         raise
+    except UnachievedGoalAlreadyExists as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
     except (ValueError, IntegrityError, StatementError, DataError) as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")
 
 
@@ -146,26 +151,34 @@ def update_goals_and_goal_tasks(
 
         goal_obj = Goals(**goal_data, user_id=user.get("user_id"))
         goal_obj.total_estimated_time = total_estimated_time
-        updated_goal = goal_repository.update_goal_from_db(db, goal_obj, commit=True)
+        updated_goal = goal_repository.update_goal_from_db(db, goal_obj, commit=False)
 
         new_goal_task_items = []
         for goal_task in goal_task_list:
-            task_data = goal_task.model_dump()
-            if task_data.get("goal_task_status") is not None:
+            task_data = goal_task.model_dump(exclude_none=True)
+            if "goal_task_status" in task_data:
                 task_data["goal_task_status"] = task_data["goal_task_status"].value
             new_goal_task_items.append(
                 GoalsTasks(**task_data, goal_id=updated_goal.goal_id)
             )
         goal_task_repository.replace_goal_tasks_from_db(
-            db, updated_goal.goal_id, new_goal_task_items, commit=True
+            db, updated_goal.goal_id, new_goal_task_items, commit=False
         )
+        db.commit()
+        db.refresh(updated_goal)
         return {
             "detail": "達成目標と目標達成タスクが更新されました",
             "goal_id": goal_obj.goal_id,
         }
     except HTTPException:
+        db.rollback()
         raise
+    except GoalNotFound as e:
+        db.rollback()
+        raise HTTPException(status_code=404, detail=str(e))
     except (ValueError, IntegrityError, StatementError, DataError) as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"{str(e)}: データが登録されません")

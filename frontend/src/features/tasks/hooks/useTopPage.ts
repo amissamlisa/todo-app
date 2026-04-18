@@ -91,9 +91,9 @@ export const useTopPage = () => {
   const handlePointsChange = useCallback(
     async (gainedPoints: number) => {
       if (!token || !topData) return;
-      if (gainedPoints <= 0) return;
+      if (gainedPoints === 0) return;
 
-      const nextPoints = topData.userPoints + gainedPoints;
+      const nextPoints = Math.max(0, topData.userPoints + gainedPoints);
 
       const rankByPoints = (value: number) => {
         if (value <= 999) return "雫";
@@ -104,25 +104,33 @@ export const useTopPage = () => {
 
       try {
         await updateTopPoints(api, nextPoints);
-        const nextRank = rankByPoints(nextPoints);
-        if (nextRank !== topData.userRank) {
-          await updateTopRank(api, nextRank);
-        }
 
-        setTopData((previous) => {
-          if (!previous) return previous;
-
-          if ((RANK_ORDER[nextRank] ?? 0) > (RANK_ORDER[previous.userRank] ?? 0)) {
-            setRankUpTo(nextRank);
-            setActiveModal("rankUp");
+        if (gainedPoints > 0) {
+          const nextRank = rankByPoints(nextPoints);
+          if (nextRank !== topData.userRank) {
+            await updateTopRank(api, nextRank);
           }
 
-          return {
-            ...previous,
-            userPoints: nextPoints,
-            userRank: nextRank,
-          };
-        });
+          setTopData((previous) => {
+            if (!previous) return previous;
+
+            if ((RANK_ORDER[nextRank] ?? 0) > (RANK_ORDER[previous.userRank] ?? 0)) {
+              setRankUpTo(nextRank);
+              setActiveModal("rankUp");
+            }
+
+            return {
+              ...previous,
+              userPoints: nextPoints,
+              userRank: nextRank,
+            };
+          });
+        } else {
+          setTopData((previous) => {
+            if (!previous) return previous;
+            return { ...previous, userPoints: nextPoints };
+          });
+        }
       } catch (err) {
         if (axios.isAxiosError(err) && !err.response) {
           navigateToServerConnectionIncomplete();
