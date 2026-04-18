@@ -77,11 +77,11 @@ class Goals(Base):
         ),
         CheckConstraint(
             "weekday_available_time <= 720",
-            name="check_weekday_available_time_greater_than_720",
+            name="check_weekday_available_time_less_than_or_equal_720",
         ),
         CheckConstraint(
             "weekends_available_time <= 720",
-            name="check_weekends_available_time_greater_than_720",
+            name="check_weekends_available_time_less_than_or_equal_720",
         ),
         CheckConstraint(
             "total_estimated_time > 0",
@@ -136,7 +136,7 @@ class GoalsTasks(Base):
             "estimated_time > 0", name="check_estimated_time_greater_than_zero"
         ),
         CheckConstraint(
-            "estimated_time <= 720", name="check_estimated_time_greater_than_1440"
+            "estimated_time <= 720", name="check_estimated_time_less_than_or_equal_720"
         ),
         CheckConstraint("order_num > 0", name="check_order_greater_than_zero"),
     )
