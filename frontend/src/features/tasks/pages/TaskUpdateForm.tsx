@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
 import { useTaskUpdateForm } from "../hooks/useTaskUpdateForm";
 import type { TaskUpdateFormType } from "../types/taskUpdateForm";
+import { isWithinThreeMonths } from "../utils/dateValidation";
 
 dayjs.locale(ja);
 export const TaskUpdateForm = memo(() => {
@@ -119,6 +120,8 @@ export const TaskUpdateForm = memo(() => {
                     return "開始日は本日以降の日付を入力してください";
                   } else if (getValues("endDate") && new Date(value) > new Date(getValues("endDate"))) {
                     return "開始日は終了日以前の日付を入力してください";
+                  } else if (getValues("endDate") && !isWithinThreeMonths(value, getValues("endDate"))) {
+                    return "終了日は開始日から3か月以内の日付を入力してください";
                   }
                 },
               }}
@@ -156,6 +159,8 @@ export const TaskUpdateForm = memo(() => {
                     return "終了日は本日以降の日付を入力してください";
                   } else if (getValues("startDate") && new Date(value) < new Date(getValues("startDate"))) {
                     return "終了日は開始日以降の日付を入力してください";
+                  } else if (getValues("startDate") && !isWithinThreeMonths(getValues("startDate"), value)) {
+                    return "終了日は開始日から3か月以内の日付を入力してください";
                   }
                   return true;
                 },
