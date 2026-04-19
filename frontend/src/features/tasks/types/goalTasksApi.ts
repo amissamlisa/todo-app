@@ -2,6 +2,7 @@ export type GoalTask = {
   goalTaskName: string;
   deadline: string;
   estimatedTime: number;
+  goalTaskStatus?: string;
 };
 
 export type GoalPayload = {

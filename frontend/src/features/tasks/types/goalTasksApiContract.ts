@@ -2,6 +2,7 @@ export type ApiGoalTask = {
   goal_task_name: string;
   deadline: string;
   estimated_time: number;
+  goal_task_status?: string;
 };
 
 export type ApiGoalPayload = {

@@ -28,6 +28,14 @@ export const useTopPage = () => {
   const [, setAllTasksCompleted] = useState(false);
   const [, setToday] = useState(new Date());
   const [todayTasks, setTodayTasks] = useState<Cards[]>([]);
+  const [completedGoalTasksForUpdate, setCompletedGoalTasksForUpdate] = useState<
+    Array<{
+      goalTaskName: string;
+      deadline: string;
+      estimatedTime: number;
+      goalTaskStatus: string;
+    }>
+  >([]);
 
   const rankImage = rankImageMap[topData?.userRank ?? "雫"] ?? rankImageMap["雫"];
   const path = hasTasks ? "/tasks-update" : "/tasks-registration";
@@ -143,6 +151,15 @@ export const useTopPage = () => {
   );
 
   const handleDoneTasksChange = useCallback((todoItems: Cards[], inProgressItems: Cards[], doneItems: Cards[]) => {
+    setCompletedGoalTasksForUpdate(
+      doneItems.map((task) => ({
+        goalTaskName: task.goalTask,
+        deadline: task.deadline,
+        estimatedTime: task.time,
+        goalTaskStatus: task.goalTaskStatus,
+      }))
+    );
+
     const allDone =
       todoItems.length === 0 &&
       inProgressItems.length === 0 &&
@@ -232,14 +249,19 @@ export const useTopPage = () => {
 
   const handleTaskPageNavigation = useCallback(() => {
     if (path === "/tasks-update") {
-      const completedGoalTasks = goalTasks
+      const completedGoalTasksFromGoalTasks = goalTasks
         .filter((task) => task.goalTaskStatus === "完了")
         .map((task) => ({
           goalTaskName: task.goalTaskName,
           deadline: task.deadline,
           estimatedTime: task.estimatedTime,
+          goalTaskStatus: task.goalTaskStatus,
         }));
 
+      const completedGoalTasks =
+        completedGoalTasksForUpdate.length > 0
+          ? completedGoalTasksForUpdate
+          : completedGoalTasksFromGoalTasks;
       navigate(path, {
         replace: true,
         state: {
@@ -251,7 +273,7 @@ export const useTopPage = () => {
     }
 
     navigate(path, { replace: true });
-  }, [path, goalTasks, navigate, goal]);
+  }, [path, goalTasks, completedGoalTasksForUpdate, navigate, goal]);
 
 
   const todoItems: Cards[] = useMemo(

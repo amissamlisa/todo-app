@@ -33,6 +33,7 @@ export const useTaskUpdateForm = () => {
           goalTaskName: task.goalTaskName,
           deadline: task.deadline,
           estimatedTime: task.estimatedTime,
+          goalTaskStatus: task.goalTaskStatus,
         })),
       };
 

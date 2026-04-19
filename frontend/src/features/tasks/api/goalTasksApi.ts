@@ -17,6 +17,7 @@ const toApiGoalTask = (task: GoalTask): ApiGoalTask => ({
   goal_task_name: task.goalTaskName,
   deadline: task.deadline,
   estimated_time: task.estimatedTime,
+  goal_task_status: task.goalTaskStatus,
 });
 
 const toCamelGoalTask = (task: ApiGoalTask): GoalTask => ({
@@ -43,7 +44,6 @@ export const generateGoalTasks = async (
     goal: toApiGoalPayload(payload.goal),
     completed_goal_tasks_list: payload.completedGoalTasksList?.map(toApiGoalTask),
   };
-
   const response = await api.post<ApiGenerateGoalTasksResponse>("/goal-tasks/generate", apiPayload);
   return {
     goalTasks: response.data.goal_tasks.map(toCamelGoalTask),

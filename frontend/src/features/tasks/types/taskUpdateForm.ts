@@ -12,6 +12,7 @@ export type CompletedGoalTask = {
   goalTaskName: string;
   deadline: string;
   estimatedTime: number;
+  goalTaskStatus: string;
 };
 
 export type TaskUpdateLocationState = {
