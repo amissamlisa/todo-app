@@ -15,20 +15,27 @@ export const TaskUpdateForm = memo(() => {
   const {
     isLoading,
     goalName,
+    formValues,
     handleUpdateGoalTasks,
     handleNavigateTop,
     handleNavigateToTopWhenGoalMissing,
   } = useTaskUpdateForm();
 
+  const padDateStr = (value: string): string =>
+    value.replace(
+      /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/,
+      (_, y, m, d) => `${y}/${m.padStart(2, "0")}/${d.padStart(2, "0")}`
+    );
+
   const { control, handleSubmit, formState: { errors }, getValues } = useForm<TaskUpdateFormType>({
     defaultValues: {
       goal: goalName,
-      currentStatus: "",
-      startDate: "",
-      endDate: "",
-      weekdayHours: "",
-      holidayHours: "",
-      conditions: ""
+      currentStatus: formValues?.currentStatus ?? "",
+      startDate: formValues?.startDate ?? "",
+      endDate: formValues?.endDate ?? "",
+      weekdayHours: formValues?.weekdayHours ?? "",
+      holidayHours: formValues?.holidayHours ?? "",
+      conditions: formValues?.conditions ?? ""
     }
   });
 
@@ -130,7 +137,10 @@ export const TaskUpdateForm = memo(() => {
                 <Input
                   value={field.value}
                   onChangeText={field.onChange}
-                  onBlur={field.onBlur}
+                  onBlur={() => {
+                    field.onChange(padDateStr(field.value));
+                    field.onBlur();
+                  }}
                   textColor="text-primary"
                   borderColor="border-primary"
                   formType="text"
@@ -170,7 +180,10 @@ export const TaskUpdateForm = memo(() => {
                 <Input
                   value={field.value}
                   onChangeText={field.onChange}
-                  onBlur={field.onBlur}
+                  onBlur={() => {
+                    field.onChange(padDateStr(field.value));
+                    field.onBlur();
+                  }}
                   textColor="text-primary"
                   borderColor="border-primary"
                   formType="text"

@@ -79,7 +79,14 @@ export const useTaskUpdateConfirm = () => {
   };
 
   const handleNavigateToTop = () => {
-    navigate("/tasks-update", { replace: true });
+    navigate("/tasks-update", {
+      replace: true,
+      state: {
+        goalName: generatedData?.goalName,
+        completedGoalTasks: generatedData?.completedGoalTasks,
+        formValues: generatedData?.form,
+      },
+    });
   };
 
   return {

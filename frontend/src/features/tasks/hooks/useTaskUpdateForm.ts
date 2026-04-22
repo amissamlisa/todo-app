@@ -14,6 +14,7 @@ export const useTaskUpdateForm = () => {
   const state = (location.state as TaskUpdateLocationState | null) ?? null;
   const goalName = state?.goalName ?? "";
   const completedGoalTasks = state?.completedGoalTasks ?? [];
+  const formValues = state?.formValues ?? null;
 
   const handleUpdateGoalTasks = async (data: TaskUpdateFormType) => {
     try {
@@ -39,7 +40,7 @@ export const useTaskUpdateForm = () => {
 
       const generated = await generateGoalTasks(api, payload);
       navigate("/tasks-update/confirm", {
-        state: { form: data, generated },
+        state: { form: data, generated, goalName, completedGoalTasks },
         replace: true,
       });
     } catch (err) {
@@ -75,6 +76,7 @@ export const useTaskUpdateForm = () => {
   return {
     isLoading,
     goalName,
+    formValues,
     handleUpdateGoalTasks,
     handleNavigateTop,
     handleNavigateToTopWhenGoalMissing,

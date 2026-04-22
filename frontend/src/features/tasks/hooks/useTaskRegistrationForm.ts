@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../users/auth/useAuth";
 import type { TaskRegistrationFormType } from "../types/taskRegistrationForm";
@@ -7,8 +7,12 @@ import { generateGoalTasks } from "../api/goalTasksApi";
 
 export const useTaskRegistrationForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { api } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  const state = (location.state as { formValues?: TaskRegistrationFormType } | null) ?? null;
+  const formValues = state?.formValues ?? null;
 
   const handleSubmitRegistration = async (data: TaskRegistrationFormType) => {
     try {
@@ -59,6 +63,7 @@ export const useTaskRegistrationForm = () => {
 
   return {
     isLoading,
+    formValues,
     handleSubmitRegistration,
     handleNavigateToTop,
   };

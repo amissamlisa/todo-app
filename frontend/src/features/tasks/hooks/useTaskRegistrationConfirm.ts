@@ -81,7 +81,10 @@ export const useTaskRegistrationConfirm = () => {
   };
 
   const handleNavigateRegistration = () => {
-    navigate("/tasks-registration", { replace: true });
+    navigate("/tasks-registration", {
+      replace: true,
+      state: { formValues: generatedData?.form },
+    });
   };
 
   return {

@@ -18,4 +18,5 @@ export type CompletedGoalTask = {
 export type TaskUpdateLocationState = {
   goalName?: string;
   completedGoalTasks?: CompletedGoalTask[];
+  formValues?: TaskUpdateFormType;
 };

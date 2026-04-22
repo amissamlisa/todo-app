@@ -14,21 +14,27 @@ dayjs.locale(ja);
 export const TaskRegistrationForm = memo(() => {
   const {
     isLoading,
+    formValues,
     handleSubmitRegistration,
     handleNavigateToTop,
   } = useTaskRegistrationForm();
   const validateDate = (date: string, format: string) => {
     return dayjs(date, format).format(format) === date;
   }
-  const { control : registrationFormControl, handleSubmit: handleSubmitWithValidation, formState: { errors: registrationErrors }, getValues: getRegistrationValues } = useForm<TaskRegistrationFormType>({
+  const padDateStr = (value: string): string =>
+    value.replace(
+      /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/,
+      (_, y, m, d) => `${y}/${m.padStart(2, "0")}/${d.padStart(2, "0")}`
+    );
+  const { control: registrationFormControl, handleSubmit: handleSubmitWithValidation, formState: { errors: registrationErrors }, getValues: getRegistrationValues } = useForm<TaskRegistrationFormType>({
     defaultValues: {
-      goal: "",
-      currentStatus: "",
-      startDate: "",
-      endDate: "",
-      weekdayAvailableHours: "",
-      holidayAvailableHours: "",
-      conditions: ""
+      goal: formValues?.goal ?? "",
+      currentStatus: formValues?.currentStatus ?? "",
+      startDate: formValues?.startDate ?? "",
+      endDate: formValues?.endDate ?? "",
+      weekdayAvailableHours: formValues?.weekdayAvailableHours ?? "",
+      holidayAvailableHours: formValues?.holidayAvailableHours ?? "",
+      conditions: formValues?.conditions ?? ""
     }
   });
 
@@ -128,7 +134,10 @@ export const TaskRegistrationForm = memo(() => {
               <Input
                 value={field.value}
                 onChangeText={field.onChange}
-                onBlur={field.onBlur}
+                onBlur={() => {
+                  field.onChange(padDateStr(field.value));
+                  field.onBlur();
+                }}
                 textColor="text-primary"
                 borderColor="border-primary"
                 formType="text"
@@ -170,7 +179,10 @@ export const TaskRegistrationForm = memo(() => {
               <Input
                 value={field.value}
                 onChangeText={field.onChange}
-                onBlur={field.onBlur}
+                onBlur={() => {
+                  field.onChange(padDateStr(field.value));
+                  field.onBlur();
+                }}
                 textColor="text-primary"
                 borderColor="border-primary"
                 formType="text"
