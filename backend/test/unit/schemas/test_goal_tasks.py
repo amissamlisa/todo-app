@@ -268,6 +268,20 @@ class TestGoalCompositeSchema(TestCase):
         req = GoalRequestWithTasks(goal=self._goal())
         self.assertIsNone(req.completed_goal_tasks_list)
 
+    def test_goal_request_with_tasks_accepts_completed_task_with_past_deadline(self):
+        req = GoalRequestWithTasks(
+            goal=self._goal(),
+            completed_goal_tasks_list=[
+                {
+                    "goal_task_name": "過去に完了したタスク",
+                    "deadline": "2026-04-20",
+                    "estimated_time": 30,
+                    "goal_task_status": "完了",
+                }
+            ],
+        )
+        self.assertEqual(len(req.completed_goal_tasks_list), 1)
+
     def test_save_request_accepts_valid_payload(self):
         req = SaveRequest(
             goal=self._goal(),

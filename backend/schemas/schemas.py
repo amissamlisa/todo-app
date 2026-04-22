@@ -45,9 +45,16 @@ class GoalsTasksOut(BaseModel):
         return self
 
 
+class CompletedGoalTask(BaseModel):
+    goal_task_name: str = Field(min_length=1, max_length=100)
+    deadline: datetime.date
+    estimated_time: int = Field(ge=1, le=720)
+    goal_task_status: GoalsTasksStatusEnum
+
+
 class GoalRequestWithTasks(BaseModel):
     goal: GoalsRequest
-    completed_goal_tasks_list: Optional[List[GoalsTasksOut]] = None
+    completed_goal_tasks_list: Optional[List[CompletedGoalTask]] = None
 
     @model_validator(mode="after")
     def validate_completed_tasks(self):
