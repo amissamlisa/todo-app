@@ -49,13 +49,17 @@ export default function KanbanLane({ title, items, bgColor, canAddTask = true, o
         >
           <p className="font-bold text-secondary text-center">{title}</p>
           <div className="bg-secondary rounded-lg m-2">
-            <div
-              className={`text-primary text-center flex items-center justify-center p-3 ${canAddTask ? "cursor-pointer" : "cursor-not-allowed bg-gray opacity-50"}`}
-              aria-disabled={!canAddTask}
+            <button
+              onClick={canAddTask ? handleOpenAddModal : undefined}
+              disabled={!canAddTask}
+              className={`w-full text-primary flex items-center justify-center gap-2 p-3 ${canAddTask
+                  ? "cursor-pointer"
+                  : "cursor-not-allowed bg-gray opacity-50"
+                }`}
             >
-              タスクを追加
-              <FaPlus className="ml-2" onClick={handleOpenAddModal} />
-            </div>
+              <span>タスクを追加</span>
+              <FaPlus />
+            </button>
           </div>
           {items.map(({ goalTask, time, deadline, goalTaskId }, key) => (
             <KanbanCard goalTask={goalTask} key={goalTaskId} index={key} parent={title} time={time} deadline={deadline} goalTaskId={goalTaskId} onDeleteTask={onDeleteTasks} onTaskEdit={onEditTasks} />
