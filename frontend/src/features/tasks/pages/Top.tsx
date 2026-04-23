@@ -10,19 +10,11 @@ import { List } from "../../../shared/components/molecules/List";
 import Point from "../../../assets/point.png";
 import WasteBasket from "../../../assets/waste-basket.png";
 import { useTopPage } from "../hooks/useTopPage";
-import CloudIcon from "../../assets/cloud.png";
-import DropletIcon from "../../assets/droplet.png";
-import GlowingCloudIcon from "../../assets/glowing-cloud.png";
-import MistIcon from "../../assets/mist.png";
+import { rankImageMap } from "../constants/rankImage";
+
 
 export const Top = memo(() => {
   const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
-  const rankImageMap: Record<string, string> = {
-    "雫": DropletIcon,
-    "霧": MistIcon,
-    "雲": CloudIcon,
-    "光雲": GlowingCloudIcon,
-  };
   const {
     activeModal,
     setActiveModal,
