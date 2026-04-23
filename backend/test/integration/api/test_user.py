@@ -33,7 +33,7 @@ class TestUserPointsUpdate(TestBase):
             json={"points": 100},
             headers=self._auth_headers(),
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 204)
 
     def test_update_points_without_auth(self):
         response = self.client.put(
@@ -67,7 +67,7 @@ class TestUserRankUpdate(TestBase):
             json={"user_rank": "霧"},
             headers=self._auth_headers(),
         )
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 204)
 
     def test_update_rank_without_auth(self):
         response = self.client.put(

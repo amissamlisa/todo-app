@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from backend.models.models import GoalsTasksStatusEnum
 from backend.schemas.schemas import (
+    CompletedGoalTask,
     GoalTaskCreateRequest,
     GoalTaskOrderUpdateRequest,
     GoalTaskStatusAndOrderUpdateRequest,
@@ -235,11 +236,19 @@ class TestGoalCompositeSchema(TestCase):
         )
 
     def _completed_task(self):
-        return GoalsTasksOut(
+        return CompletedGoalTask(
             goal_task_name="単語学習",
             deadline=datetime.date(2030, 10, 18),
             estimated_time=60,
             goal_task_status=GoalsTasksStatusEnum.Completed.value,
+        )
+
+    def _incomplete_completed_task(self):
+        return CompletedGoalTask(
+            goal_task_name="単語学習",
+            deadline=datetime.date(2030, 10, 18),
+            estimated_time=60,
+            goal_task_status=GoalsTasksStatusEnum.Todo.value,
         )
 
     def _incomplete_task(self):
@@ -261,7 +270,7 @@ class TestGoalCompositeSchema(TestCase):
         with self.assertRaises(ValidationError):
             GoalRequestWithTasks(
                 goal=self._goal(),
-                completed_goal_tasks_list=[self._incomplete_task()],
+                completed_goal_tasks_list=[self._incomplete_completed_task()],
             )
 
     def test_goal_request_with_tasks_accepts_none_completed_goal_tasks_list(self):

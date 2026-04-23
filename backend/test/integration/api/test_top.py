@@ -78,5 +78,6 @@ class TestSecurityHeaders(TestBase):
         self.assertEqual(response.headers.get("X-Content-Type-Options"), "nosniff")
         self.assertEqual(response.headers.get("X-Frame-Options"), "deny")
         self.assertEqual(
-            response.headers.get("Content-Security-Policy"), "default-src 'none'"
+            response.headers.get("Content-Security-Policy"),
+            "default-src 'none'; frame-ancestors 'none'",
         )

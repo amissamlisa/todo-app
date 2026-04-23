@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.exc import IntegrityError
 
 from backend.models.models import Users
@@ -51,6 +53,18 @@ class TestUserRepository(TestBase):
     def test_user_with_100_user_points(self):
         user_data = self._register_user(user_points=100)
         self.assertEqual(user_data.user_points, 100)
+
+    def test_default_user_points_is_applied(self):
+        user = self._register_user()
+
+        self.assertEqual(user.user_points, 0)
+
+    def test_default_created_at_is_applied(self):
+        user = self._register_user(user_points=100)
+        now = datetime.datetime.now(datetime.timezone.utc)
+
+        self.assertIsNotNone(user.created_at)
+        self.assertTrue(abs((now - user.created_at).total_seconds()) < 5)
 
     def test_find_user_by_email(self):
         user = self._register_user()

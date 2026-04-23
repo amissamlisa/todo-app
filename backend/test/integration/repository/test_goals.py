@@ -146,6 +146,11 @@ class TestGoalRepository(TestBase):
 
         self.assertIsNone(goal)
 
+    def test_default_status_enum_is_applied(self):
+        registered_goal = self._register_goal()
+
+        self.assertEqual(registered_goal.status, GoalsStatusEnum.Unachieved.value)
+
 
 class GoalsModelConstraintTest(TestBase):
     def setUp(self):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from backend.models.models import Users
-import datetime
+
 
 class TestUser(TestCase):
     def _user(self, **kwargs):
@@ -42,10 +42,6 @@ class TestUser(TestCase):
     def test_user_with_empty_username_raises_value_error(self):
         with self.assertRaises(ValueError):
             self._user(username="")
-    
-    def test_default_user_points_is_applied(self):
-        user_data = self._user()
-        self.assertEqual(user_data.user_points, 0)
 
     def test_user_points_integer(self):
         user = self._user(user_points=0)
@@ -58,8 +54,3 @@ class TestUser(TestCase):
     def test_invalid_user_rank_raises_value_error(self):
         with self.assertRaises(ValueError):
             self._user(username="user", email="test@example.com", user_rank="最強")
-    
-    def test_default_created_at_is_applied(self):
-        user = self._user(user_points=100)
-        now = datetime.datetime.now(datetime.timezone.utc)
-        self.assertTrue(abs((now - user.created_at).total_seconds()) < 5)

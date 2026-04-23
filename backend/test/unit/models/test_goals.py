@@ -1,7 +1,6 @@
 from unittest import TestCase
 import datetime
 
-from psycopg2 import IntegrityError
 from backend.models.models import Goals, GoalsStatusEnum
 
 
@@ -44,13 +43,13 @@ class GoalsTest(TestCase):
         )
 
     def test_goal_with_space_goal_name(self):
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValueError):
             self._goal(goal_name=" ")
-    
+
     def test_goal_with_zero_goal_name(self):
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValueError):
             self._goal(goal_name="")
-    
+
     def test_goal_name_trim(self):
         goal = self._goal(goal_name="  TOEIC800点取得  ")
         self.assertEqual(goal.goal_name, "TOEIC800点取得")
@@ -90,7 +89,3 @@ class GoalsTest(TestCase):
     def test_goal_with_valid_status(self):
         goal = self._goal(status="達成")
         self.assertEqual(goal.status, GoalsStatusEnum.Achieved.value)
-    
-    def test_default_status_enum_is_applied(self):
-        goal = self._goal()
-        self.assertEqual(goal.status, GoalsStatusEnum.Unachieved.value)
