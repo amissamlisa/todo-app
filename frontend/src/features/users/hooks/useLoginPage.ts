@@ -17,9 +17,16 @@ export const useLoginPage = () => {
     }
   };
 
+  const handleNavigateToPasswordResetEmail = () => {
+    if (loginErrorMessageFromServer !== null) {
+      clearLoginErrorMessage();
+    }
+  };
+
   return {
     loginErrorMessageFromServer,
     handleLogin,
     handleNavigateToRegistration,
+    handleNavigateToPasswordResetEmail,
   };
 };
