@@ -12,15 +12,11 @@ export const useLoginPage = () => {
 
   const handleNavigateToRegistration = () => {
     navigate("/user-registration", { replace: true });
-    if (loginErrorMessageFromServer !== null) {
-      clearLoginErrorMessage();
-    }
+    clearLoginErrorMessage();
   };
 
   const handleNavigateToPasswordResetEmail = () => {
-    if (loginErrorMessageFromServer !== null) {
-      clearLoginErrorMessage();
-    }
+    clearLoginErrorMessage();
   };
 
   return {
