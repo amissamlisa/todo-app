@@ -1,26 +1,11 @@
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import { Header } from "../../../shared/components/molecules/Header";
-import rainbowImg from "../../../assets/rainbow_cloud.png";
-import { useNavigate, useLocation } from "react-router-dom";
+import rainbowImg from "../../../assets/rainbow.png";
 import { Button } from "../../../shared/components/atoms/Button";
+import { usePasswordResetComplete } from "../hooks/usePasswordResetComplete";
 
 export const PasswordResetComplete = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.key === 'default') {
-      navigate("/", { replace: true });
-    }
-  }, [location.key, navigate]);
-
-  if (location.key === 'default') {
-    return null;
-  }
-
-  const onButtonClick = () => {
-    navigate("/", { replace: true });
-  }
+  const { handleNavigateToLogin } = usePasswordResetComplete();
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
@@ -29,7 +14,7 @@ export const PasswordResetComplete = memo(() => {
         <h2 className="text-primary w-[clamp(112.5px,57.6vw,450px)]">パスワード再設定が完了しました。ログイン時は新しいパスワードを使用してください</h2>
         <img className=" w-[clamp(115px,59.2vw,462px)] " src={rainbowImg} />
         <div className="mb-[clamp(251px,59.5vh,1006px)]">
-          <Button onButtonClick={onButtonClick} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
+          <Button onClick={handleNavigateToLogin} buttonColor="bg-primary" textColor="text-secondary">ログイン画面へ</Button>
         </div>
       </div>
     </div>

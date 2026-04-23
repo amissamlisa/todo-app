@@ -1,4 +1,4 @@
-import logoIcon from "../../../assets/cloud_icon.png"
+import logoIcon from "../../../assets/cloud-icon.png"
 import { memo } from "react";
 import type { LogoProps } from "../../types/logo";
 

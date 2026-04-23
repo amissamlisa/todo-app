@@ -56,15 +56,15 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-        username: str = payload.get("sub")
-        user_id: int = payload.get("user_id")
+        user_id: str | None = payload.get("sub")
+        username: str | None = payload.get("username")
         if username is None or user_id is None:
             raise credentials_exception
 
     except JWTError:
         raise credentials_exception
 
-    return {"username": username, "user_id": user_id}
+    return {"username": username, "user_id": int(user_id)}
 
 
 def authenticate_user(email: str, password: str, db: Session = Depends(get_db)):
@@ -77,8 +77,8 @@ def authenticate_user(email: str, password: str, db: Session = Depends(get_db)):
     return user
 
 
-def create_token(user_id: int, expires_delta: timedelta):
-    encode = {"sub": str(user_id)}
+def create_token(user_id: int, username: str, expires_delta: timedelta):
+    encode = {"sub": str(user_id), "username": username}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({"exp": expires})
     return jwt.encode(encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
@@ -141,7 +141,6 @@ def create_password_reset_token(user_id: int, db: Session = Depends(get_db)):
 def find_valid_password_token(password_reset_token: str, db: Session):
 
     password_reset_repository = PasswordResetRepository()
-    matched_token = None
     if not password_reset_token:
         raise invalid_password_reset_link_exception
     password_reset_token_prefix = password_reset_token[:6]
@@ -155,12 +154,9 @@ def find_valid_password_token(password_reset_token: str, db: Session):
         raise invalid_password_reset_link_exception
     for token_record in password_reset_token_records:
         if bcrypt_context.verify(password_reset_token, token_record.hashed_token):
-            matched_token = token_record
-            if not matched_token:
-                raise invalid_password_reset_link_exception
-            elif matched_token.expires_at < datetime.now(timezone.utc):
+            if token_record.expires_at < datetime.now(timezone.utc):
                 raise expired_password_reset_link_exception
-            return matched_token
+            return token_record
     raise invalid_password_reset_link_exception
 
 

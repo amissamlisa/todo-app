@@ -1,41 +1,22 @@
-import { memo, useEffect } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { memo } from "react";
 import { Controller, useForm } from "react-hook-form"
 import { Header } from "../../../shared/components/molecules/Header";
 import { Input } from "../../../shared/components/molecules/Input";
 import { TwoButton } from "../../../shared/components/molecules/TwoButton";
 import { PasswordInput } from "../../../shared/components/molecules/PasswordInput";
 import { type RegistrationFormType } from "../types/registrationForm";
+import { useAccountRegistrationForm } from "../hooks/useAccountRegistrationForm";
 
 export const AccountRegistrationForm = memo(() => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const { control, handleSubmit, formState: { errors }, getValues } = useForm<RegistrationFormType>({
+  const { handleAccountRegistrationSubmit, handleNavigateToTop } = useAccountRegistrationForm();
+  const { control: registrationFormControl, handleSubmit: handleRegistrationFormSubmit, formState: { errors: registrationErrors }, getValues: getRegistrationValues } = useForm<RegistrationFormType>({
     defaultValues: {
       username: "",
       email: "",
       password: "",
-      confirmation_password: ""
+      confirmationPassword: ""
     }
   });
-  useEffect(() => {
-      if (location.key === 'default') {
-        navigate("/", { replace: true });
-      }
-    }, [location.key, navigate]);
-  
-    if (location.key === 'default') {
-      return null;
-    }
-  const onPrimaryClick = (data: RegistrationFormType) => {
-    console.log(data);
-    navigate("/user-registration/confirm", { state: data, replace: true });
-  };
-
-  const onSecondaryClick = () => {
-    navigate("/", { replace: true });
-  }
   return (
     <div className="overflow-y-auto h-screen ">
       <Header />
@@ -43,7 +24,7 @@ export const AccountRegistrationForm = memo(() => {
         <h2 className="text-primary mt-[clamp(15px,4vh,60px)] mb-[clamp(20px,4.8vh,80px)] text-2xl">新規会員登録</h2>
         <div className="mb-[clamp(10px,2.6vh,40px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "ユーザー名を入力してください",
               validate: (value) =>
@@ -64,11 +45,11 @@ export const AccountRegistrationForm = memo(() => {
               </Input>
             )}
           />
-          {errors.username && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.username.message}</p>}
+          {registrationErrors.username && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.username.message}</p>}
         </div>
         <div className="mb-[clamp(10px,2.6vh,40px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "メールアドレスを入力してください",
               validate: (value) =>
@@ -93,12 +74,12 @@ export const AccountRegistrationForm = memo(() => {
               </Input>
             )}
           />
-          {errors.email && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.email.message}</p>}
+          {registrationErrors.email && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.email.message}</p>}
         </div>
 
         <div className="mb-[clamp(10px,2.6vh,40px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "パスワードを入力してください",
               validate: (value) =>
@@ -128,25 +109,24 @@ export const AccountRegistrationForm = memo(() => {
               </PasswordInput>
             )}
           />
-          {errors.password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.password.message}</p>}
+          {registrationErrors.password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.password.message}</p>}
         </div>
 
         <div className="mb-[clamp(28px,6.6vh,112px)]">
           <Controller
-            control={control}
+            control={registrationFormControl}
             rules={{
               required: "確認パスワードを入力してください",
               validate: (value) => {
-                if (value !== getValues("password")) {
+                if (value !== getRegistrationValues("password")) {
                   return "パスワードと確認パスワードが異なります";
                 }
                 else if (/[ \u3000]/.test(value)) {
                   return "空白（全角・半角）は使用できません";
                 }
-                return true;
               },
             }}
-            name="confirmation_password"
+            name="confirmationPassword"
             render={({ field }) => (
               <PasswordInput
                 value={field.value}
@@ -161,11 +141,11 @@ export const AccountRegistrationForm = memo(() => {
               </PasswordInput>
             )}
           />
-          {errors.confirmation_password && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{errors.confirmation_password.message}</p>}
+          {registrationErrors.confirmationPassword && <p className="text-red-500 w-[clamp(93px,68vw,400px)]">{registrationErrors.confirmationPassword.message}</p>}
         </div>
 
         <div className="mb-24.5">
-          <TwoButton buttonTitle1="確認画面へ" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleSubmit(onPrimaryClick)} onSecondaryClick={onSecondaryClick} />
+          <TwoButton buttonTitle1="確認画面へ" buttonTitle2="戻る" buttonBgColor="bg-primary" buttonTextColor="text-secondary" onPrimaryClick={handleRegistrationFormSubmit(handleAccountRegistrationSubmit)} onSecondaryClick={handleNavigateToTop} />
         </div>
       </div>
     </div>

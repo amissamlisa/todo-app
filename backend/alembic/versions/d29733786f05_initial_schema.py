@@ -1,8 +1,8 @@
-"""create initial table
+"""initial schema
 
-Revision ID: 7271219fd341
+Revision ID: d29733786f05
 Revises: 
-Create Date: 2026-01-26 21:06:31.546092
+Create Date: 2026-03-01 14:47:23.492537
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7271219fd341'
+revision: str = 'd29733786f05'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,6 +27,7 @@ def upgrade() -> None:
     sa.Column('hashed_password', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('user_points', sa.Integer(), nullable=False),
+    sa.Column('user_rank', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.CheckConstraint('user_points >= 0', name='check_username_more_than_zero'),
     sa.PrimaryKeyConstraint('user_id'),
@@ -62,7 +63,7 @@ def upgrade() -> None:
     sa.Column('password_reset_token_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('token_prefix', sa.String(length=6), nullable=False),
-    sa.Column('hashed_token', sa.String(length=60), nullable=False),
+    sa.Column('hashed_token', sa.String(length=72), nullable=False),
     sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ),
@@ -73,7 +74,7 @@ def upgrade() -> None:
     sa.Column('refresh_token_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('token_prefix', sa.String(length=6), nullable=False),
-    sa.Column('hashed_token', sa.String(length=60), nullable=False),
+    sa.Column('hashed_token', sa.String(length=72), nullable=False),
     sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('revoked_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
@@ -84,11 +85,13 @@ def upgrade() -> None:
     op.create_table('goals_tasks',
     sa.Column('goal_task_id', sa.Integer(), nullable=False),
     sa.Column('goal_id', sa.Integer(), nullable=False),
-    sa.Column('goal_task_name', sa.String(length=50), nullable=False),
+    sa.Column('order', sa.Integer(), nullable=False),
+    sa.Column('goal_task_name', sa.String(length=100), nullable=False),
     sa.Column('goal_task_status', sa.String(), nullable=False),
     sa.Column('deadline', sa.Date(), nullable=False),
     sa.Column('estimated_time', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
+    sa.CheckConstraint('"order" > 0', name='check_order_greater_than_zero'),
     sa.CheckConstraint('deadline > CURRENT_DATE', name='check_deadline_before_now'),
     sa.CheckConstraint('estimated_time <= 720', name='check_estimated_time_greater_than_1440'),
     sa.CheckConstraint('estimated_time > 0', name='check_estimated_time_greater_than_zero'),

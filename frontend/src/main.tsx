@@ -1,4 +1,4 @@
-// import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import {
@@ -11,17 +11,24 @@ import { AccountRegistrationForm } from './features/users/pages/AccountRegistrat
 import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
 import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
-import { PasswordResetMessageSent } from './features/users/pages/PasswordResetRequestSubmitted ';
+import { PasswordResetRequestSubmitted } from './features/users/pages/PasswordResetRequestSubmitted ';
 import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmailForm';
 import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
 import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';
 import { PasswordResetIncomplete } from './features/users/pages/PasswordResetIncomplete';
-import { Top } from './features/users/pages/Top';
+import { Top } from './features/tasks/pages/Top';
 import { NotFoundPage } from './shared/components/pages/NotFoundPage';
 import { ProtectedRoute } from './features/users/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './features/users/auth/PublicOnlyRoute';
 import { Logout } from './features/users/pages/Logout';
-import { StrictMode } from 'react';
+import { TaskRegistrationForm } from './features/tasks/pages/TaskRegistrationForm';
+import { TaskRegistrationConfirm } from './features/tasks/pages/TaskRegistrationConfirm';
+import { TaskRegistrationComplete } from './features/tasks/pages/TaskRegistrationComplete';
+import { TaskRegistrationIncomplete } from './features/tasks/pages/TaskRegistrationIncomplete';
+import { TaskUpdateForm } from './features/tasks/pages/TaskUpdateForm';
+import { TaskUpdateConfirm } from './features/tasks/pages/TaskUpdateConfirm';
+import { TaskGenerationIncomplete } from './features/tasks/pages/TaskGenerationIncomplete';
+import { ServerConnectionIncomplete } from './shared/components/pages/ServerConnectionIncomplete';
 
 
 const router = createBrowserRouter([
@@ -45,7 +52,7 @@ const router = createBrowserRouter([
     element: <PublicOnlyRoute><PasswordResetEmailForm /></PublicOnlyRoute>
   }, {
     path: "/password-reset-message-sent",
-    element: <PublicOnlyRoute><PasswordResetMessageSent /></PublicOnlyRoute>
+    element: <PublicOnlyRoute><PasswordResetRequestSubmitted /></PublicOnlyRoute>
   }, {
     path: "/password-reset",
     element: <PublicOnlyRoute><PasswordResetForm /></PublicOnlyRoute>
@@ -59,8 +66,32 @@ const router = createBrowserRouter([
     path: "/not-found",
     element: <PublicOnlyRoute><NotFoundPage /></PublicOnlyRoute>
   }, {
+    path: "/server-connection-incomplete",
+    element: <ServerConnectionIncomplete />
+  }, {
     path: "/top",
     element: <ProtectedRoute><Top /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration",
+    element: <ProtectedRoute><TaskRegistrationForm /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/confirm",
+    element: <ProtectedRoute><TaskRegistrationConfirm /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/complete",
+    element: <ProtectedRoute><TaskRegistrationComplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-registration/incomplete",
+    element: <ProtectedRoute><TaskRegistrationIncomplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-generation/incomplete",
+    element: <ProtectedRoute><TaskGenerationIncomplete /></ProtectedRoute>
+  }, {
+    path: "/tasks-update",
+    element: <ProtectedRoute><TaskUpdateForm /></ProtectedRoute>
+  }, {
+    path: "/tasks-update/confirm",
+    element: <ProtectedRoute><TaskUpdateConfirm /></ProtectedRoute>
   }, {
     path: "/logout",
     element: <Logout />
