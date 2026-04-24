@@ -1,0 +1,1 @@
+export type ModalType = "default" | "complete" | "rankUp" | "deleteGoal" | null;

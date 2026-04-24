@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Hubballi&family=Quicksand:wght@300..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+@import "tailwindcss/preflight.css" layer(base);
+
+@theme {
+  /* colors */
+  --color-primary: #65BBE9;
+  --color-secondary: #fff;
+
+  /* fontFamily */
+  --font-logo: 'Hubballi', 'Noto Sans JP';
+  --font-noto-sans: 'Noto Sans JP', 'serif';
+}

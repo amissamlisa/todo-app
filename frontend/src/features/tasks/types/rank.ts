@@ -1,0 +1,1 @@
+export type Rank = "雫" | "霧" | "雲" | "光雲";
