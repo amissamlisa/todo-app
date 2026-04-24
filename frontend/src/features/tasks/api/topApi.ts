@@ -3,7 +3,7 @@ import type { TopData } from "../types/topData";
 import type { TopApiContract } from "../types/topApiContract";
 
 export const fetchTopData = async (api: AxiosInstance): Promise<TopData> => {
-  const response = await api.get<TopApiContract>("/top");
+  const response = await api.get<TopApiContract>("/top/");
   const data = response.data;
 
   const goal = data.goal

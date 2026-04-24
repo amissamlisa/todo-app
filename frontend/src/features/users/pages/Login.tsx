@@ -13,6 +13,7 @@ export const Login = memo(() => {
     loginErrorMessageFromServer,
     handleLogin,
     handleNavigateToRegistration,
+    handleNavigateToPasswordResetEmail,
   } = useLoginPage();
   const { control: loginFormControl, handleSubmit: handleLoginSubmit, formState: { errors: loginFormErrors } } = useForm<LoginFormType>({
     defaultValues: {
@@ -70,7 +71,13 @@ export const Login = memo(() => {
         />
       </div>
       <div className="text-right w-[clamp(93px,68vw,400px)]">
-        <Link className="text-secondary" to="/password-reset-email-form">パスワードを忘れた方はこちら</Link>
+        <Link
+          className="text-secondary"
+          to="/password-reset-email-form"
+          onClick={handleNavigateToPasswordResetEmail}
+        >
+          パスワードを忘れた方はこちら
+        </Link>
       </div>
       <p className="text-red-500">{loginFormErrors.email?.message || loginFormErrors.password?.message}</p>
       {loginErrorMessageFromServer && (

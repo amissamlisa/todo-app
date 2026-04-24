@@ -18,7 +18,7 @@ export const Incomplete = memo(
             {title}
           </h2>
           <h2 className="text-primary text-center">{message}</h2>
-          <img className="w-[clamp(115px,59.2vw,462px)]" src={rainCloudImg} />
+          <img className="w-[clamp(115px,59.2vw,462px)]" src={rainCloudImg} alt='雨雲' />
           {hasButton ? (
             <div>
               <Button onClick={onClick ?? (() => undefined)} buttonColor="bg-primary" textColor="text-secondary">

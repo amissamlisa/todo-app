@@ -1,3 +1,5 @@
+import type { Rank } from "./rank";
+
 export type TopApiGoalContract = {
   goal_id: number;
   user_id: number;
@@ -25,7 +27,7 @@ export type TopApiGoalTaskContract = {
 export type TopApiContract = {
   username: string;
   email: string;
-  user_rank: string;
+  user_rank: Rank;
   user_points: number;
   goal?: TopApiGoalContract | null;
   goal_tasks?: TopApiGoalTaskContract[];

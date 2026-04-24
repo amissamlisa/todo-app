@@ -28,6 +28,7 @@ export const useAuthProvider = (api: AxiosInstance) => {
     try {
       const accessToken = await loginRequest(api, email, password);
       setToken(accessToken);
+      setLoginErrorMessageFromServer(null);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.error_code === "INVALID_PASSWORD_OR_EMAIL") {

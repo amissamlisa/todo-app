@@ -9,12 +9,12 @@ import { UserProfile } from "../../../shared/components/molecules/UserProfile";
 import { List } from "../../../shared/components/molecules/List";
 import Point from "../../../assets/point.png";
 import WasteBasket from "../../../assets/waste-basket.png";
-import { rankImageMap } from "../../../shared/types/rankImageMap";
 import { useTopPage } from "../hooks/useTopPage";
+import { rankImageMap } from "../constants/rankImage";
+
 
 export const Top = memo(() => {
   const formatDateForDisplay = (value: string) => value.replace(/-/g, "/");
-
   const {
     activeModal,
     setActiveModal,

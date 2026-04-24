@@ -11,7 +11,7 @@ import { AccountRegistrationForm } from './features/users/pages/AccountRegistrat
 import { AccountRegistrationComplete } from './features/users/pages/AccountRegistrationComplete';
 import { AuthProvider } from './features/users/auth/AuthProvider';
 import { AccountRegistrationIncomplete } from './features/users/pages/AccountRegistrationIncomplete';
-import { PasswordResetRequestSubmitted } from './features/users/pages/PasswordResetRequestSubmitted ';
+import { PasswordResetRequestSubmitted } from './features/users/pages/PasswordResetRequestSubmitted';
 import { PasswordResetEmailForm } from './features/users/pages/PasswordResetEmailForm';
 import { PasswordResetForm } from './features/users/pages/PasswordResetForm';
 import { PasswordResetComplete } from './features/users/pages/PasswordResetComplete';

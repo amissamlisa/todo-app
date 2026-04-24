@@ -42,11 +42,7 @@ engine = create_engine(
     echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true"  # Debug logging
 )
 
-# テスト用テーブルを作成
-Base.metadata.create_all(bind=engine)
-
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 def get_db_testing():
     db = TestingSessionLocal(bind=engine)

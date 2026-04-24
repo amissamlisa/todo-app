@@ -5,8 +5,8 @@ import type { Cards } from "../../../shared/types/cards";
 import { useAuth } from "../../users/auth/useAuth";
 import type { TopData } from "../types/topData";
 import type { ModalType } from "../types/topPage";
-import { rankImageMap } from "../../../shared/types/rankImageMap";
 import { deleteGoal as deleteGoalRequest, fetchTopData, updateTopPoints, updateTopRank } from "../api/topApi";
+import { rankImageMap } from "../constants/rankImage";
 
 const RANK_ORDER: Record<string, number> = {
   "雫": 0,
