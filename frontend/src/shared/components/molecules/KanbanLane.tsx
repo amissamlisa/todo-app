@@ -50,6 +50,7 @@ export default function KanbanLane({ title, items, bgColor, canAddTask = true, o
           <p className="font-bold text-secondary text-center">{title}</p>
           <div className="bg-secondary rounded-lg m-2">
             <button
+              type="button"
               onClick={canAddTask ? handleOpenAddModal : undefined}
               disabled={!canAddTask}
               className={`w-full text-primary flex items-center justify-center gap-2 p-3 ${canAddTask

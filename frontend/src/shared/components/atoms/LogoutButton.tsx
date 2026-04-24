@@ -6,7 +6,8 @@ export const LogoutButton = ({ onClick, className }: LogoutButtonProps) => {
   const { handleLogoutClick } = useLogoutButton({ onClick });
 
   return (
-    <button onClick={handleLogoutClick}>
+    <button type="button"
+    onClick={handleLogoutClick}>
       <img
         src={LogoutIcon}
         alt="Logout"
