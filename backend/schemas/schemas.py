@@ -109,6 +109,9 @@ class UserRequest(BaseModel):
         pw = self.password
         cpw = self.confirmation_password
 
+        if len(pw.encode("utf-8")) > 72:
+            raise ValueError("パスワードは72バイト以内で入力してください")
+
         pattern = r"^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[A-Za-z0-9\W_]{10,}$"
 
         if re.match(pattern, pw) is None:
@@ -136,6 +139,13 @@ class PasswordResetEmailRequest(BaseModel):
 class PasswordResetRequest(BaseModel):
     password: str = Field(min_length=10)
     token: str
+
+    @model_validator(mode="after")
+    def check_password(self):
+        pw = self.password
+        if len(pw.encode("utf-8")) > 72:
+            raise ValueError("パスワードは72バイト以内で入力してください")
+        return self
 
 
 class Token(BaseModel):
