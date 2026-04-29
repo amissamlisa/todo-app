@@ -9,8 +9,9 @@ from backend.database import get_db
 from backend.main import app
 from backend.models.models import Base
 from urllib.parse import quote_plus
-# .envファイルから環境変数を読み込む
-load_dotenv()
+
+# テスト用.envファイルから環境変数を読み込む
+load_dotenv(".env")
 # 環境変数取得
 user = os.getenv("DB_USER")
 password = os.getenv("DB_PASSWORD")
@@ -39,10 +40,11 @@ engine = create_engine(
     pool_timeout=30,  # Seconds to wait before giving up on getting a connection
     pool_recycle=1800,  # Recycle connections after 30 minutes
     pool_pre_ping=True,  # Check connections before using
-    echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true"  # Debug logging
+    echo=os.getenv("SQLALCHEMY_ECHO", "False").lower() == "true",  # Debug logging
 )
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def get_db_testing():
     db = TestingSessionLocal(bind=engine)
@@ -51,6 +53,7 @@ def get_db_testing():
         db.rollback()
     finally:
         db.close()
+
 
 app.dependency_overrides[get_db] = get_db_testing
 
