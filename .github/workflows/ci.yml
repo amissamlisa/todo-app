@@ -73,6 +73,7 @@ jobs:
       ALLOWED_ORIGIN_URL: http://localhost:5173
       OPENAI_API_KEY: ci-dummy-key
       SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://test:test@localhost:5432/test_db
+      PYTHONPATH: ${{ github.workspace }}
 
     steps:
       - name: Checkout
