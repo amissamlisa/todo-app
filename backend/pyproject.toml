@@ -5,7 +5,7 @@ description = "FastAPI backend for todo app"
 authors = ["Misa <mwtj96762@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"
+python = ">=3.13,<3.14"
 fastapi = "^0.115.0"
 uvicorn = { extras = ["standard"], version = "^0.30.0" }
 sqlalchemy = ">=2.0,<3.0"
