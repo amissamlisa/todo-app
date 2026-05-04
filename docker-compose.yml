@@ -13,25 +13,26 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   fastapi:
     build:
-      context: .
-      dockerfile: ./backend/container/fastapi/Dockerfile
+      context: ./backend
+      dockerfile: container/fastapi/Dockerfile
     container_name: todo-fastapi
     environment:
-      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-TodoAppDatabase}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-here}
-      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:-http://localhost:3000}
-      SENDER_ADDRESS: ${SENDER_ADDRESS:-your-email@example.com}
-      SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD:-your-app-password}
+      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL}
+      SENDER_ADDRESS: ${SENDER_ADDRESS}
+      SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
       ALLOWED_ORIGIN_URL: http://localhost:3000
       COOKIE_SECURE: "false"
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-your-openai-key}
     ports:
       - "8000:8000"
     depends_on:

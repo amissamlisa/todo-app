@@ -150,6 +150,8 @@ def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):
+    if len(form_data.password.encode("utf-8")) > 72:
+        raise HTTPException(status_code=422, detail="パスワードは72バイト以内で入力してください")
     user = authenticate_user(form_data.username, form_data.password, db)
     if user is None:
         raise AppException(

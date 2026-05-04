@@ -11,7 +11,8 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential \
   && rm -rf /var/lib/apt/lists/*
 
-COPY backend/pyproject.toml /app/backend/pyproject.toml
+COPY backend/pyproject.toml backend/poetry.lock /app/backend/
+
 
 RUN pip install --upgrade pip \
   && pip install poetry \
