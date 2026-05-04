@@ -79,7 +79,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Install Poetry
         run: pip install poetry
@@ -91,7 +91,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: backend/.venv
-          key: venv-${{ runner.os }}-py312-${{ hashFiles('backend/pyproject.toml') }}
+          key: venv-${{ runner.os }}-py313-${{ hashFiles('backend/pyproject.toml') }}
 
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
