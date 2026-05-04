@@ -10,8 +10,7 @@ from backend.main import app
 from backend.models.models import Base
 from urllib.parse import quote_plus
 
-# テスト用.envファイルから環境変数を読み込む
-load_dotenv(".env")
+load_dotenv()
 # 環境変数取得
 user = os.getenv("DB_USER")
 password = os.getenv("DB_PASSWORD")

@@ -41,6 +41,7 @@ password_reset_repository = PasswordResetRepository()
 refresh_token_repository = RefreshTokenRepository()
 user_repository = UserRepository()
 
+
 @router.post("/password-reset/request", status_code=status.HTTP_201_CREATED)
 def send_reset_password_email(
     password_reset_email_request: PasswordResetEmailRequest,
@@ -151,7 +152,11 @@ def login_for_access_token(
     db: Session = Depends(get_db),
 ):
     if len(form_data.password.encode("utf-8")) > 72:
-        raise HTTPException(status_code=422, detail="パスワードは72バイト以内で入力してください")
+        raise HTTPException(
+            status_code=422,
+            error_code="PASSWORD_TOO_LONG",
+            error_message="Password must be 72 bytes or less",
+        )
     user = authenticate_user(form_data.username, form_data.password, db)
     if user is None:
         raise AppException(

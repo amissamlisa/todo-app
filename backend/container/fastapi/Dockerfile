@@ -11,7 +11,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential \
   && rm -rf /var/lib/apt/lists/*
 
-COPY backend/pyproject.toml backend/poetry.lock /app/backend/
+COPY pyproject.toml poetry.lock /app/backend/
 
 
 RUN pip install --upgrade pip \
@@ -20,7 +20,7 @@ RUN pip install --upgrade pip \
   && poetry config virtualenvs.create false \
   && poetry install --only main --no-root --no-ansi
 
-COPY backend /app/backend
+COPY . /app/backend
 
 EXPOSE 8000
 

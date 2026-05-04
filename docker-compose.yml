@@ -24,12 +24,12 @@ services:
       dockerfile: container/fastapi/Dockerfile
     container_name: todo-fastapi
     environment:
-      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL}
-      SENDER_ADDRESS: ${SENDER_ADDRESS}
-      SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-TodoAppDatabase}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set}
+      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:?PASSWORD_RESET_URL must be set}
+      SENDER_ADDRESS: ${SENDER_ADDRESS:?SENDER_ADDRESS must be set}
+      SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD:?SENDER_ADDRESS_PASSWORD must be set}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
 
       ALLOWED_ORIGIN_URL: http://localhost:3000
       COOKIE_SECURE: "false"
