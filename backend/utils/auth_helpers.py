@@ -52,6 +52,11 @@ expired_password_reset_link_exception = AppException(
 )
 
 
+def hash_password(password: str) -> str:
+    validate_password_byte_length(password)
+    return bcrypt_context.hash(password)
+
+
 def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = jwt.decode(
