@@ -17,6 +17,7 @@ from ..repository.repository import (
 from ..database import get_db
 from ..config import settings
 from ..exceptions.app_exception import AppException
+from ..utils.validation_helpers import validate_password_byte_length
 import logging
 
 logging.basicConfig(level=logging.ERROR)
@@ -71,6 +72,10 @@ def authenticate_user(email: str, password: str, db: Session = Depends(get_db)):
     user_repository = UserRepository()
     user = user_repository.find_user_by_email(db, email)
     if not user:
+        return None
+    try:
+        validate_password_byte_length(password)
+    except ValueError:
         return None
     if not bcrypt_context.verify(password, user.hashed_password):
         return None

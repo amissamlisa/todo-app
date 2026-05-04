@@ -19,6 +19,7 @@ from backend.utils.auth_helpers import (
     invalid_password_reset_link_exception,
     verify_and_find_refresh_token,
 )
+from backend.utils.validation_helpers import validate_password_byte_length
 from ..models.models import Users
 from ..repository.repository import (
     EmailAlreadyRegistered,
@@ -151,11 +152,13 @@ def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):
-    if len(form_data.password.encode("utf-8")) > 72:
-        raise HTTPException(
+    try:
+        validate_password_byte_length(form_data.password)
+    except ValueError as exc:
+        raise AppException(
             status_code=422,
             error_code="PASSWORD_TOO_LONG",
-            error_message="Password must be 72 bytes or less",
+            error_message=str(exc),
         )
     user = authenticate_user(form_data.username, form_data.password, db)
     if user is None:

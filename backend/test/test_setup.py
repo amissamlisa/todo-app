@@ -17,19 +17,23 @@ password = os.getenv("DB_PASSWORD")
 host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 dbname = os.getenv("DB_NAME")
+sqlalchemy_database_url = os.getenv("SQLALCHEMY_DATABASE_URL")
 
-# パスワードやユーザー名を URL エンコード
-password_enc = quote_plus(password)
-user_enc = quote_plus(user)
+if sqlalchemy_database_url:
+    SQLALCHEMY_TEST_DATABASE_URL = sqlalchemy_database_url
+else:
+    # パスワードやユーザー名を URL エンコード
+    password_enc = quote_plus(password)
+    user_enc = quote_plus(user)
 
-# SQLAlchemy 用 URL 作成
-SQLALCHEMY_TEST_DATABASE_URL = (
-    f"postgresql+psycopg2://{user_enc}:{password_enc}@{host}:{port}/{dbname}"
-    f"?client_encoding=utf8"
-)
-print(SQLALCHEMY_TEST_DATABASE_URL)
-if not all([user, password, host, port, dbname]):
-    raise ValueError("DB接続に必要な環境変数が設定されていません")
+    # SQLAlchemy 用 URL 作成
+    SQLALCHEMY_TEST_DATABASE_URL = (
+        f"postgresql+psycopg2://{user_enc}:{password_enc}@{host}:{port}/{dbname}"
+        f"?client_encoding=utf8"
+    )
+    print(SQLALCHEMY_TEST_DATABASE_URL)
+    if not all([user, password, host, port, dbname]):
+        raise ValueError("DB接続に必要な環境変数が設定されていません")
 
 # SQLAlchemyのエンジンを作成
 engine = create_engine(
