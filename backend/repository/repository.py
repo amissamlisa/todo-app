@@ -480,6 +480,24 @@ class RefreshTokenRepository:
             db.rollback()
             raise e
 
+    def delete_expired_refresh_tokens(
+        self, db: Session, now: datetime | None = None, commit=True
+    ):
+        try:
+            if now is None:
+                now = datetime.now(timezone.utc)
+            deleted_count = (
+                db.query(RefreshTokens)
+                .filter(RefreshTokens.expires_at < now)
+                .delete(synchronize_session=False)
+            )
+            if commit:
+                db.commit()
+            return deleted_count
+        except Exception as e:
+            db.rollback()
+            raise e
+
 
 class PasswordResetRepository:
     def __init__(self):
@@ -505,6 +523,24 @@ class PasswordResetRepository:
             db.delete(password_reset)
             if commit:
                 db.commit()
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def delete_expired_password_reset_tokens(
+        self, db: Session, now: datetime | None = None, commit=True
+    ):
+        try:
+            if now is None:
+                now = datetime.now(timezone.utc)
+            deleted_count = (
+                db.query(PasswordResetTokens)
+                .filter(PasswordResetTokens.expires_at < now)
+                .delete(synchronize_session=False)
+            )
+            if commit:
+                db.commit()
+            return deleted_count
         except Exception as e:
             db.rollback()
             raise e

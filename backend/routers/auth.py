@@ -14,11 +14,12 @@ from backend.utils.auth_helpers import (
     create_password_reset_token,
     find_valid_password_token,
     get_token_from_cookie,
-    bcrypt_context,
+    hash_password,
     credentials_exception,
     invalid_password_reset_link_exception,
     verify_and_find_refresh_token,
 )
+from backend.utils.validation_helpers import validate_password_byte_length
 from ..models.models import Users
 from ..repository.repository import (
     EmailAlreadyRegistered,
@@ -40,6 +41,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 password_reset_repository = PasswordResetRepository()
 refresh_token_repository = RefreshTokenRepository()
 user_repository = UserRepository()
+
 
 @router.post("/password-reset/request", status_code=status.HTTP_201_CREATED)
 def send_reset_password_email(
@@ -98,7 +100,7 @@ def reset_password(
     db: Session = Depends(get_db),
 ):
     record = find_valid_password_token(password_reset_request.token, db)
-    hashed_new_password = bcrypt_context.hash(password_reset_request.password)
+    hashed_new_password = hash_password(password_reset_request.password)
 
     password_reset_repository.update_password_from_db(
         db, record.user_id, hashed_new_password, commit=True
@@ -113,7 +115,7 @@ def create_user(user_request: UserRequest, db: Session = Depends(get_db)):
     user = Users(
         username=user_request.username,
         email=user_request.email,
-        hashed_password=bcrypt_context.hash(user_request.password),
+        hashed_password=hash_password(user_request.password),
     )
     try:
         user_repository.register_user(db, user, commit=True)
@@ -150,6 +152,14 @@ def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):
+    try:
+        validate_password_byte_length(form_data.password)
+    except ValueError as exc:
+        raise AppException(
+            status_code=422,
+            error_code="PASSWORD_TOO_LONG",
+            error_message=str(exc),
+        )
     user = authenticate_user(form_data.username, form_data.password, db)
     if user is None:
         raise AppException(

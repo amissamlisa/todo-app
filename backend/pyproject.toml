@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "todo-app-backend"
+version = "0.1.0"
+description = "FastAPI backend for todo app"
+authors = ["Misa <mwtj96762@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.13,<3.14"
+fastapi = "^0.115.0"
+uvicorn = { extras = ["standard"], version = "^0.30.0" }
+sqlalchemy = ">=2.0,<3.0"
+alembic = "^1.13.0"
+python-dotenv = "^1.0.0"
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+bcrypt = "4.0.1"
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
+python-multipart = "^0.0.9"
+pydantic = ">=2.7,<3.0"
+email-validator = "^2.2.0"
+openai = ">=1.0,<2.0"
+psycopg2-binary = "^2.9.9"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_USER: test
+      DB_PASSWORD: test
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_NAME: test_db
+      JWT_SECRET_KEY: ci-dummy-secret
+      PASSWORD_RESET_URL: http://localhost:5173/password-reset
+      SENDER_ADDRESS: ci-dummy@example.com
+      SENDER_ADDRESS_PASSWORD: ci-dummy-password
+      ALLOWED_ORIGIN_URL: http://localhost:5173
+      OPENAI_API_KEY: ci-dummy-key
+      SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://test:test@localhost:5432/test_db
+      PYTHONPATH: ${{ github.workspace }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Configure Poetry venv
+        run: poetry config virtualenvs.in-project true
+
+      - name: Cache backend venv
+        uses: actions/cache@v4
+        with:
+          path: backend/.venv
+          key: venv-${{ runner.os }}-py313-${{ hashFiles('backend/pyproject.toml') }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+        working-directory: backend
+
+      - name: Compile check
+        run: poetry run python -m compileall .
+        working-directory: backend
+
+      - name: Test
+        run: poetry run pytest
+        working-directory: backend

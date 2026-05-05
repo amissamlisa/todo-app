@@ -169,6 +169,51 @@ class RefreshTokenTest(TestBase):
 
         self.assertEqual(revoked_count, 0)
 
+    def test_delete_expired_refresh_tokens_deletes_only_expired(self):
+        expired_token = self._refresh_token(
+            token_prefix="old111",
+            hashed_token="a" * 72,
+            expires_at=self._dt(2020, 10, 15),
+        )
+        valid_token = self._refresh_token(
+            token_prefix="new111",
+            hashed_token="b" * 72,
+            expires_at=self._dt(2030, 10, 15),
+        )
+
+        self.refresh_token_repository.register_refresh_token(
+            self.db, expired_token, commit=True
+        )
+        self.refresh_token_repository.register_refresh_token(
+            self.db, valid_token, commit=True
+        )
+
+        deleted_count = self.refresh_token_repository.delete_expired_refresh_tokens(
+            self.db, now=self._dt(2025, 1, 1), commit=True
+        )
+
+        remaining_tokens = self.db.query(RefreshTokens).all()
+
+        self.assertEqual(deleted_count, 1)
+        self.assertEqual(len(remaining_tokens), 1)
+        self.assertEqual(remaining_tokens[0].token_prefix, "new111")
+
+    def test_delete_expired_refresh_tokens_returns_zero_when_none_expired(self):
+        valid_token = self._refresh_token(
+            token_prefix="valid1",
+            hashed_token="a" * 72,
+            expires_at=self._dt(2030, 10, 15),
+        )
+        self.refresh_token_repository.register_refresh_token(
+            self.db, valid_token, commit=True
+        )
+
+        deleted_count = self.refresh_token_repository.delete_expired_refresh_tokens(
+            self.db, now=self._dt(2025, 1, 1), commit=True
+        )
+
+        self.assertEqual(deleted_count, 0)
+
 
 class PasswordResetTokenTest(TestBase):
     def setUp(self):
@@ -339,3 +384,52 @@ class PasswordResetTokenTest(TestBase):
                 "updated_password_hash",
                 commit=True,
             )
+
+    def test_delete_expired_password_reset_tokens_deletes_only_expired(self):
+        expired_token = self._password_reset_token(
+            token_prefix="oldpw1",
+            hashed_token="b" * 72,
+            expires_at=self._dt(2020, 10, 20),
+        )
+        valid_token = self._password_reset_token(
+            token_prefix="newpw1",
+            hashed_token="c" * 72,
+            expires_at=self._dt(2030, 10, 20),
+        )
+
+        self.password_reset_repository.register_password_reset_token(
+            self.db, expired_token, commit=True
+        )
+        self.password_reset_repository.register_password_reset_token(
+            self.db, valid_token, commit=True
+        )
+
+        deleted_count = (
+            self.password_reset_repository.delete_expired_password_reset_tokens(
+                self.db, now=self._dt(2025, 1, 1), commit=True
+            )
+        )
+
+        remaining_tokens = self.db.query(PasswordResetTokens).all()
+
+        self.assertEqual(deleted_count, 1)
+        self.assertEqual(len(remaining_tokens), 1)
+        self.assertEqual(remaining_tokens[0].token_prefix, "newpw1")
+
+    def test_delete_expired_password_reset_tokens_returns_zero_when_none_expired(self):
+        valid_token = self._password_reset_token(
+            token_prefix="validp",
+            hashed_token="b" * 72,
+            expires_at=self._dt(2030, 10, 20),
+        )
+        self.password_reset_repository.register_password_reset_token(
+            self.db, valid_token, commit=True
+        )
+
+        deleted_count = (
+            self.password_reset_repository.delete_expired_password_reset_tokens(
+                self.db, now=self._dt(2025, 1, 1), commit=True
+            )
+        )
+
+        self.assertEqual(deleted_count, 0)

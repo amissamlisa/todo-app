@@ -5,6 +5,7 @@ import re
 
 from backend.models.models import GoalsStatusEnum, GoalsTasksStatusEnum
 from backend.utils.add_month import add_days
+from backend.utils.validation_helpers import validate_password_byte_length
 
 
 class GoalsRequest(BaseModel):
@@ -109,6 +110,8 @@ class UserRequest(BaseModel):
         pw = self.password
         cpw = self.confirmation_password
 
+        validate_password_byte_length(pw)
+
         pattern = r"^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_])[A-Za-z0-9\W_]{10,}$"
 
         if re.match(pattern, pw) is None:
@@ -136,6 +139,12 @@ class PasswordResetEmailRequest(BaseModel):
 class PasswordResetRequest(BaseModel):
     password: str = Field(min_length=10)
     token: str
+
+    @model_validator(mode="after")
+    def check_password(self):
+        pw = self.password
+        validate_password_byte_length(pw)
+        return self
 
 
 class Token(BaseModel):
