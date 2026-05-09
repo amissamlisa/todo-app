@@ -31,7 +31,7 @@ services:
       SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD:?SENDER_ADDRESS_PASSWORD must be set}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
 
-      ALLOWED_ORIGIN_URL: http://localhost:3000
+      ALLOWED_ORIGIN_URL: http://52.198.57.49:3000
       COOKIE_SECURE: "false"
     ports:
       - "8000:8000"
