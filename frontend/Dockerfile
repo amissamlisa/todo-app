@@ -9,7 +9,7 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:1.27-alpine AS runtime
+FROM nginx:1.30.1-alpine AS runtime
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
