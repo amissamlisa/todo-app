@@ -64,10 +64,10 @@ jobs:
       DB_PORT: "5432"
       DB_NAME: test_db
       JWT_SECRET_KEY: ci-dummy-secret
-      PASSWORD_RESET_URL: http://52.198.57.49:3000/password-reset
+      PASSWORD_RESET_URL: http://52.199.53.20:3000/password-reset
       SENDER_ADDRESS: ci-dummy@example.com
       SENDER_ADDRESS_PASSWORD: ci-dummy-password
-      ALLOWED_ORIGIN_URL: http://52.198.57.49:3000
+      ALLOWED_ORIGIN_URL: http://52.199.53.20:3000
       OPENAI_API_KEY: ci-dummy-key
       SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://test:test@postgres:5432/test_db
       PYTHONPATH: ${{ github.workspace }}
