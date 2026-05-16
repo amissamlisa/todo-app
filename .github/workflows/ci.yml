@@ -69,7 +69,7 @@ jobs:
       SENDER_ADDRESS_PASSWORD: ci-dummy-password
       ALLOWED_ORIGIN_URL: http://52.199.53.20:3000
       OPENAI_API_KEY: ci-dummy-key
-      SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://test:test@postgres:5432/test_db
+      SQLALCHEMY_DATABASE_URL: postgresql+psycopg2://test:test@localhost:5432/test_db
       PYTHONPATH: ${{ github.workspace }}
 
     steps:
