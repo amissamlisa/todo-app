@@ -31,8 +31,8 @@ services:
       SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD:?SENDER_ADDRESS_PASSWORD must be set}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
 
-      ALLOWED_ORIGIN_URL: http://localhost:3000
-      COOKIE_SECURE: "false"
+      ALLOWED_ORIGIN_URL: https://claidy-todo.com
+      COOKIE_SECURE: "true"
     ports:
       - "8000:8000"
     depends_on:

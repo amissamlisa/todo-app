@@ -134,6 +134,8 @@ def logout(
     db: Session = Depends(get_db),
     refresh_token: str = Depends(get_token_from_cookie),
 ):
+    cookie_samesite = "none" if settings.COOKIE_SECURE else "lax"
+
     matched_refresh_token = verify_and_find_refresh_token(refresh_token, db)
 
     if matched_refresh_token:
@@ -141,7 +143,13 @@ def logout(
             db, matched_refresh_token.refresh_token_id
         )
 
-    response.delete_cookie(key="refresh_token", path="/")
+    response.delete_cookie(
+        key="refresh_token",
+        path="/",
+        secure=settings.COOKIE_SECURE,
+        httponly=True,
+        samesite=cookie_samesite,
+    )
 
     return {"message": "Logged out successfully"}
 
@@ -152,6 +160,8 @@ def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ):
+    cookie_samesite = "none" if settings.COOKIE_SECURE else "lax"
+
     try:
         validate_password_byte_length(form_data.password)
     except ValueError as exc:
@@ -180,7 +190,7 @@ def login_for_access_token(
         value=refresh_token,
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite="lax",
+        samesite=cookie_samesite,
         path="/",
     )
 
@@ -193,6 +203,8 @@ def refresh(
     db: Session = Depends(get_db),
     refresh_token: str = Depends(get_token_from_cookie),
 ):
+    cookie_samesite = "none" if settings.COOKIE_SECURE else "lax"
+
     if not refresh_token:
         raise AppException(
             status_code=401,
@@ -239,7 +251,7 @@ def refresh(
         value=new_refresh_token,
         httponly=True,
         secure=settings.COOKIE_SECURE,
-        samesite="lax",
+        samesite=cookie_samesite,
         path="/",
     )
 
