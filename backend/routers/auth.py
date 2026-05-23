@@ -67,7 +67,7 @@ def send_reset_password_email(
 パスワード再設定リンクの有効期限は1時間です。
 1時間以内にパスワード変更を実施してください。
 """
-    from_addr = settings.SENDER_ADDRESS
+    from_addr = "support@claidy-todo.com"
     to_addr = user_email
     subject = "[Claidy Todo] パスワード再設定のご案内"
 
@@ -76,8 +76,6 @@ def send_reset_password_email(
         to_addr,
         message,
         subject,
-        settings.SENDER_ADDRESS,
-        settings.SENDER_ADDRESS_PASSWORD,
     )
     return {"message": "A password reset link has been sent"}
 
