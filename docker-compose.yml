@@ -27,12 +27,14 @@ services:
       SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-TodoAppDatabase}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set}
       PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:?PASSWORD_RESET_URL must be set}
-      SENDER_ADDRESS: ${SENDER_ADDRESS:?SENDER_ADDRESS must be set}
-      SENDER_ADDRESS_PASSWORD: ${SENDER_ADDRESS_PASSWORD:?SENDER_ADDRESS_PASSWORD must be set}
+      SMTP_HOST: ${SMTP_HOST:?SMTP_HOST must be set}
+      SMTP_PORT: ${SMTP_PORT:?SMTP_PORT must be set}
+      SMTP_USERNAME: ${SMTP_USERNAME:?SMTP_USERNAME must be set}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
 
-      ALLOWED_ORIGIN_URL: http://52.199.53.20:3000
-      COOKIE_SECURE: "false"
+      ALLOWED_ORIGIN_URL: https://claidy-todo.com
+      COOKIE_SECURE: "true"
     ports:
       - "8000:8000"
     depends_on:
