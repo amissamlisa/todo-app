@@ -16,6 +16,6 @@ class Settings(BaseModel):
     SMTP_USERNAME: str = os.environ["SMTP_USERNAME"]
     SMTP_PASSWORD: str = os.environ["SMTP_PASSWORD"]
     ALLOWED_ORIGIN_URL: str = os.environ["ALLOWED_ORIGIN_URL"]
-    COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "true").lower() == "true"
+    COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "false").lower() == "true"
     OPENAI_API_KEY: str = os.environ["OPENAI_API_KEY"]
 settings = Settings()
