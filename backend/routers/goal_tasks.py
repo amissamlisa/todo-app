@@ -106,7 +106,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             - goal_task_name: 必ず100字以内のタスク名(参考書に関するアドバイスも付け加える)
             - deadline: date型 (YYYY-MM-DD)(開始日と期限日・平日可用時間と休日の可用時間を考慮して)
             - estimated_time: 実行時間(1日の平日可用時間もしくは休日の可用時間を合計で下回るか、それらの可用時間と同じになるようタスクを生成して)
-
+            - estimated_timeは整数で、1分以上720分以下で設定すること。0やマイナスの値、720分を超える値は不適切であるため、生成しないこと。
             出力例
             {{
           "goal_tasks": [
@@ -167,6 +167,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
                 raise HTTPException(status_code=500, detail=f"JSON変換に失敗: {e}")
         goal_tasks = []
         for task in tasks_json["goal_tasks"]:
+            task["estimated_time"] = max(1, min(720, task["estimated_time"]))
             goal_tasks.append(GoalsTasksOut(**task))
 
         return {
