@@ -60,4 +60,4 @@ def get_db_testing():
 
 app.dependency_overrides[get_db] = get_db_testing
 
-client = TestClient(app)
+client = TestClient(app, base_url="https://testserver")
