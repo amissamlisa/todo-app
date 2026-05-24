@@ -13,6 +13,8 @@ import type {
   ApiSaveOrUpdateGoalTasksPayload,
 } from "../types/goalTasksApiContract.ts";
 
+const GENERATE_TIMEOUT_MS = 300000;
+
 const toApiGoalTask = (task: GoalTask): ApiGoalTask => ({
   goal_task_name: task.goalTaskName,
   deadline: task.deadline,
@@ -44,7 +46,11 @@ export const generateGoalTasks = async (
     goal: toApiGoalPayload(payload.goal),
     completed_goal_tasks_list: payload.completedGoalTasksList?.map(toApiGoalTask),
   };
-  const response = await api.post<ApiGenerateGoalTasksResponse>("/goal-tasks/generate", apiPayload);
+  const response = await api.post<ApiGenerateGoalTasksResponse>(
+    "/goal-tasks/generate",
+    apiPayload,
+    { timeout: GENERATE_TIMEOUT_MS }
+  );
   return {
     goalTasks: response.data.goal_tasks.map(toCamelGoalTask),
   };
