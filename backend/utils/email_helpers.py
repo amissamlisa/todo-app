@@ -2,6 +2,7 @@ import ssl
 from smtplib import SMTP
 from email.mime.text import MIMEText
 from email.utils import formatdate
+from backend.config import settings
 
 
 def create_mime_text(from_email, to_email, message, subject):
@@ -15,16 +16,18 @@ def create_mime_text(from_email, to_email, message, subject):
     return msg
 
 
-def send_email(from_email, to_email, message, subject, account_name, password):
+def send_email(from_email, to_email, message, subject):
     msg = create_mime_text(from_email, to_email, message, subject)
-
-    host = "smtp.gmail.com"
-    port = 587
+    SMTP_HOST = settings.SMTP_HOST
+    SMTP_PORT = settings.SMTP_PORT
+    SMTP_USERNAME = settings.SMTP_USERNAME
+    SMTP_PASSWORD = settings.SMTP_PASSWORD
 
     context = ssl.create_default_context()
-    server = SMTP(host, port)
-    server.starttls(context=context)
-
-    server.login(account_name, password)
-    server.send_message(msg)
-    server.quit()
+    server = SMTP(SMTP_HOST, SMTP_PORT)
+    try:
+        server.starttls(context=context)
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(msg)
+    finally:
+        server.quit()
