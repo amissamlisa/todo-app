@@ -175,7 +175,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         print("return start")
         response_data = {
             "detail": "目標達成タスクを生成しました",
-            "goal_tasks": goal_tasks,
+            "goal_tasks": goal_tasks[:5],
             "goal": goal,
         }
         print("after response build")
