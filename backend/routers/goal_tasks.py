@@ -16,7 +16,7 @@ from ..schemas.schemas import (
     GoalTaskStatusAndOrderUpdateRequest,
 )
 from ..models.models import GoalsTasks
-from openai import OpenAI
+from openai import OpenAI, APITimeoutError
 import json
 from ..repository.repository import (
     GoalTaskRepository,
@@ -80,6 +80,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         client = OpenAI(
             # This is the default and can be omitted
             api_key=settings.OPENAI_API_KEY,
+            timeout=settings.OPENAI_TIMEOUT_SECONDS,
         )
         goal = payload.goal
 
@@ -182,6 +183,11 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         return response_data
     except HTTPException:
         raise
+    except APITimeoutError:
+        raise HTTPException(
+            status_code=504,
+            detail="OpenAI APIの応答がタイムアウトしました。しばらくして再実行してください",
+        )
     except (
         ValueError,
         IntegrityError,
