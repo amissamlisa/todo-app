@@ -85,6 +85,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         goal = payload.goal
 
         completed_goal_tasks = payload.completed_goal_tasks_list or []
+        print("before openai")
         response = client.responses.create(
             model="gpt-5-mini",
             instructions="""あなたは目標達成のためのタスク設計コーチです。
@@ -156,6 +157,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             """,
         )
         response_text = response.output_text
+        print("after openai")
         try:
             print("OpenAI response:", response.output_text)
             tasks_json = json.loads(response_text)
@@ -176,7 +178,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         print("return start")
         response_data = {
             "detail": "目標達成タスクを生成しました",
-            "goal_tasks": goal_tasks[:5],
+            "goal_tasks": goal_tasks,
             "goal": goal,
         }
         print("after response build")
