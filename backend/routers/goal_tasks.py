@@ -176,11 +176,12 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
         print("validation complete")
         print("goal_tasks count =", len(goal_tasks))
         print("return start")
-        response_data = {
-            "detail": "目標達成タスクを生成しました",
-            "goal_tasks": goal_tasks,
-            "goal": goal,
-        }
+        return {"detail": "ok"}
+        # response_data = {
+        #     "detail": "目標達成タスクを生成しました",
+        #     "goal_tasks": goal_tasks,
+        #     "goal": goal,
+        # }
         print("after response build")
         return response_data
     except HTTPException:
