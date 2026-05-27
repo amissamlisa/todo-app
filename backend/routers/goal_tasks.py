@@ -18,6 +18,7 @@ from ..schemas.schemas import (
 from ..models.models import GoalsTasks
 from openai import OpenAI, APITimeoutError
 import json
+import time
 from ..repository.repository import (
     GoalTaskRepository,
     GoalRepository,
@@ -76,6 +77,7 @@ def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: in
 
 @router.post("/generate", status_code=status.HTTP_201_CREATED)
 def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
+    start = time.time()
     try:
         client = OpenAI(
             # This is the default and can be omitted
@@ -159,7 +161,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             """,
         )
         response_text = response.output_text
-        print("after openai")
+        print("openai:", time.time() - start)
         try:
             print("OpenAI response:", response.output_text)
             tasks_json = json.loads(response_text)
@@ -175,7 +177,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             print("before validation", task)
             task["estimated_time"] = max(1, min(720, task["estimated_time"]))
             goal_tasks.append(GoalsTasksOut(**task))
-        print("validation complete")
+        print("validation:", time.time() - start)
         print("goal_tasks count =", len(goal_tasks))
         print("return start")
         response_data = {
@@ -183,7 +185,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             "goal_tasks": goal_tasks,
             "goal": goal,
         }
-        print("after response build")
+        print("before return:", time.time() - start)
         return response_data
     except HTTPException:
         raise
