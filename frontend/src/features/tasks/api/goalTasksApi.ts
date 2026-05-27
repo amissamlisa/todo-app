@@ -13,7 +13,7 @@ import type {
   ApiSaveOrUpdateGoalTasksPayload,
 } from "../types/goalTasksApiContract.ts";
 
-const GENERATE_TIMEOUT_MS = 300000;
+const GENERATE_TIMEOUT_MS = 620000;
 
 const toApiGoalTask = (task: GoalTask): ApiGoalTask => ({
   goal_task_name: task.goalTaskName,
