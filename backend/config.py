@@ -18,5 +18,5 @@ class Settings(BaseModel):
     ALLOWED_ORIGIN_URL: str = os.environ["ALLOWED_ORIGIN_URL"]
     COOKIE_SECURE: bool = os.getenv("COOKIE_SECURE", "false").lower() == "true"
     OPENAI_API_KEY: str = os.environ["OPENAI_API_KEY"]
-    OPENAI_TIMEOUT_SECONDS: float = float(os.getenv("OPENAI_TIMEOUT_SECONDS", "300"))
+    OPENAI_TIMEOUT_SECONDS: float = float(os.getenv("OPENAI_TIMEOUT_SECONDS", "600"))
 settings = Settings()
