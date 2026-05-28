@@ -13,6 +13,8 @@ import type {
   ApiSaveOrUpdateGoalTasksPayload,
 } from "../types/goalTasksApiContract.ts";
 
+const GENERATE_TIMEOUT_MS = 620000;
+
 const toApiGoalTask = (task: GoalTask): ApiGoalTask => ({
   goal_task_name: task.goalTaskName,
   deadline: task.deadline,
@@ -44,7 +46,11 @@ export const generateGoalTasks = async (
     goal: toApiGoalPayload(payload.goal),
     completed_goal_tasks_list: payload.completedGoalTasksList?.map(toApiGoalTask),
   };
-  const response = await api.post<ApiGenerateGoalTasksResponse>("/goal-tasks/generate", apiPayload);
+  const response = await api.post<ApiGenerateGoalTasksResponse>(
+    "/api/goal-tasks/generate",
+    apiPayload,
+    { timeout: GENERATE_TIMEOUT_MS }
+  );
   return {
     goalTasks: response.data.goal_tasks.map(toCamelGoalTask),
   };
@@ -59,7 +65,7 @@ export const saveGoalTasks = async (
     goal_tasks: payload.goalTasks.map(toApiGoalTask),
     goal_total_estimated_time: payload.goalTotalEstimatedTime,
   };
-  await api.post("/goal/", apiPayload);
+  await api.post("/api/goal/", apiPayload);
 };
 
 export const updateGoalTasks = async (
@@ -71,5 +77,5 @@ export const updateGoalTasks = async (
     goal_tasks: payload.goalTasks.map(toApiGoalTask),
     goal_total_estimated_time: payload.goalTotalEstimatedTime,
   };
-  await api.put("/goal/", apiPayload);
+  await api.put("/api/goal/", apiPayload);
 };

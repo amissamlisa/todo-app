@@ -8,7 +8,7 @@ import { LoadingSpinner } from "../../../shared/components/atoms/LoadingSpinner"
 import dayjs from "dayjs";
 import ja from "dayjs/locale/ja";
 import { useTaskRegistrationForm } from "../hooks/useTaskRegistrationForm";
-import { isWithinThreeMonths } from "../utils/dateValidation";
+import { isWithinOneWeek } from "../utils/dateValidation";
 
 dayjs.locale(ja);
 export const TaskRegistrationForm = memo(() => {
@@ -21,6 +21,9 @@ export const TaskRegistrationForm = memo(() => {
   const validateDate = (date: string, format: string) => {
     return dayjs(date, format).format(format) === date;
   }
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
   const padDateStr = (value: string): string =>
     value.replace(
       /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/,
@@ -120,12 +123,12 @@ export const TaskRegistrationForm = memo(() => {
                 } else if (!validateDate(value, 'YYYY/MM/DD')) {
                   return "開始日を日付形式で入力してください";
                 }
-                else if (new Date(value) < new Date()) {
-                  return "開始日は本日以降の日付を入力してください";
+                else if (new Date(value) < tomorrow) {
+                  return "開始日は明日以降の日付を入力してください";
                 } else if (getRegistrationValues("endDate") && new Date(value) > new Date(getRegistrationValues("endDate"))) {
                   return "開始日は終了日以前の日付を入力してください";
-                } else if (getRegistrationValues("endDate") && !isWithinThreeMonths(value, getRegistrationValues("endDate"))) {
-                  return "終了日は開始日から3か月以内の日付を入力してください";
+                } else if (getRegistrationValues("endDate") && !isWithinOneWeek(value, getRegistrationValues("endDate"))) {
+                  return "終了日は開始日から1週間以内の日付を入力してください";
                 }
               },
             }}
@@ -164,12 +167,12 @@ export const TaskRegistrationForm = memo(() => {
                   return "終了日を日付形式で入力してください";
                 } else if (!validateDate(value, 'YYYY/MM/DD')) {
                   return "終了日を日付形式で入力してください";
-                } else if (new Date(value) < new Date()) {
-                  return "終了日は本日以降の日付を入力してください";
+                } else if (new Date(value) < tomorrow) {
+                  return "終了日は明日以降の日付を入力してください";
                 } else if (getRegistrationValues("startDate") && new Date(value) < new Date(getRegistrationValues("startDate"))) {
                   return "終了日は開始日以降の日付を入力してください";
-                } else if (getRegistrationValues("startDate") && !isWithinThreeMonths(getRegistrationValues("startDate"), value)) {
-                  return "終了日は開始日から3か月以内の日付を入力してください";
+                } else if (getRegistrationValues("startDate") && !isWithinOneWeek(getRegistrationValues("startDate"), value)) {
+                  return "終了日は開始日から1週間以内の日付を入力してください";
                 }
                 return true;
               },

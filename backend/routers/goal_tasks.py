@@ -16,8 +16,9 @@ from ..schemas.schemas import (
     GoalTaskStatusAndOrderUpdateRequest,
 )
 from ..models.models import GoalsTasks
-from openai import OpenAI
+from openai import OpenAI, APITimeoutError
 import json
+import time
 from ..repository.repository import (
     GoalTaskRepository,
     GoalRepository,
@@ -76,14 +77,17 @@ def delete_goal_tasks(user: user_dependency, db: db_dependency, goal_task_id: in
 
 @router.post("/generate", status_code=status.HTTP_201_CREATED)
 def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
+    start = time.time()
     try:
         client = OpenAI(
             # This is the default and can be omitted
             api_key=settings.OPENAI_API_KEY,
+            timeout=settings.OPENAI_TIMEOUT_SECONDS,
         )
         goal = payload.goal
 
         completed_goal_tasks = payload.completed_goal_tasks_list or []
+        print("before openai")
         response = client.responses.create(
             model="gpt-5-mini",
             instructions="""あなたは目標達成のためのタスク設計コーチです。
@@ -106,7 +110,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             - goal_task_name: 必ず100字以内のタスク名(参考書に関するアドバイスも付け加える)
             - deadline: date型 (YYYY-MM-DD)(開始日と期限日・平日可用時間と休日の可用時間を考慮して)
             - estimated_time: 実行時間(1日の平日可用時間もしくは休日の可用時間を合計で下回るか、それらの可用時間と同じになるようタスクを生成して)
-
+            - estimated_timeは整数で、1分以上720分以下で設定すること。0やマイナスの値、720分を超える値は不適切であるため、生成しないこと。
             出力例
             {{
           "goal_tasks": [
@@ -132,22 +136,10 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
           ]
         }}
             注意事項
-            - 優先度は内部的に考慮するが、出力フィールドには含めない
-            - タスクの内容は何をどこまでやるか実行可能なレベルで具体的に示す。
-            - タスクに必要な資料や本は正しいものを挙げるが、タスク名は100字以内に収める
-            - タスクは優先度が高い順に締め切りを早く設定して
-            - タスクは「1日単位」に分割すること
-            - 「毎日」「週○回」などの抽象表現は禁止
-            - 異なる種類の行動は必ず別タスクに分割すること
-            - 長時間の作業は分割して複数タスクにする
-            - タスクは開始日から期限日まで均等に分散し、前倒しで配置する
-            - 1日に複数種類のタスクを含めてもよいが、それらのタスクを合計して平日は平日可用時間と休日は休日の可用時間内に収める
-            - 現実的な時間配分を守る
-            - 継続可能性を最優先し、必要なら要素を削ること
-            - 「理想」ではなく「現実的に続く最小構成」を出力すること
-            - できる限り、平日・休日の可用時間を考慮して、タスクは開始日から期限日にかけて均等に分散させる
-            - 生成条件が与えられない場合は無視してよい
-            - 「今日何をやるか」が一目で分かる構成にすること
+            - 「今日やること」が一目で分かる
+            - 教材名を含める
+            - タスクは優先度順に生成
+            - 1日最大2件
             -{json.dumps(completed_goal_tasks, ensure_ascii=False, default=str)}は完了済みの目標達成タスクリストです。これらのタスクを考慮して不要な目標に向けた達成タスクは生成しない。
             完了済みタスクと同じ内容のタスクはなるべく生成しないでほしいが、必要に応じて再度該当のタスクを実施する必要がある場合は、完了済みタスクと同じ内容のタスクを生成しても構わないです。
             この{json.dumps(completed_goal_tasks, ensure_ascii=False, default=str)}は存在しない可能性もある。その場合は考慮しなくていい。
@@ -155,6 +147,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             """,
         )
         response_text = response.output_text
+        print("openai:", time.time() - start)
         try:
             print("OpenAI response:", response.output_text)
             tasks_json = json.loads(response_text)
@@ -167,16 +160,26 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
                 raise HTTPException(status_code=500, detail=f"JSON変換に失敗: {e}")
         goal_tasks = []
         for task in tasks_json["goal_tasks"]:
+            print("before validation", task)
+            task["estimated_time"] = max(1, min(720, task["estimated_time"]))
             goal_tasks.append(GoalsTasksOut(**task))
-
-        return {
+        print("validation:", time.time() - start)
+        print("goal_tasks count =", len(goal_tasks))
+        print("return start")
+        response_data = {
             "detail": "目標達成タスクを生成しました",
             "goal_tasks": goal_tasks,
             "goal": goal,
         }
-
+        print("before return:", time.time() - start)
+        return response_data
     except HTTPException:
         raise
+    except APITimeoutError:
+        raise HTTPException(
+            status_code=504,
+            detail="OpenAI APIの応答がタイムアウトしました。しばらくして再実行してください",
+        )
     except (
         ValueError,
         IntegrityError,
