@@ -23,7 +23,7 @@ export const reorderGoalTasks = async (
     to_goal_task_order: payload.toGoalTaskOrder,
   };
 
-  await api.put("/goal-tasks/order", apiPayload);
+  await api.put("/api/goal-tasks/order", apiPayload);
 };
 
 export const updateGoalTaskStatus = async (
@@ -36,7 +36,7 @@ export const updateGoalTaskStatus = async (
     new_status: payload.newStatus,
   };
 
-  await api.put(`/goal-tasks/status/${goalTaskId}`, apiPayload);
+  await api.put(`/api/goal-tasks/status/${goalTaskId}`, apiPayload);
 };
 
 export const createGoalTask = async (
@@ -50,7 +50,7 @@ export const createGoalTask = async (
     goal_task_status: payload.goalTaskStatus,
   };
 
-  const response = await api.post<ApiCreateGoalTaskResponse>("/goal-tasks", apiPayload);
+  const response = await api.post<ApiCreateGoalTaskResponse>("/api/goal-tasks", apiPayload);
   const createdTask = response.data.goal_task;
 
   if (!createdTask) {
@@ -71,7 +71,7 @@ export const deleteGoalTask = async (
   api: AxiosInstance,
   goalTaskId: number
 ): Promise<void> => {
-  await api.delete(`/goal-tasks/${goalTaskId}`);
+  await api.delete(`/api/goal-tasks/${goalTaskId}`);
 };
 
 export const updateGoalTask = async (
@@ -85,5 +85,5 @@ export const updateGoalTask = async (
     deadline: payload.deadline,
   };
 
-  await api.put(`/goal-tasks/${goalTaskId}`, apiPayload);
+  await api.put(`/api/goal-tasks/${goalTaskId}`, apiPayload);
 };
