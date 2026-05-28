@@ -96,23 +96,23 @@ class TestGoalsRequest(TestCase):
                 )
             )
 
-    def test_goals_request_with_target_day_within_three_months_is_valid(self):
+    def test_goals_request_with_target_day_within_one_week_is_valid(self):
         req = GoalsRequest(
             **self._valid_payload(
                 start_day=datetime.date(2030, 1, 15),
-                target_day=datetime.date(2030, 4, 15),
+                target_day=datetime.date(2030, 1, 22),
             )
         )
-        self.assertEqual(req.target_day, datetime.date(2030, 4, 15))
+        self.assertEqual(req.target_day, datetime.date(2030, 1, 22))
 
-    def test_goals_request_with_target_day_over_three_months_raises_validation_error(
+    def test_goals_request_with_target_day_over_one_week_raises_validation_error(
         self,
     ):
         with self.assertRaises(ValidationError):
             GoalsRequest(
                 **self._valid_payload(
                     start_day=datetime.date(2030, 1, 15),
-                    target_day=datetime.date(2030, 4, 16),
+                    target_day=datetime.date(2030, 1, 23),
                 )
             )
 

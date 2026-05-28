@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const isWithinOneMonth = (startDate: string, endDate: string) => {
+export const isWithinOneWeek = (startDate: string, endDate: string) => {
   const start = dayjs(startDate, "YYYY/MM/DD", true);
   const end = dayjs(endDate, "YYYY/MM/DD", true);
 
@@ -9,5 +9,5 @@ export const isWithinOneMonth = (startDate: string, endDate: string) => {
   }
 
   const diffDays = end.diff(start, "day");
-  return diffDays >= 0 && diffDays <= 30;
+  return diffDays >= 0 && diffDays <= 7;
 };

@@ -21,7 +21,7 @@ class GoalsRequest(BaseModel):
     @model_validator(mode="after")
     def check_dates(self):
         today = datetime.date.today()
-        max_target_day = add_days(self.start_day, 90)
+        max_target_day = add_days(self.start_day, 7)
         if self.start_day > self.target_day:
             raise ValueError("start_dayはtarget_day以前の日付である必要があります")
         if self.start_day <= today:
@@ -29,7 +29,7 @@ class GoalsRequest(BaseModel):
         if self.target_day <= today:
             raise ValueError("target_dayは明日以降の日付である必要があります")
         if self.target_day > max_target_day:
-            raise ValueError("target_dayはstart_dayから3か月以内である必要があります")
+            raise ValueError("target_dayはstart_dayから1週間以内である必要があります")
         return self
 
 
