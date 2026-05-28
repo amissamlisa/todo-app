@@ -46,6 +46,13 @@ app.include_router(goal.router)
 app.include_router(top.router)
 app.include_router(users.router)
 
+
+app.include_router(goal_tasks.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(goal.router, prefix="/api")
+app.include_router(top.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+
 app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
