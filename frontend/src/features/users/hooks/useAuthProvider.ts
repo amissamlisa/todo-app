@@ -146,9 +146,9 @@ export const useAuthProvider = (api: AxiosInstance) => {
 
         const requestUrl = String(originalRequest.url ?? "");
         const shouldSkipRefresh =
-          requestUrl.includes("/auth/login") ||
-          requestUrl.includes("/auth/refresh") ||
-          requestUrl.includes("/auth/logout");
+          requestUrl.includes("/api/auth/login") ||
+          requestUrl.includes("/api/auth/refresh") ||
+          requestUrl.includes("/api/auth/logout");
 
         if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
           originalRequest._retry = true;

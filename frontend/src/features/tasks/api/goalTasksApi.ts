@@ -47,7 +47,7 @@ export const generateGoalTasks = async (
     completed_goal_tasks_list: payload.completedGoalTasksList?.map(toApiGoalTask),
   };
   const response = await api.post<ApiGenerateGoalTasksResponse>(
-    "/goal-tasks/generate",
+    "/api/goal-tasks/generate",
     apiPayload,
     { timeout: GENERATE_TIMEOUT_MS }
   );
@@ -65,7 +65,7 @@ export const saveGoalTasks = async (
     goal_tasks: payload.goalTasks.map(toApiGoalTask),
     goal_total_estimated_time: payload.goalTotalEstimatedTime,
   };
-  await api.post("/goal/", apiPayload);
+  await api.post("/api/goal/", apiPayload);
 };
 
 export const updateGoalTasks = async (
@@ -77,5 +77,5 @@ export const updateGoalTasks = async (
     goal_tasks: payload.goalTasks.map(toApiGoalTask),
     goal_total_estimated_time: payload.goalTotalEstimatedTime,
   };
-  await api.put("/goal/", apiPayload);
+  await api.put("/api/goal/", apiPayload);
 };

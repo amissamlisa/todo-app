@@ -3,7 +3,7 @@ import type { TopData } from "../types/topData";
 import type { TopApiContract } from "../types/topApiContract";
 
 export const fetchTopData = async (api: AxiosInstance): Promise<TopData> => {
-  const response = await api.get<TopApiContract>("/top/");
+  const response = await api.get<TopApiContract>("/api/top/");
   const data = response.data;
 
   const goal = data.goal
@@ -43,13 +43,13 @@ export const fetchTopData = async (api: AxiosInstance): Promise<TopData> => {
 };
 
 export const deleteGoal = async (api: AxiosInstance, goalId: number): Promise<void> => {
-  await api.delete(`/goal/${goalId}`);
+  await api.delete(`/api/goal/${goalId}`);
 };
 
 export const updateTopPoints = async (api: AxiosInstance, points: number): Promise<void> => {
-  await api.put("/users/points", { points });
+  await api.put("/api/users/points", { points });
 };
 
 export const updateTopRank = async (api: AxiosInstance, userRank: string): Promise<void> => {
-  await api.put("/users/rank", { user_rank: userRank });
+  await api.put("/api/users/rank", { user_rank: userRank });
 };
