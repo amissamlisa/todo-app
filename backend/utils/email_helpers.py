@@ -59,6 +59,8 @@ def send_email(from_email: str, to_email: str, message: str, subject: str) -> No
             response.read()
     except HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
+        print(f"HTTP STATUS={exc.code}")
+        print(f"DETAIL={detail}")
         raise AppException(
             status_code=resend_email_send_failed_exception.status_code,
             error_code=resend_email_send_failed_exception.error_code,
