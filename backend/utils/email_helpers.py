@@ -1,33 +1,69 @@
-import ssl
-from smtplib import SMTP
-from email.mime.text import MIMEText
-from email.utils import formatdate
-from backend.config import settings
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+from ..config import settings
+from ..exceptions.app_exception import AppException
 
 
-def create_mime_text(from_email, to_email, message, subject):
-    msg = MIMEText(message, "plain", "utf-8")
+RESEND_SEND_EMAIL_URL = "https://api.resend.com/emails"
 
-    msg["Subject"] = subject
-    msg["From"] = from_email
-    msg["To"] = to_email
-    msg["Date"] = formatdate()
+resend_api_key_not_configured_exception = AppException(
+    status_code=500,
+    error_code="RESEND_API_KEY_NOT_CONFIGURED",
+    error_message="RESEND_API_KEY is not configured",
+)
 
-    return msg
+resend_email_send_failed_exception = AppException(
+    status_code=502,
+    error_code="RESEND_EMAIL_SEND_FAILED",
+    error_message="Failed to send email with Resend",
+)
+
+resend_api_unreachable_exception = AppException(
+    status_code=503,
+    error_code="RESEND_API_UNREACHABLE",
+    error_message="Failed to reach Resend API",
+)
 
 
-def send_email(from_email, to_email, message, subject):
-    msg = create_mime_text(from_email, to_email, message, subject)
-    SMTP_HOST = settings.SMTP_HOST
-    SMTP_PORT = settings.SMTP_PORT
-    SMTP_USERNAME = settings.SMTP_USERNAME
-    SMTP_PASSWORD = settings.SMTP_PASSWORD
-
-    context = ssl.create_default_context()
-    server = SMTP(SMTP_HOST, SMTP_PORT)
+def send_email(from_email: str, to_email: str, message: str, subject: str) -> None:
     try:
-        server.starttls(context=context)
-        server.login(SMTP_USERNAME, SMTP_PASSWORD)
-        server.send_message(msg)
-    finally:
-        server.quit()
+        api_key = settings.RESEND_API_KEY
+    except AttributeError:
+        raise resend_api_key_not_configured_exception
+
+    if not api_key:
+        raise resend_api_key_not_configured_exception
+
+    payload = json.dumps(
+        {
+            "from": from_email,
+            "to": [to_email],
+            "subject": subject,
+            "text": message,
+        }
+    ).encode("utf-8")
+    request = Request(
+        RESEND_SEND_EMAIL_URL,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urlopen(request) as response:
+            response.read()
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise AppException(
+            status_code=resend_email_send_failed_exception.status_code,
+            error_code=resend_email_send_failed_exception.error_code,
+            error_message=resend_email_send_failed_exception.error_message,
+            error=detail,
+        ) from exc
+    except URLError:
+        raise resend_api_unreachable_exception

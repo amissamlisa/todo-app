@@ -12,11 +12,14 @@ jobs:
     steps:
       - name: SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: RESEND_API_KEY
 
           script: |
             cd ~/todo-app
