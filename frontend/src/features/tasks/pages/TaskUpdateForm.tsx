@@ -40,8 +40,8 @@ export const TaskUpdateForm = memo(() => {
       currentStatus: formValues?.currentStatus ?? "",
       startDate: formValues?.startDate ?? "",
       endDate: formValues?.endDate ?? "",
-      weekdayAvailableHours: formValues?.weekdayAvailableHours ?? formValues?.weekdayHours ?? "",
-      holidayAvailableHours: formValues?.holidayAvailableHours ?? formValues?.holidayHours ?? "",
+      weekdayAvailableHours: formValues?.weekdayAvailableHours ?? "",
+      holidayAvailableHours: formValues?.holidayAvailableHours ?? "",
       conditions: formValues?.conditions ?? ""
     }
   });

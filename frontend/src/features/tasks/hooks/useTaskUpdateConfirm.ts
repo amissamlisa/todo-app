@@ -47,12 +47,8 @@ export const useTaskUpdateConfirm = () => {
         statusAgainstGoal: generatedData?.form?.currentStatus ?? "",
         startDay: generatedData?.form?.startDate ? toApiDate(generatedData.form.startDate) : "",
         targetDay: generatedData?.form?.endDate ? toApiDate(generatedData.form.endDate) : "",
-        weekdayAvailableTime: Number(
-          generatedData?.form?.weekdayAvailableHours ?? generatedData?.form?.weekdayHours ?? 0
-        ),
-        weekendsAvailableTime: Number(
-          generatedData?.form?.holidayAvailableHours ?? generatedData?.form?.holidayHours ?? 0
-        ),
+        weekdayAvailableTime: Number(generatedData?.form?.weekdayAvailableHours ?? 0),
+        weekendsAvailableTime: Number(generatedData?.form?.holidayAvailableHours ?? 0),
         taskCreationRule: generatedData?.form?.conditions?.trim() || undefined,
       },
       goalTasks: generatedData?.generated?.goalTasks ?? [],
