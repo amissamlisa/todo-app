@@ -26,8 +26,8 @@ export const useTaskUpdateForm = () => {
           statusAgainstGoal: data.currentStatus,
           startDay: toApiDate(data.startDate),
           targetDay: toApiDate(data.endDate),
-          weekdayAvailableTime: Number(data.weekdayHours),
-          weekendsAvailableTime: Number(data.holidayHours),
+          weekdayAvailableTime: Number(data.weekdayAvailableHours ?? data.weekdayHours),
+          weekendsAvailableTime: Number(data.holidayAvailableHours ?? data.holidayHours),
           taskCreationRule: data.conditions?.trim() || undefined,
         },
         completedGoalTasksList: completedGoalTasks.map((task) => ({

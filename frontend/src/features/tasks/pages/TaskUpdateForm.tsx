@@ -21,6 +21,13 @@ export const TaskUpdateForm = memo(() => {
     handleNavigateToTopWhenGoalMissing,
   } = useTaskUpdateForm();
 
+  const validateDate = (date: string, format: string) => {
+    return dayjs(date, format).format(format) === date;
+  };
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
   const padDateStr = (value: string): string =>
     value.replace(
       /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/,
@@ -33,8 +40,8 @@ export const TaskUpdateForm = memo(() => {
       currentStatus: formValues?.currentStatus ?? "",
       startDate: formValues?.startDate ?? "",
       endDate: formValues?.endDate ?? "",
-      weekdayHours: formValues?.weekdayHours ?? "",
-      holidayHours: formValues?.holidayHours ?? "",
+      weekdayAvailableHours: formValues?.weekdayAvailableHours ?? formValues?.weekdayHours ?? "",
+      holidayAvailableHours: formValues?.holidayAvailableHours ?? formValues?.holidayHours ?? "",
       conditions: formValues?.conditions ?? ""
     }
   });
@@ -120,11 +127,13 @@ export const TaskUpdateForm = memo(() => {
                   if (/[ \u3000]/.test(value)) {
                     return "空白（全角・半角）は使用できません";
                   } else if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
-                    return "開始日はYYYY/MM/DDの形式で入力してください";
+                    return "開始日を日付形式で入力してください";
                   } else if (!dayjs(value, 'YYYY/MM/DD', true).isValid()) {
                     return "開始日を日付形式で入力してください";
-                  } else if (new Date(value) < new Date()) {
-                    return "開始日は本日以降の日付を入力してください";
+                  } else if (!validateDate(value, 'YYYY/MM/DD')) {
+                    return "開始日を日付形式で入力してください";
+                  } else if (new Date(value) < tomorrow) {
+                    return "開始日は明日以降の日付を入力してください";
                   } else if (getValues("endDate") && new Date(value) > new Date(getValues("endDate"))) {
                     return "開始日は終了日以前の日付を入力してください";
                   } else if (getValues("endDate") && !isWithinOneWeek(value, getValues("endDate"))) {
@@ -165,8 +174,10 @@ export const TaskUpdateForm = memo(() => {
                     return "終了日はYYYY/MM/DDの形式で入力してください";
                   } else if (!dayjs(value, 'YYYY/MM/DD', true).isValid()) {
                     return "終了日を日付形式で入力してください";
-                  } else if (new Date(value) < new Date()) {
-                    return "終了日は本日以降の日付を入力してください";
+                  } else if (!validateDate(value, 'YYYY/MM/DD')) {
+                    return "終了日を日付形式で入力してください";
+                  } else if (new Date(value) < tomorrow) {
+                    return "終了日は明日以降の日付を入力してください";
                   } else if (getValues("startDate") && new Date(value) < new Date(getValues("startDate"))) {
                     return "終了日は開始日以降の日付を入力してください";
                   } else if (getValues("startDate") && !isWithinOneWeek(getValues("startDate"), value)) {
@@ -208,7 +219,7 @@ export const TaskUpdateForm = memo(() => {
                   }
                 },
               }}
-              name="weekdayHours"
+              name="weekdayAvailableHours"
               render={({ field }) => (
                 <Input
                   value={field.value}
@@ -238,7 +249,7 @@ export const TaskUpdateForm = memo(() => {
                   }
                 },
               }}
-              name="holidayHours"
+              name="holidayAvailableHours"
               render={({ field }) => (
                 <Input
                   value={field.value}
@@ -288,8 +299,8 @@ export const TaskUpdateForm = memo(() => {
                     errors.currentStatus?.message ||
                     errors.startDate?.message ||
                     errors.endDate?.message ||
-                    errors.weekdayHours?.message ||
-                    errors.holidayHours?.message ||
+                    errors.weekdayAvailableHours?.message ||
+                    errors.holidayAvailableHours?.message ||
                     errors.conditions?.message}
                 </p>
               </div>

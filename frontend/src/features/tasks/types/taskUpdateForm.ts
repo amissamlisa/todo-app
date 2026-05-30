@@ -3,8 +3,8 @@ export type TaskUpdateFormType = {
   currentStatus: string;
   startDate: string;
   endDate: string;
-  weekdayHours: string;
-  holidayHours: string;
+  weekdayAvailableHours: string;
+  holidayAvailableHours: string;
   conditions: string;
 };
 
