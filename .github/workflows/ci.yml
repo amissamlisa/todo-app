@@ -65,10 +65,7 @@ jobs:
       DB_NAME: test_db
       JWT_SECRET_KEY: ci-dummy-secret
       PASSWORD_RESET_URL: https://claidy-todo.com/password-reset
-      SMTP_HOST: smtp.example.com
-      SMTP_PORT: "587"
-      SMTP_USERNAME: ci-dummy@example.com
-      SMTP_PASSWORD: ci-dummy-password
+      RESEND_API_KEY: ci-dummy-key
       ALLOWED_ORIGIN_URL: https://claidy-todo.com
       COOKIE_SECURE: "true"
       OPENAI_API_KEY: ci-dummy-key
