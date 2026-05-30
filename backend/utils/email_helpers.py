@@ -50,6 +50,7 @@ def send_email(from_email: str, to_email: str, message: str, subject: str) -> No
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "claidy-todo-backend/1.0",
         },
         method="POST",
     )
