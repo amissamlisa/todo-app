@@ -1,5 +1,6 @@
 import { memo, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import dayjs from "dayjs";
 import { ModalButton } from "../atoms/ModalButton";
 import logoIcon from "../../../assets/cloud-icon.png"
 import { Input } from "./Input";
@@ -20,19 +21,19 @@ export const TaskConfigModal = memo(({
   onChangeDeadline,
   onClickChange,
 }: TaskConfigModalProps) => {
-  const validateDate = (date: string, format: string) => {
-    const normalizedDate = date.replace(/\//g, "-");
-    const [year, month, day] = normalizedDate.split("-").map(Number);
-    if (!year || !month || !day) return false;
-
-    const parsedDate = new Date(year, month - 1, day);
-    return (
-      parsedDate.getFullYear() === year &&
-      parsedDate.getMonth() === month - 1 &&
-      parsedDate.getDate() === day &&
-      format === "YYYY/MM/DD"
-    );
+  const validateDate = (date: string) => {
+    return dayjs(date, "YYYY/MM/DD").format("YYYY/MM/DD") === date;
   };
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  const padDateStr = (value: string): string =>
+    value.replace(
+      /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/,
+      (_, y, m, d) => `${y}/${m.padStart(2, "0")}/${d.padStart(2, "0")}`
+    );
 
   const { control : controlTaskConfig , handleSubmit : handleSubmitTaskConfig, reset, formState: { errors : errorsTaskConfig } } = useForm<TaskConfigModalFormType>({
     defaultValues: {
@@ -136,18 +137,20 @@ export const TaskConfigModal = memo(({
                 rules={{
                   required: "期限を入力してください",
                   validate: (value) => {
+                    if (/[ \u3000]/.test(value)) {
+                      return "空白（全角・半角）は使用できません";
+                    }
+
                     if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
                       return "期限をYYYY/MM/DD形式で入力してください";
                     }
 
-                    if (!validateDate(value, "YYYY/MM/DD")) {
-                      return "期限を正しい日付で入力してください";
+                    if (!validateDate(value)) {
+                      return "期限を日付形式で入力してください";
                     }
 
-                    const parsedDate = new Date(value.replace(/\//g, "-"));
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    if (parsedDate < today) {
+                    const parsedDate = dayjs(value, "YYYY/MM/DD", true).toDate();
+                    if (parsedDate < tomorrow) {
                       return "期限は明日以降の日付を入力してください";
                     }
 
@@ -161,7 +164,10 @@ export const TaskConfigModal = memo(({
                       field.onChange(value);
                       onChangeDeadline(value);
                     }}
-                    onBlur={field.onBlur}
+                    onBlur={() => {
+                      field.onChange(padDateStr(field.value));
+                      field.onBlur();
+                    }}
                     textColor="text-primary"
                     borderColor="border-primary"
                     formType="text"
