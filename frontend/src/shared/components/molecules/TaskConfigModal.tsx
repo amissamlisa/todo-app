@@ -21,8 +21,8 @@ export const TaskConfigModal = memo(({
   onChangeDeadline,
   onClickChange,
 }: TaskConfigModalProps) => {
-  const validateDate = (date: string) => {
-    return dayjs(date, "YYYY/MM/DD").format("YYYY/MM/DD") === date;
+  const validateDate = (date: string, format: string) => {
+    return dayjs(date, format).format(format) === date;
   };
 
   const tomorrow = new Date();
@@ -139,18 +139,13 @@ export const TaskConfigModal = memo(({
                   validate: (value) => {
                     if (/[ \u3000]/.test(value)) {
                       return "空白（全角・半角）は使用できません";
-                    }
-
-                    if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
+                    } else if (!/^\d{4}\/\d{2}\/\d{2}$/.test(value)) {
                       return "期限をYYYY/MM/DD形式で入力してください";
-                    }
-
-                    if (!validateDate(value)) {
+                    } else if (!dayjs(value, "YYYY/MM/DD", true).isValid()) {
                       return "期限を日付形式で入力してください";
-                    }
-
-                    const parsedDate = dayjs(value, "YYYY/MM/DD", true).toDate();
-                    if (parsedDate < tomorrow) {
+                    } else if (!validateDate(value, "YYYY/MM/DD")) {
+                      return "期限を日付形式で入力してください";
+                    } else if (new Date(value) < tomorrow) {
                       return "期限は明日以降の日付を入力してください";
                     }
 
@@ -165,7 +160,9 @@ export const TaskConfigModal = memo(({
                       onChangeDeadline(value);
                     }}
                     onBlur={() => {
-                      field.onChange(padDateStr(field.value));
+                      const paddedValue = padDateStr(field.value);
+                      field.onChange(paddedValue);
+                      onChangeDeadline(paddedValue);
                       field.onBlur();
                     }}
                     textColor="text-primary"
