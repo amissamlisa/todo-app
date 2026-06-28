@@ -169,13 +169,15 @@ APIがシンプルでFastAPIとの連携も容易だったため採用しまし�
 ### アーキテクチャ
 
 全体としては Frontend、Backend、Database を分離し、バックエンドは
-Controller・Repository・Domain を中心としたレイヤード構成を採用しています。
-Service 相当のユースケース処理は、現状は専用レイヤーとして分離せず、routers / utils / batch に分散して実装しています。
+レイヤード構成を採用しています。Service 相当のユースケース処理は、現状は専用レイヤーとして分離せず、
+routers / utils / batch に分散して実装しています。
 
-- Controller: API の入出力、認証依存、HTTP ステータスの制御を担当
-- Service（現状）: 専用層は設けず、ユースケース単位の処理を routers / utils / batch で実装
-- Repository: DB アクセスを担当し、永続化の詳細を隠蔽
-- Domain: エンティティ、Enum、業務ルール（ステータスや制約）を保持
+- Controller（Router）: API の入出力、認証、HTTP ステータスの制御を担当
+- Repository: SQLAlchemy を用いたデータアクセスを担当し、永続化の詳細を隠蔽
+- Model: SQLAlchemy でデータベースのテーブル構造や関連を定義
+- Schema: Pydantic で API のリクエスト・レスポンスの型定義
+- Service（現状）: 専用層は設けず、ユースケース処理を routers・utils・batch に実装
+
 - Frontend: ルートは feature-based、各 feature 内は type-based で整理し、features / shared で責務を分離
 - Frontend（参考）: https://zenn.dev/bln/articles/986b709f4df0c1
 
@@ -279,6 +281,15 @@ todo-app/
 - `DB_PORT`
 - `DB_NAME`
 
+ローカル向けの代表値:
+
+- `ALLOWED_ORIGIN_URL=http://localhost:3000`
+- `COOKIE_SECURE=false`
+- `PASSWORD_RESET_URL=http://localhost:3000/password-reset`
+- `VITE_API_BASE_URL=http://localhost:8000`
+
+※ `VITE_API_BASE_URL` には `/api` を付けないでください。フロント側の各 API パスに `/api` が含まれています。
+
 ### 起動方法
 
 最短の起動手順:
@@ -289,6 +300,9 @@ todo-app/
 ```bash
 docker compose up -d --build
 ```
+
+`docker-compose.yml` はローカル既定値（`ALLOWED_ORIGIN_URL=http://localhost:3000` / `COOKIE_SECURE=false`）で起動できるようにしています。
+外部 API キー（OpenAI / Resend）を未設定でも起動できますが、該当機能を使う場合は `.env` に実値を設定してください。
 
 本番環境の参照先:
 
@@ -310,6 +324,10 @@ cd frontend
 npm install
 npm run dev
 ```
+
+補足:
+
+- `frontend/.env.local` を作成して `VITE_API_BASE_URL=http://localhost:8000` を設定してください。
 
 Backend:
 
