@@ -25,14 +25,14 @@ services:
     container_name: todo-fastapi
     environment:
       SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-TodoAppDatabase}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set}
-      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:?PASSWORD_RESET_URL must be set}
-      RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY must be set}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-local-dev-jwt-secret-key}
+      PASSWORD_RESET_URL: ${PASSWORD_RESET_URL:-http://localhost:3000/password-reset}
+      RESEND_API_KEY: ${RESEND_API_KEY:-dummy-local-resend-key}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-dummy-local-openai-key}
       OPENAI_TIMEOUT_SECONDS: "600"
 
-      ALLOWED_ORIGIN_URL: https://claidy-todo.com
-      COOKIE_SECURE: "true"
+      ALLOWED_ORIGIN_URL: ${ALLOWED_ORIGIN_URL:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
     ports:
       - "8000:8000"
     depends_on:

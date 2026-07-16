@@ -163,9 +163,7 @@ def generate_chat_reply(payload: GoalRequestWithTasks, user: user_dependency):
             print("before validation", task)
             task["estimated_time"] = max(1, min(720, task["estimated_time"]))
             goal_tasks.append(GoalsTasksOut(**task))
-        print("validation:", time.time() - start)
-        print("goal_tasks count =", len(goal_tasks))
-        print("return start")
+  
         response_data = {
             "detail": "目標達成タスクを生成しました",
             "goal_tasks": goal_tasks,
