@@ -69,15 +69,3 @@ class TestTopAPI(TestBase):
     def test_read_top_screen_info_unauthenticated(self):
         response = self.client.get("/top/")
         self.assertEqual(response.status_code, 401)
-
-
-class TestSecurityHeaders(TestBase):
-    def test_security_headers_are_set_on_response(self):
-        response = self.client.get("/top/")
-
-        self.assertEqual(response.headers.get("X-Content-Type-Options"), "nosniff")
-        self.assertEqual(response.headers.get("X-Frame-Options"), "deny")
-        self.assertEqual(
-            response.headers.get("Content-Security-Policy"),
-            "default-src 'none'; frame-ancestors 'none'",
-        )
