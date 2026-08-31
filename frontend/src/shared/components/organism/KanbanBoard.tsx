@@ -1,4 +1,4 @@
-import { DndContext, DragOverlay, rectIntersection } from "@dnd-kit/core";
+import { DndContext, DragOverlay, rectIntersection, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import KanbanLane from "../molecules/KanbanLane";
 import type { KanbanBoardProps } from "../../types/kanbanBoard";
 import { useKanbanBoard } from "../../hooks/useKanbanBoard";
@@ -24,9 +24,15 @@ export default function KanbanBoard({ TodoItems, canAddTask = true, onPointsChan
     onDeleteTasks,
   });
 
+ 
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
+  );
 
   return (
     <DndContext
+      sensors={sensors}
       collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
